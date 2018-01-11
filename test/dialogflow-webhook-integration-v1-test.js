@@ -1,0 +1,883 @@
+/**
+ * Copyright 2017 Google Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the 'License');
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+'use strict';
+
+// Enable dialogflow debug logging
+// process.env.DEBUG = 'dialogflow:*';
+
+const test = require('ava');
+
+const WebhookClient = require('../dialogflow-webhook');
+
+test('v1 Integration test', async (t) => {
+  // v1 Google Welcome
+  let googleV1WelcomeResponse = new ResponseMock();
+  let googleV1WelcomeRequest = {body: mockGoogleV1RequestWelcome};
+  let agent = new WebhookClient({
+    request: googleV1WelcomeRequest,
+    response: googleV1WelcomeResponse,
+  });
+  webhookTest(agent);
+  t.deepEqual(mockGoogleV1ResponseWelcome, googleV1WelcomeResponse.get());
+
+  // v1 Slack Welcome
+  let slackV1WelcomeResponse = new ResponseMock();
+  let slackV1WelcomeRequest = {body: mockSlackV1RequestWelcome};
+  agent = new WebhookClient({
+    request: slackV1WelcomeRequest,
+    response: slackV1WelcomeResponse,
+  });
+  webhookTest(agent);
+  t.deepEqual(mockSlackV1ResponseWelcome, slackV1WelcomeResponse.get());
+
+  // v1 Facebook Welcome
+  let facebookV1WelcomeResponse = new ResponseMock();
+  let facebookV1WelcomeRequest = {body: mockFacebookV1RequestWelcome};
+  agent = new WebhookClient({
+    request: facebookV1WelcomeRequest,
+    response: facebookV1WelcomeResponse,
+  });
+  webhookTest(agent);
+  t.deepEqual(mockFacebookV1ResponseWelcome, facebookV1WelcomeResponse.get());
+
+  // v1 Google Fallback
+  let googleV1FallbackResponse = new ResponseMock();
+  let googleV1FallbackRequest = {body: mockGoogleV1RequestFallback};
+  agent = new WebhookClient({
+    request: googleV1FallbackRequest,
+    response: googleV1FallbackResponse,
+  });
+  webhookTest(agent);
+  t.deepEqual(mockGoogleV1ResponseFallback, googleV1FallbackResponse.get());
+
+  // v1 Slack Fallback
+  let slackV1FallbackResponse = new ResponseMock();
+  let slackV1FallbackRequest = {body: mockSlackV1RequestFallback};
+  agent = new WebhookClient({
+    request: slackV1FallbackRequest,
+    response: slackV1FallbackResponse,
+  });
+  webhookTest(agent);
+  t.deepEqual(mockSlackV1ResponseFallback, slackV1FallbackResponse.get());
+
+  // v1 Facebook Fallback
+  let facebookV1FallbackResponse = new ResponseMock();
+  let facebookV1FallbackRequest = {body: mockFacebookV1RequestFallback};
+  agent = new WebhookClient({
+    request: facebookV1FallbackRequest,
+    response: facebookV1FallbackResponse,
+  });
+  webhookTest(agent);
+  t.deepEqual(mockFacebookV1ResponseFallback, facebookV1FallbackResponse.get());
+
+  // v1 Google Webhook
+  let googleV1WebhookResponse = new ResponseMock();
+  let googleV1WebhookRequest = {body: mockGoogleV1RequestWebhook};
+  agent = new WebhookClient({
+    request: googleV1WebhookRequest,
+    response: googleV1WebhookResponse,
+  });
+  webhookTest(agent);
+  t.deepEqual(mockGoogleV1ResponseWebhook, googleV1WebhookResponse.get());
+
+  // v1 Slack Webhook
+  let slackV1WebhookResponse = new ResponseMock();
+  let slackV1WebhookRequest = {body: mockSlackV1RequestWebhook};
+  agent = new WebhookClient({
+    request: slackV1WebhookRequest,
+    response: slackV1WebhookResponse,
+  });
+  webhookTest(agent);
+  t.deepEqual(mockSlackV1ResponseWebhook, slackV1WebhookResponse.get());
+
+  // v1 Facebook Webhook
+  let facebookV1WebhookResponse = new ResponseMock();
+  let facebookV1WebhookRequest = {body: mockFacebookV1RequestWebhook};
+  agent = new WebhookClient({
+    request: facebookV1WebhookRequest,
+    response: facebookV1WebhookResponse,
+  });
+  webhookTest(agent);
+  t.deepEqual(mockFacebookV1ResponseWebhook, facebookV1WebhookResponse.get());
+});
+
+/**
+ * Helper function to perform WebhookClient options for testing
+ * @param {Object} agent
+ */
+function webhookTest(agent) {
+  // webhook handler code
+  const WELCOME_ACTION = 'input.welcome';
+  const FALLBACK_ACTION = 'input.unknown';
+  /**
+   * Handler function to welcome
+   * @param {Object} agent
+   */
+  function welcome(agent) {
+    agent.send('Welcome to my agent!');
+  }
+  /**
+   * Handler function to fallback
+   * @param {Object} agent
+   */
+  function fallback(agent) {
+    agent.addText('I didn\'t understand');
+    agent.addText('I\'m sorry, can you try again?');
+    agent.send();
+  }
+  /**
+   * Handler function to other
+   * @param {Object} agent
+   */
+  function other(agent) {
+    agent.addText(
+      'This message is from Dialogflow\'s Cloud Functions for Firebase editor!'
+    );
+    agent.setContext({
+      name: 'weather',
+      lifespan: 2,
+      parameters: {city: 'Rome'},
+    });
+    agent.addCard(
+      agent
+        .buildCard('Title: this is a card title')
+        .setImage(
+          'https://developers.google.com/actions/images/badges/XPM_BADGING_GoogleAssistant_VER.png'
+        )
+        .setText(
+          'This is the body text of a card.  You can even use line\nbreaks and emoji! 💁'
+        )
+        .setButton({
+          text: 'This is a button',
+          url: 'https://assistant.google.com/',
+        })
+    );
+    agent.addSuggestion('Quick Reply');
+    agent.addSuggestion('Suggestion');
+    agent.send();
+  }
+
+  let actionMap = new Map();
+  actionMap.set(WELCOME_ACTION, welcome);
+  actionMap.set(FALLBACK_ACTION, fallback);
+  actionMap.set(null, other);
+  agent.handleRequest(actionMap);
+}
+
+/**
+ * Class to mock a express response object for testing
+ */
+class ResponseMock {
+  /**
+   * constructor
+   * @param {repsonseJson} JSON of the respones from WebhookClient
+   */
+  constructor() {
+    this.responseJson = {};
+  }
+  /**
+   * Store JSON repsonse from WebhookClient
+   * @param {Object} responseJson
+   */
+  json(responseJson) {
+    this.responseJson = responseJson;
+  }
+  /**
+   * Get JSON response for testing comparison
+   * @return {Object} response JSON from WebhookClient
+   */
+  get() {
+    return this.responseJson;
+  }
+  /**
+   * Get status code for testing comparison
+   * @param {number} code HTTP status code of response
+   * @return {number} resposne status code from WebhookClient
+   */
+  status(code) {
+    this.responseJson += code;
+    return this;
+  }
+  /**
+   * Store JSON repsonse from WebhookClient
+   * @param {Object} message response object
+   */
+  send(message) {
+    this.responseJson += message;
+  }
+}
+
+// Mock webhook request and reponse from Dialogflow for sample v1
+// welcome
+const mockGoogleV1RequestWelcome = {
+  originalRequest: {
+    source: 'google',
+    version: '2',
+    data: {
+      isInSandbox: true,
+      surface: {
+        capabilities: [
+          {name: 'actions.capability.SCREEN_OUTPUT'},
+          {name: 'actions.capability.AUDIO_OUTPUT'},
+          {name: 'actions.capability.WEB_BROWSER'},
+        ],
+      },
+      inputs: [
+        {
+          rawInputs: [{query: 'talk to my test app', inputType: 'KEYBOARD'}],
+          intent: 'actions.intent.MAIN',
+        },
+      ],
+      user: {
+        lastSeen: '2018-01-05T22:28:06Z',
+        locale: 'en-US',
+        userId:
+          'ABwppHHixRyLmiAcc4IihWQOCUfSLS1Dw6OezP3e0_CqqJNkbXFCTxGNi_Zi_oc3r86CR0nyHwcDRqIEHQ',
+      },
+      conversation: {conversationId: '1515191296300', type: 'NEW'},
+      availableSurfaces: [
+        {
+          capabilities: [
+            {name: 'actions.capability.SCREEN_OUTPUT'},
+            {name: 'actions.capability.AUDIO_OUTPUT'},
+          ],
+        },
+      ],
+    },
+  },
+  id: '106ebbf4-06c4-441c-8d4a-819be69bad98',
+  timestamp: '2018-01-05T22:28:16.365Z',
+  lang: 'en-us',
+  result: {
+    source: 'agent',
+    resolvedQuery: 'GOOGLE_ASSISTANT_WELCOME',
+    speech: '',
+    action: 'input.welcome',
+    actionIncomplete: false,
+    parameters: {},
+    contexts: [
+      {name: 'google_assistant_welcome', parameters: {}, lifespan: 0},
+      {name: 'actions_capability_screen_output', parameters: {}, lifespan: 0},
+      {name: 'actions_capability_audio_output', parameters: {}, lifespan: 0},
+      {
+        name: 'google_assistant_input_type_keyboard',
+        parameters: {},
+        lifespan: 0,
+      },
+      {name: 'actions_capability_web_browser', parameters: {}, lifespan: 0},
+    ],
+    metadata: {
+      intentId: '01299577-6c6b-4010-8a52-608208a731aa',
+      webhookUsed: 'true',
+      webhookForSlotFillingUsed: 'false',
+      nluResponseTime: 0,
+      intentName: 'Default Welcome Intent',
+    },
+    fulfillment: {speech: 'Hi!', messages: [{type: 0, speech: 'Hello!'}]},
+    score: 1,
+  },
+  status: {code: 200, errorType: 'success', webhookTimedOut: false},
+  sessionId: '1515191296300',
+};
+const mockGoogleV1ResponseWelcome = {
+  messages: [
+    {
+      type: 'simple_response',
+      platform: 'google',
+      textToSpeech: 'Welcome to my agent!',
+      displayText: 'Welcome to my agent!',
+    },
+  ],
+  contextOut: [],
+};
+
+const mockSlackV1RequestWelcome = {
+  originalRequest: {
+    source: '',
+    data: {
+      data: {
+        event_ts: '1515191286.000256',
+        channel: 'D3XQ6AF9A',
+        text: 'hi',
+        type: 'message',
+        user: 'U2URF86K1',
+        ts: '1515191286.000256',
+      },
+      source: 'slack_testbot',
+    },
+  },
+  id: '4cc8a100-7220-40ba-bf98-6911d9fefab6',
+  timestamp: '2018-01-05T22:28:07.342Z',
+  lang: 'en',
+  result: {
+    source: 'agent',
+    resolvedQuery: 'hi',
+    speech: '',
+    action: 'input.welcome',
+    actionIncomplete: false,
+    parameters: {},
+    contexts: [
+      {
+        name: 'generic',
+        parameters: {slack_user_id: 'U2URF86K1', slack_channel: 'D3XQ6AF9A'},
+        lifespan: 4,
+      },
+    ],
+    metadata: {
+      intentId: '01299577-6c6b-4010-8a52-608208a731aa',
+      webhookUsed: 'true',
+      webhookForSlotFillingUsed: 'false',
+      intentName: 'Default Welcome Intent',
+    },
+    fulfillment: {speech: 'Hi!', messages: [{type: 0, speech: 'Hello!'}]},
+    score: 1,
+  },
+  status: {code: 200, errorType: 'success', webhookTimedOut: false},
+  sessionId: '88d13aa8-2999-4f71-b233-39cbf3a824a0',
+};
+const mockSlackV1ResponseWelcome = {
+  messages: [{type: 0, platform: 'slack', speech: 'Welcome to my agent!'}],
+  contextOut: [],
+};
+
+const mockFacebookV1RequestWelcome = {
+  originalRequest: {
+    source: '',
+    data: {
+      data: {
+        sender: {id: '1534862223272449'},
+        recipient: {id: '958823367603818'},
+        message: {
+          mid: 'mid.$cAAMy_rGG1eZm-bWL5FgyHBDQXtpi',
+          text: 'hi',
+          seq: 910,
+        },
+        timestamp: 1515191288804,
+      },
+      source: 'facebook',
+    },
+  },
+  id: '1ef8461a-e33b-4403-bc91-ed416ec777f9',
+  timestamp: '2018-01-05T22:28:09.044Z',
+  lang: 'en',
+  result: {
+    source: 'agent',
+    resolvedQuery: 'hi',
+    speech: '',
+    action: 'input.welcome',
+    actionIncomplete: false,
+    parameters: {},
+    contexts: [
+      {
+        name: 'generic',
+        parameters: {facebook_sender_id: '1534862223272449'},
+        lifespan: 4,
+      },
+    ],
+    metadata: {
+      intentId: '01299577-6c6b-4010-8a52-608208a731aa',
+      webhookUsed: 'true',
+      webhookForSlotFillingUsed: 'false',
+      intentName: 'Default Welcome Intent',
+    },
+    fulfillment: {speech: 'Hello!', messages: [{type: 0, speech: 'Hi!'}]},
+    score: 1,
+  },
+  status: {code: 200, errorType: 'success', webhookTimedOut: false},
+  sessionId: '3c32f610-3f2b-4bd8-9712-43eb69c06c43',
+};
+const mockFacebookV1ResponseWelcome = {
+  messages: [{type: 0, platform: 'facebook', speech: 'Welcome to my agent!'}],
+  contextOut: [],
+};
+
+// fallback
+const mockGoogleV1RequestFallback = {
+  originalRequest: {
+    source: 'google',
+    version: '2',
+    data: {
+      isInSandbox: true,
+      surface: {
+        capabilities: [
+          {name: 'actions.capability.WEB_BROWSER'},
+          {name: 'actions.capability.AUDIO_OUTPUT'},
+          {name: 'actions.capability.SCREEN_OUTPUT'},
+        ],
+      },
+      inputs: [
+        {
+          rawInputs: [{query: '4io3jrlkwenf,m', inputType: 'KEYBOARD'}],
+          arguments: [
+            {
+              rawText: '4io3jrlkwenf,m',
+              textValue: '4io3jrlkwenf,m',
+              name: 'text',
+            },
+          ],
+          intent: 'actions.intent.TEXT',
+        },
+      ],
+      user: {
+        lastSeen: '2018-01-05T22:28:06Z',
+        locale: 'en-US',
+        userId:
+          'ABwppHHixRyLmiAcc4IihWQOCUfSLS1Dw6OezP3e0_CqqJNkbXFCTxGNi_Zi_oc3r86CR0nyHwcDRqIEHQ',
+      },
+      conversation: {
+        conversationId: '1515191296300',
+        type: 'ACTIVE',
+        conversationToken: '[]',
+      },
+      availableSurfaces: [
+        {
+          capabilities: [
+            {name: 'actions.capability.AUDIO_OUTPUT'},
+            {name: 'actions.capability.SCREEN_OUTPUT'},
+          ],
+        },
+      ],
+    },
+  },
+  id: '1e537cc6-057d-47f7-8413-ca3654b72466',
+  timestamp: '2018-01-05T22:33:25.096Z',
+  lang: 'en-us',
+  result: {
+    source: 'agent',
+    resolvedQuery: '4io3jrlkwenf,m',
+    speech: '',
+    action: 'input.unknown',
+    actionIncomplete: false,
+    parameters: {},
+    contexts: [
+      {name: 'actions_capability_screen_output', parameters: {}, lifespan: 0},
+      {name: 'actions_capability_audio_output', parameters: {}, lifespan: 0},
+      {
+        name: 'google_assistant_input_type_keyboard',
+        parameters: {},
+        lifespan: 0,
+      },
+      {name: 'actions_capability_web_browser', parameters: {}, lifespan: 0},
+    ],
+    metadata: {
+      intentId: '1688c84d-878d-4fbb-9065-d06a7e553c4f',
+      webhookUsed: 'true',
+      webhookForSlotFillingUsed: 'false',
+      nluResponseTime: 14,
+      intentName: 'Default Fallback Intent',
+    },
+    fulfillment: {
+      speech: 'I missed that.',
+      messages: [{type: 0, speech: 'I missed what you said. Say it again?'}],
+    },
+    score: 1,
+  },
+  status: {code: 200, errorType: 'success', webhookTimedOut: false},
+  sessionId: '1515191296300',
+};
+const mockGoogleV1ResponseFallback = {
+  messages: [
+    {
+      type: 'simple_response',
+      platform: 'google',
+      textToSpeech: 'I didn\'t understand',
+      displayText: 'I didn\'t understand',
+    },
+    {
+      type: 'simple_response',
+      platform: 'google',
+      textToSpeech: 'I\'m sorry, can you try again?',
+      displayText: 'I\'m sorry, can you try again?',
+    },
+  ],
+  contextOut: [],
+};
+
+const mockSlackV1RequestFallback = {
+  originalRequest: {
+    source: '',
+    data: {
+      data: {
+        event_ts: '1515191605.000083',
+        channel: 'D3XQ6AF9A',
+        text: '34uoirwejlfkn',
+        type: 'message',
+        user: 'U2URF86K1',
+        ts: '1515191605.000083',
+      },
+      source: 'slack_testbot',
+    },
+  },
+  id: '2759004f-672e-4f7c-9e56-46a8829161e1',
+  timestamp: '2018-01-05T22:33:25.967Z',
+  lang: 'en',
+  result: {
+    source: 'agent',
+    resolvedQuery: '34uoirwejlfkn',
+    speech: '',
+    action: 'input.unknown',
+    actionIncomplete: false,
+    parameters: {},
+    contexts: [
+      {
+        name: 'generic',
+        parameters: {slack_user_id: 'U2URF86K1', slack_channel: 'D3XQ6AF9A'},
+        lifespan: 4,
+      },
+    ],
+    metadata: {
+      intentId: '1688c84d-878d-4fbb-9065-d06a7e553c4f',
+      webhookUsed: 'true',
+      webhookForSlotFillingUsed: 'false',
+      intentName: 'Default Fallback Intent',
+    },
+    fulfillment: {
+      speech: 'Sorry, can you say that again?',
+      messages: [{type: 0, speech: 'Sorry, I didn\'t get that.'}],
+    },
+    score: 1,
+  },
+  status: {code: 200, errorType: 'success', webhookTimedOut: false},
+  sessionId: '88d13aa8-2999-4f71-b233-39cbf3a824a0',
+};
+const mockSlackV1ResponseFallback = {
+  messages: [
+    {type: 0, platform: 'slack', speech: 'I didn\'t understand'},
+    {type: 0, platform: 'slack', speech: 'I\'m sorry, can you try again?'},
+  ],
+  contextOut: [],
+};
+
+const mockFacebookV1RequestFallback = {
+  originalRequest: {
+    source: '',
+    data: {
+      data: {
+        sender: {id: '1534862223272449'},
+        recipient: {id: '958823367603818'},
+        message: {
+          mid: 'mid.$cAAMy_rGG1eZm-bpla1gyHUcz0rSB',
+          text: '43utpoiwjrefknd,ms',
+          seq: 914,
+        },
+        timestamp: 1515191606635,
+      },
+      source: 'facebook',
+    },
+  },
+  id: 'c090d51e-6b16-42d6-be49-e5be8a7b11cb',
+  timestamp: '2018-01-05T22:33:27.754Z',
+  lang: 'en',
+  result: {
+    source: 'agent',
+    resolvedQuery: '43utpoiwjrefknd,ms',
+    speech: '',
+    action: 'input.unknown',
+    actionIncomplete: false,
+    parameters: {},
+    contexts: [
+      {
+        name: 'generic',
+        parameters: {facebook_sender_id: '1534862223272449'},
+        lifespan: 4,
+      },
+    ],
+    metadata: {
+      intentId: '1688c84d-878d-4fbb-9065-d06a7e553c4f',
+      webhookUsed: 'true',
+      webhookForSlotFillingUsed: 'false',
+      intentName: 'Default Fallback Intent',
+    },
+    fulfillment: {
+      speech: 'I didn\'t get that. Can you say it again?',
+      messages: [{type: 0, speech: 'I missed that.'}],
+    },
+    score: 1,
+  },
+  status: {code: 200, errorType: 'success', webhookTimedOut: false},
+  sessionId: '2ea4d4d8-b6e8-4bcd-8e08-d427eb83e75d',
+};
+const mockFacebookV1ResponseFallback = {
+  messages: [
+    {type: 0, platform: 'facebook', speech: 'I didn\'t understand'},
+    {type: 0, platform: 'facebook', speech: 'I\'m sorry, can you try again?'},
+  ],
+  contextOut: [],
+};
+
+// webhook
+const mockGoogleV1RequestWebhook = {
+  originalRequest: {
+    source: 'google',
+    version: '2',
+    data: {
+      isInSandbox: true,
+      surface: {
+        capabilities: [
+          {name: 'actions.capability.SCREEN_OUTPUT'},
+          {name: 'actions.capability.AUDIO_OUTPUT'},
+          {name: 'actions.capability.WEB_BROWSER'},
+        ],
+      },
+      inputs: [
+        {
+          rawInputs: [{query: 'webhook', inputType: 'KEYBOARD'}],
+          arguments: [
+            {rawText: 'webhook', textValue: 'webhook', name: 'text'},
+          ],
+          intent: 'actions.intent.TEXT',
+        },
+      ],
+      user: {
+        lastSeen: '2018-01-05T22:28:06Z',
+        locale: 'en-US',
+        userId:
+          'ABwppHHixRyLmiAcc4IihWQOCUfSLS1Dw6OezP3e0_CqqJNkbXFCTxGNi_Zi_oc3r86CR0nyHwcDRqIEHQ',
+      },
+      conversation: {
+        conversationId: '1515191296300',
+        type: 'ACTIVE',
+        conversationToken: '[]',
+      },
+      availableSurfaces: [
+        {
+          capabilities: [
+            {name: 'actions.capability.SCREEN_OUTPUT'},
+            {name: 'actions.capability.AUDIO_OUTPUT'},
+          ],
+        },
+      ],
+    },
+  },
+  id: '7811ac58-5bd5-4e44-8d06-6cd8c67f5406',
+  timestamp: '2018-01-05T22:35:05.903Z',
+  lang: 'en-us',
+  result: {
+    source: 'agent',
+    resolvedQuery: 'webhook',
+    speech: '',
+    action: '',
+    actionIncomplete: false,
+    parameters: {},
+    contexts: [
+      {name: 'actions_capability_screen_output', parameters: {}, lifespan: 0},
+      {name: 'actions_capability_audio_output', parameters: {}, lifespan: 0},
+      {
+        name: 'google_assistant_input_type_keyboard',
+        parameters: {},
+        lifespan: 0,
+      },
+      {name: 'actions_capability_web_browser', parameters: {}, lifespan: 0},
+    ],
+    metadata: {
+      intentId: '29bcd7f8-f717-4261-a8fd-2d3e451b8af8',
+      webhookUsed: 'true',
+      webhookForSlotFillingUsed: 'false',
+      nluResponseTime: 6,
+      intentName: 'webhook',
+    },
+    fulfillment: {
+      speech: 'webhook failure',
+      messages: [{type: 0, speech: 'webhook failure'}],
+    },
+    score: 1,
+  },
+  status: {code: 200, errorType: 'success', webhookTimedOut: false},
+  sessionId: '1515191296300',
+};
+const mockGoogleV1ResponseWebhook = {
+  messages: [
+    {
+      type: 'simple_response',
+      platform: 'google',
+      textToSpeech:
+        'This message is from Dialogflow\'s Cloud Functions for Firebase editor!',
+      displayText:
+        'This message is from Dialogflow\'s Cloud Functions for Firebase editor!',
+    },
+    {
+      type: 'basic_card',
+      platform: 'google',
+      title: 'Title: this is a card title',
+      formattedText:
+        'This is the body text of a card.  You can even use line\nbreaks and emoji! 💁',
+      image: {
+        url:
+          'https://developers.google.com/actions/images/badges/XPM_BADGING_GoogleAssistant_VER.png',
+        accessibilityText: 'accessibility text',
+      },
+      buttons: [
+        {
+          openUrlAction: {url: 'https://assistant.google.com/'},
+          title: 'This is a button',
+        },
+      ],
+    },
+    {
+      suggestions: [{title: 'Quick Reply'}, {title: 'Suggestion'}],
+      type: 'suggestion_chips',
+      platform: 'google',
+    },
+  ],
+  contextOut: [{name: 'weather', lifespan: 2, parameters: {city: 'Rome'}}],
+};
+
+const mockSlackV1RequestWebhook = {
+  originalRequest: {
+    source: '',
+    data: {
+      data: {
+        event_ts: '1515191706.000272',
+        channel: 'D3XQ6AF9A',
+        text: 'webhook',
+        type: 'message',
+        user: 'U2URF86K1',
+        ts: '1515191706.000272',
+      },
+      source: 'slack_testbot',
+    },
+  },
+  id: 'db7d64c8-46e6-44ba-be27-0e56bca4278e',
+  timestamp: '2018-01-05T22:35:07.25Z',
+  lang: 'en',
+  result: {
+    source: 'agent',
+    resolvedQuery: 'webhook',
+    speech: '',
+    action: '',
+    actionIncomplete: false,
+    parameters: {},
+    contexts: [
+      {
+        name: 'generic',
+        parameters: {slack_user_id: 'U2URF86K1', slack_channel: 'D3XQ6AF9A'},
+        lifespan: 4,
+      },
+    ],
+    metadata: {
+      intentId: '29bcd7f8-f717-4261-a8fd-2d3e451b8af8',
+      webhookUsed: 'true',
+      webhookForSlotFillingUsed: 'false',
+      intentName: 'webhook',
+    },
+    fulfillment: {
+      speech: 'webhook failure',
+      messages: [{type: 0, speech: 'webhook failure'}],
+    },
+    score: 1,
+  },
+  status: {code: 200, errorType: 'success', webhookTimedOut: false},
+  sessionId: '88d13aa8-2999-4f71-b233-39cbf3a824a0',
+};
+const mockSlackV1ResponseWebhook = {
+  messages: [
+    {
+      type: 0,
+      platform: 'slack',
+      speech:
+        'This message is from Dialogflow\'s Cloud Functions for Firebase editor!',
+    },
+    {
+      type: 1,
+      title: 'Title: this is a card title',
+      subtitle:
+        'This is the body text of a card.  You can even use line\nbreaks and emoji! 💁',
+      imageUrl:
+        'https://developers.google.com/actions/images/badges/XPM_BADGING_GoogleAssistant_VER.png',
+      buttons: [
+        {text: 'This is a button', postback: 'https://assistant.google.com/'},
+      ],
+      platform: 'slack',
+    },
+    {type: 2, replies: ['Quick Reply', 'Suggestion'], platform: 'slack'},
+  ],
+  contextOut: [{name: 'weather', lifespan: 2, parameters: {city: 'Rome'}}],
+};
+
+const mockFacebookV1RequestWebhook = {
+  originalRequest: {
+    source: '',
+    data: {
+      data: {
+        sender: {id: '1534862223272449'},
+        recipient: {id: '958823367603818'},
+        message: {
+          mid: 'mid.$cAAMy_rGG1eZm-bv1_VgyHatXuBFn',
+          text: 'webhook',
+          seq: 919,
+        },
+        timestamp: 1515191709181,
+      },
+      source: 'facebook',
+    },
+  },
+  id: 'ca123766-9b17-495f-9752-072cdf57ed8f',
+  timestamp: '2018-01-05T22:35:09.428Z',
+  lang: 'en',
+  result: {
+    source: 'agent',
+    resolvedQuery: 'webhook',
+    speech: '',
+    action: '',
+    actionIncomplete: false,
+    parameters: {},
+    contexts: [
+      {
+        name: 'generic',
+        parameters: {facebook_sender_id: '1534862223272449'},
+        lifespan: 4,
+      },
+    ],
+    metadata: {
+      intentId: '29bcd7f8-f717-4261-a8fd-2d3e451b8af8',
+      webhookUsed: 'true',
+      webhookForSlotFillingUsed: 'false',
+      intentName: 'webhook',
+    },
+    fulfillment: {
+      speech: 'webhook failure',
+      messages: [{type: 0, speech: 'webhook failure'}],
+    },
+    score: 1,
+  },
+  status: {code: 200, errorType: 'success', webhookTimedOut: false},
+  sessionId: '2ea4d4d8-b6e8-4bcd-8e08-d427eb83e75d',
+};
+const mockFacebookV1ResponseWebhook = {
+  messages: [
+    {
+      type: 0,
+      platform: 'facebook',
+      speech:
+        'This message is from Dialogflow\'s Cloud Functions for Firebase editor!',
+    },
+    {
+      type: 1,
+      title: 'Title: this is a card title',
+      subtitle:
+        'This is the body text of a card.  You can even use line\nbreaks and emoji! 💁',
+      imageUrl:
+        'https://developers.google.com/actions/images/badges/XPM_BADGING_GoogleAssistant_VER.png',
+      buttons: [
+        {text: 'This is a button', postback: 'https://assistant.google.com/'},
+      ],
+      platform: 'facebook',
+    },
+    {type: 2, replies: ['Quick Reply', 'Suggestion'], platform: 'facebook'},
+  ],
+  contextOut: [{name: 'weather', lifespan: 2, parameters: {city: 'Rome'}}],
+};

@@ -1,0 +1,42 @@
+{
+  "name": "dialogflow-fulfillment",
+  "description": "Dialogflow Fulfillment Library for Node.js",
+  "main": "dialogflow-fulfillment.js",
+  "version": "0.1.0",
+  "private": true,
+  "license": "Apache Version 2.0",
+  "author": "Google Inc.",
+  "directories": {
+    "test": "test"
+  },
+  "engines": {
+    "node": "~8.0"
+  },
+  "scripts": {
+    "test": "npm run lint && ava",
+    "lint": "eslint --fix \"*.js\" \"test/*.js\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dialogflow/dialogflow-fulfillment.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dialogflow/dialogflow-fulfillment/issues"
+  },
+  "homepage": "https://github.com/dialogflow/dialogflow-fulfillment#readme",
+  "keywords": [
+    "dialogflow",
+    "api.ai",
+    "client library",
+    "webhook",
+    "fulfillment"
+  ],
+  "dependencies": {
+    "debug": "^2.2.0"
+  },
+  "devDependencies": {
+    "ava": "^0.24.0",
+    "eslint": "^4.15.0",
+    "eslint-config-google": "^0.9.1"
+  }
+}
