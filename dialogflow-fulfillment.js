@@ -29,6 +29,7 @@ const {
   SuggestionsResponse,
   PayloadResponse,
   PLATFORMS,
+  SUPPORTED_RICH_MESSAGE_PLATFORMS,
 } = require('./response-builder');
 const V1Agent = require('./v1-agent');
 const V2Agent = require('./v2-agent');
@@ -42,8 +43,8 @@ const RESPONSE_CODE_BAD_REQUEST = 400;
  */
 class WebhookClient {
   /**
-   * Constructor for WebhookClient object.
-   * To be used in the Dialogflow fulfillment webhook logic.
+   * Constructor for WebhookClient object
+   * To be used in the Dialogflow fulfillment webhook logic
    *
    * @example
    * const { WebhookClient } = require('dialogflow-webhook');
@@ -117,11 +118,11 @@ class WebhookClient {
     this.parameters = null;
 
     /**
-     * Dialogflow input contexts included in the request or null if no value
+     * Dialogflow contexts included in the request or null if no value
      * https://dialogflow.com/docs/contexts
      * @type {string}
      */
-    this.inputContexts = null;
+    this.contexts = null;
 
     /**
      * Dialogflow source included in the request or null if no value
@@ -137,7 +138,7 @@ class WebhookClient {
     this.query = null;
 
     /**
-     * Original request language code (i.e. "en")
+     * Original request language code or locale (i.e. "en" or "en-US")
      * @type {string} locale language code indicating the spoken/written language of the original request
      */
     this.locale = null;
@@ -187,9 +188,15 @@ class WebhookClient {
    * Sends a response back to a Dialogflow fulfillment webhook request
    *
    * @param {string[]|RichResponse[]} response additional responses to send
-   * @return {undefined}
+   * @return {void}
    */
   send(response) {
+    if (SUPPORTED_RICH_MESSAGE_PLATFORMS.indexOf(this.requestSource) < 0
+      && this.requestSource !== null
+      && this.requestSource !== PLATFORMS.UNSPECIFIED) {
+      throw new Error(`Platform is not supported.`);
+    }
+
     // If AoG response and the first response isn't a text response,
     // add a empty text response as the first item
     if (
@@ -219,9 +226,7 @@ class WebhookClient {
       this.addResponse_(response);
     } else if (response.isArray) {
       // Of it's a list of RichResponse objects or strings (or a mix) add them
-      response.forEach(function(element) {
-        addResponse_(element);
-      });
+      response.forEach(this.addResponse_.bind(this));
     }
     this.client.sendResponse_();
   }
@@ -258,12 +263,12 @@ class WebhookClient {
   }
 
   /**
-   * Handles the incoming Dialogflow request using a handler or Map of handlers.
+   * Handles the incoming Dialogflow request using a handler or Map of handlers
    * Each handler must be a function callback.
    *
    * @param {Map|requestCallback} handler map of Dialogflow action name to handler function or
-   *     function to handle all requests (regaurdless of Dialogflow action).
-   * @return {undefined}
+   *     function to handle all requests (regardless of Dialogflow action).
+   * @return {void}
    */
   handleRequest(handler) {
     if (typeof handler === 'function') {
@@ -313,16 +318,16 @@ class WebhookClient {
    * @return {WebhookClient}
    */
   addText(textResponse) {
-    if (typeof textResponse === 'string') {
+    if (typeof textResponse === 'string' ||
+        textResponse instanceof TextResponse) {
       textResponse = new TextResponse(textResponse);
-      this.responseMessages_.push(textResponse);
-    } else if (textResponse instanceof TextResponse) {
-      this.responseMessages_.push(textResponse);
     } else {
       throw new Error(
         'Unknown text response type. Please use a string or TextResponse object'
       );
     }
+
+    this.responseMessages_.push(textResponse);
 
     return this;
   }
@@ -347,19 +352,19 @@ class WebhookClient {
    * @return {WebhookClient}
    */
   addCard(cardResponse) {
-    if (cardResponse instanceof CardResponse) {
-      this.responseMessages_.push(cardResponse);
-    } else if (
+    if (
       typeof cardResponse === 'string' ||
-      typeof cardResponse === 'object'
+      typeof cardResponse === 'object' ||
+      cardResponse instanceof CardResponse
     ) {
       cardResponse = new CardResponse(cardResponse);
-      this.responseMessages_.push(cardResponse);
     } else {
       throw new Error(
         'Unknown text response type. Please use a string or CardResponse object'
       );
     }
+
+    this.responseMessages_.push(cardResponse);
 
     return this;
   }
@@ -723,6 +728,21 @@ class WebhookClient {
       debug('Couldn\'t find context');
     }
     return this;
+  }
+
+  /**
+   * Get an context from the Dialogflow webhook request: https://dialogflow.com/docs/contexts
+   *
+   * @example
+   * const { WebhookClient } = require('dialogflow-webhook');
+   * const agent = new WebhookClient({request: request, response: response});
+   * let context = agent.getContext('sample context name');
+   *
+   * @param {string} contextName name of an context present in the Dialogflow webhook request
+   * @return {Object} context context object with the context name
+   */
+  getContext(contextName) {
+    return this.contexts.filter( (context) => context.name === contextName )[0] || null;
   }
 }
 

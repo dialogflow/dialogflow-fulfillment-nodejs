@@ -21,7 +21,7 @@
 
 const test = require('ava');
 
-const WebhookClient = require('../dialogflow-webhook');
+const WebhookClient = require('../dialogflow-fulfillment');
 
 const imageUrl =
   'https://assistant.google.com/static/images/molecule/Molecule-Formation-stop.png';
@@ -353,6 +353,25 @@ test('Test v1 Facebook responses', async (t) => {
   t.deepEqual(facebookResponse.get(), responsefacebookV1);
 });
 
+test('Test v2 incompatible platform', async (t) => {
+  // Twitter request/response
+  let twitterResponse = new ResponseMock();
+  let twitterRequest = {body: mockTwitterV1Request};
+  let agent = new WebhookClient({
+    request: twitterRequest,
+    response: twitterResponse,
+  });
+
+  // Sending a response to Twitter (unsupported platform) will fail
+  const unsupportedPlatformError = t.throws(() => {
+    agent.send('this will never get sent');
+  }, Error);
+  t.is(
+    unsupportedPlatformError.message,
+    `Platform is not supported.`
+  );
+});
+
 test('Test v1 contexts', async (t) => {
   const sampleContextName = 'sample context name';
   const secondContextName = 'second context name';
@@ -381,6 +400,26 @@ test('Test v1 contexts', async (t) => {
   // clearAllContext
   agent.clearOutgoingContexts();
   t.deepEqual([], agent.outgoingContexts_);
+});
+
+test('Test v1 getContext', async (t) => {
+  let googleResponse = new ResponseMock();
+  let googleRequest = {body: mockGoogleV1Request};
+  let agent = new WebhookClient({
+    request: googleRequest,
+    response: googleResponse,
+  });
+
+  let context = agent.getContext('actions_capability_screen_output');
+  t.deepEqual({name: 'actions_capability_screen_output',
+    parameters: {},
+    lifespan: 0,
+  },
+    context
+  );
+
+  context = agent.getContext('nonsense');
+  t.deepEqual(null, context);
 });
 
 /**
@@ -672,4 +711,144 @@ const facebookPayload = {
       ],
     },
   },
+};
+
+const mockTwitterV1Request = {
+  'id': 'db8e179c-cb56-4aa8-956e-7ee3a2ae8526',
+  'lang': 'en',
+  'originalRequest': {
+    'data': {
+      'data': {
+        'direct_message': {
+          'created_at': 'Sun Jan 28 21:47:11 +0000 2018',
+          'entities': {
+            'hashtags': [],
+            'symbols': [],
+            'urls': [],
+            'user_mentions': [],
+          },
+          'id': 957731807536889900,
+          'id_str': '957731807536889860',
+          'recipient': {
+            'contributors_enabled': false,
+            'created_at': 'Fri Sep 23 03:16:06 +0000 2011',
+            'default_profile': false,
+            'default_profile_image': false,
+            'description': 'Dialogflow Developer Relations 🏗 💬➕🗣 🤖',
+            'favourites_count': 141,
+            'follow_request_sent': false,
+            'followers_count': 157,
+            'following': false,
+            'friends_count': 283,
+            'geo_enabled': true,
+            'id': 378380992,
+            'id_str': '378380992',
+            'is_translation_enabled': false,
+            'is_translator': false,
+            'lang': 'en',
+            'listed_count': 7,
+            'location': 'California',
+            'name': 'Matt Carroll',
+            'notifications': false,
+            'profile_background_color': 'C0DEED',
+            'profile_background_tile': false,
+            'profile_banner_url': 'https://pbs.twimg.com/profile_banners/378380992/1397077040',
+            'profile_image_url': 'http://pbs.twimg.com/profile_images/909341545056350208/oHrAs6pz_normal.jpg',
+            'profile_image_url_https': 'https://pbs.twimg.com/profile_images/909341545056350208/oHrAs6pz_normal.jpg',
+            'profile_link_color': '0084B4',
+            'profile_sidebar_border_color': 'FFFFFF',
+            'profile_sidebar_fill_color': 'DDEEF6',
+            'profile_text_color': '333333',
+            'profile_use_background_image': true,
+            'protected': false,
+            'screen_name': 'matthewayne',
+            'statuses_count': 199,
+            'time_zone': 'Arizona',
+            'translator_type': 'none',
+            'url': 'https://matthewayne.com',
+            'utc_offset': -25200,
+            'verified': false,
+          },
+          'recipient_id': 378380992,
+          'recipient_id_str': '378380992',
+          'recipient_screen_name': 'matthewayne',
+          'sender': {
+            'contributors_enabled': false,
+            'created_at': 'Wed Aug 27 20:58:16 +0000 2014',
+            'default_profile': false,
+            'default_profile_image': false,
+            'favourites_count': 694,
+            'follow_request_sent': false,
+            'followers_count': 7078,
+            'following': false,
+            'friends_count': 1588,
+            'geo_enabled': false,
+            'id': 2774598458,
+            'id_str': '2774598458',
+            'is_translation_enabled': false,
+            'is_translator': false,
+            'lang': 'en',
+            'listed_count': 317,
+            'name': 'Dialogflow',
+            'notifications': false,
+            'profile_background_color': '000000',
+            'profile_background_image_url': 'http://abs.twimg.com/images/themes/theme15/bg.png',
+            'profile_background_image_url_https': 'https://abs.twimg.com/images/themes/theme15/bg.png',
+            'profile_background_tile': false,
+            'profile_banner_url': 'https://pbs.twimg.com/profile_banners/2774598458/1516905644',
+            'profile_image_url': 'http://pbs.twimg.com/profile_images/880147119528476672/S7C-2C6t_normal.jpg',
+            'profile_image_url_https': 'https://pbs.twimg.com/profile_images/880147119528476672/S7C-2C6t_normal.jpg',
+            'profile_link_color': 'EF6C00',
+            'profile_sidebar_border_color': '000000',
+            'profile_sidebar_fill_color': '000000',
+            'profile_text_color': '000000',
+            'profile_use_background_image': false,
+            'protected': false,
+            'screen_name': 'Dialogflow',
+            'statuses_count': 737,
+            'translator_type': 'none',
+            'verified': false,
+          },
+          'sender_id': 2774598458,
+          'sender_id_str': '2774598458',
+          'sender_screen_name': 'Dialogflow',
+          'text': 'hello!?',
+        },
+      },
+      'source': 'twitter',
+    },
+    'source': '',
+  },
+  'result': {
+    'action': 'input.welcome',
+    'actionIncomplete': false,
+    'contexts': [],
+    'fulfillment': {
+      'messages': [
+        {
+          'speech': 'Hello!',
+          'type': 0,
+        },
+      ],
+      'speech': 'Hi!',
+    },
+    'metadata': {
+      'intentId': '01299577-6c6b-4010-8a52-608208a731aa',
+      'intentName': 'Default Welcome Intent',
+      'webhookForSlotFillingUsed': 'false',
+      'webhookUsed': 'true',
+    },
+    'parameters': {},
+    'resolvedQuery': 'hello!?',
+    'score': 1,
+    'source': 'agent',
+    'speech': '',
+  },
+  'sessionId': '63b45955-131a-41d6-9b10-590f1e78ddd5',
+  'status': {
+    'code': 200,
+    'errorType': 'success',
+    'webhookTimedOut': false,
+  },
+  'timestamp': '2018-01-28T21:47:11.653Z',
 };

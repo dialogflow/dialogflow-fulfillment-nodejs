@@ -28,8 +28,8 @@ const {TextResponse, V1_TO_V2_PLATFORM_NAME} = require('./response-builder');
  */
 class V1Agent {
   /**
-   * Constructor for V1Agent object.
-   * To be used in with WebhookClient class.
+   * Constructor for V1Agent object
+   * To be used in with WebhookClient class
    *
    * @param {Object} agent instance of WebhookClient class
    */
@@ -62,12 +62,12 @@ class V1Agent {
     debug(`Parameters: ${JSON.stringify(this.agent.parameters)}`);
 
     /**
-     * Dialogflow input contexts included in the request or null if no value
+     * Dialogflow contexts included in the request or null if no value
      * https://dialogflow.com/docs/contexts
      * @type {string}
      */
-    this.agent.inputContexts = this.agent.request_.body.result.contexts;
-    debug(`Input contexts: ${JSON.stringify(this.agent.inputContexts)}`);
+    this.agent.contexts = this.agent.request_.body.result.contexts;
+    debug(`Input contexts: ${JSON.stringify(this.agent.contexts)}`);
 
     /**
      * Dialogflow source included in the request or null if no value
@@ -144,7 +144,7 @@ class V1Agent {
   buildResponseMessages_() {
     // Get all the messages and filter out null/undefined objects
     const responseMessages = this.agent.responseMessages_
-      .map((message) => message.getV1ResponseObject(this.agent.requestSource))
+      .map((message) => message.getV1ResponseObject_(this.agent.requestSource))
       .filter((arr) => arr);
     return responseMessages;
   }

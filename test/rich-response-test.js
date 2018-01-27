@@ -34,21 +34,21 @@ const {
 test('Test v1 and v2 generic responses', async (t) => {
   // TextResponse generic response
   let textResponse = new TextResponse('sample text');
-  t.deepEqual(textResponse.getV1ResponseObject(), {
+  t.deepEqual(textResponse.getV1ResponseObject_(), {
     type: 0,
     speech: 'sample text',
   });
-  t.deepEqual(textResponse.getV2ResponseObject(), {
+  t.deepEqual(textResponse.getV2ResponseObject_(), {
     text: {text: ['sample text']},
   });
 
   // CardResponse generic response
   let cardResponse = new CardResponse('sample title');
-  t.deepEqual(cardResponse.getV1ResponseObject(), {
+  t.deepEqual(cardResponse.getV1ResponseObject_(), {
     type: 1,
     title: 'sample title',
   });
-  t.deepEqual(cardResponse.getV2ResponseObject(), {
+  t.deepEqual(cardResponse.getV2ResponseObject_(), {
     card: {title: 'sample title'},
   });
 });
@@ -95,7 +95,7 @@ test('Test v1 and v2 platform responses', async (t) => {
   // Text v1 and v2 response messages for AoG, non-AoG and unspecified platform
   let textResponse = new TextResponse('sample text');
   t.deepEqual(
-    textResponse.getV1ResponseObject(SUPPORTED_RICH_MESSAGE_PLATFORMS[7]),
+    textResponse.getV1ResponseObject_(SUPPORTED_RICH_MESSAGE_PLATFORMS[7]),
     {
       displayText: 'sample text',
       textToSpeech: 'sample text',
@@ -104,19 +104,19 @@ test('Test v1 and v2 platform responses', async (t) => {
     }
   );
   t.deepEqual(
-    textResponse.getV1ResponseObject(SUPPORTED_RICH_MESSAGE_PLATFORMS[6]),
+    textResponse.getV1ResponseObject_(SUPPORTED_RICH_MESSAGE_PLATFORMS[6]),
     {
       type: 0,
       speech: 'sample text',
       platform: V2_TO_V1_PLATFORM_NAME[SUPPORTED_RICH_MESSAGE_PLATFORMS[6]],
     }
   );
-  t.deepEqual(textResponse.getV1ResponseObject(PLATFORM_UNSPECIFIED), {
+  t.deepEqual(textResponse.getV1ResponseObject_(PLATFORM_UNSPECIFIED), {
     type: 0,
     speech: 'sample text',
   });
   t.deepEqual(
-    textResponse.getV2ResponseObject(SUPPORTED_RICH_MESSAGE_PLATFORMS[7]),
+    textResponse.getV2ResponseObject_(SUPPORTED_RICH_MESSAGE_PLATFORMS[7]),
     {
       platform: 'ACTIONS_ON_GOOGLE',
       simpleResponses: {
@@ -127,13 +127,13 @@ test('Test v1 and v2 platform responses', async (t) => {
     }
   );
   t.deepEqual(
-    textResponse.getV2ResponseObject(SUPPORTED_RICH_MESSAGE_PLATFORMS[2]),
+    textResponse.getV2ResponseObject_(SUPPORTED_RICH_MESSAGE_PLATFORMS[2]),
     {
       text: {text: ['sample text']},
       platform: SUPPORTED_RICH_MESSAGE_PLATFORMS[2],
     }
   );
-  t.deepEqual(textResponse.getV2ResponseObject(PLATFORM_UNSPECIFIED), {
+  t.deepEqual(textResponse.getV2ResponseObject_(PLATFORM_UNSPECIFIED), {
     text: {text: ['sample text']},
   });
 
@@ -141,7 +141,7 @@ test('Test v1 and v2 platform responses', async (t) => {
   const cardTitle = 'sample title';
   const cardResponse = new CardResponse(cardTitle);
   t.deepEqual(
-    cardResponse.getV1ResponseObject(SUPPORTED_RICH_MESSAGE_PLATFORMS[7]),
+    cardResponse.getV1ResponseObject_(SUPPORTED_RICH_MESSAGE_PLATFORMS[7]),
     {
       type: 'basic_card',
       platform: V2_TO_V1_PLATFORM_NAME[SUPPORTED_RICH_MESSAGE_PLATFORMS[7]],
@@ -150,32 +150,32 @@ test('Test v1 and v2 platform responses', async (t) => {
     }
   );
   t.deepEqual(
-    cardResponse.getV1ResponseObject(SUPPORTED_RICH_MESSAGE_PLATFORMS[6]),
+    cardResponse.getV1ResponseObject_(SUPPORTED_RICH_MESSAGE_PLATFORMS[6]),
     {
       type: 1,
       platform: V2_TO_V1_PLATFORM_NAME[SUPPORTED_RICH_MESSAGE_PLATFORMS[6]],
       title: cardTitle,
     }
   );
-  t.deepEqual(cardResponse.getV1ResponseObject(PLATFORM_UNSPECIFIED), {
+  t.deepEqual(cardResponse.getV1ResponseObject_(PLATFORM_UNSPECIFIED), {
     type: 1,
     title: cardTitle,
   });
   t.deepEqual(
-    cardResponse.getV2ResponseObject(SUPPORTED_RICH_MESSAGE_PLATFORMS[7]),
+    cardResponse.getV2ResponseObject_(SUPPORTED_RICH_MESSAGE_PLATFORMS[7]),
     {
       platform: SUPPORTED_RICH_MESSAGE_PLATFORMS[7],
       basicCard: {title: cardTitle},
     }
   );
   t.deepEqual(
-    cardResponse.getV2ResponseObject(SUPPORTED_RICH_MESSAGE_PLATFORMS[2]),
+    cardResponse.getV2ResponseObject_(SUPPORTED_RICH_MESSAGE_PLATFORMS[2]),
     {
       card: {title: cardTitle},
       platform: SUPPORTED_RICH_MESSAGE_PLATFORMS[2],
     }
   );
-  t.deepEqual(cardResponse.getV2ResponseObject(PLATFORM_UNSPECIFIED), {
+  t.deepEqual(cardResponse.getV2ResponseObject_(PLATFORM_UNSPECIFIED), {
     card: {title: cardTitle},
   });
 });
@@ -187,7 +187,7 @@ test('Test v1 and v2 platform specific responses', async (t) => {
     text: 'sample text',
   });
   t.deepEqual(
-    textResponseAoG.getV1ResponseObject(SUPPORTED_RICH_MESSAGE_PLATFORMS[7]),
+    textResponseAoG.getV1ResponseObject_(SUPPORTED_RICH_MESSAGE_PLATFORMS[7]),
     {
       textToSpeech: 'sample text',
       displayText: 'sample text',
@@ -196,7 +196,7 @@ test('Test v1 and v2 platform specific responses', async (t) => {
     }
   );
   t.deepEqual(
-    textResponseAoG.getV2ResponseObject(SUPPORTED_RICH_MESSAGE_PLATFORMS[7]),
+    textResponseAoG.getV2ResponseObject_(SUPPORTED_RICH_MESSAGE_PLATFORMS[7]),
     {
       platform: SUPPORTED_RICH_MESSAGE_PLATFORMS[7],
       simpleResponses: {
@@ -207,7 +207,7 @@ test('Test v1 and v2 platform specific responses', async (t) => {
     }
   );
   t.deepEqual(
-    textResponseAoG.getV2ResponseObject(SUPPORTED_RICH_MESSAGE_PLATFORMS[6]),
+    textResponseAoG.getV2ResponseObject_(SUPPORTED_RICH_MESSAGE_PLATFORMS[6]),
     null
   );
 
@@ -217,7 +217,7 @@ test('Test v1 and v2 platform specific responses', async (t) => {
     text: 'sample text',
   });
   t.deepEqual(
-    textResponseOther.getV1ResponseObject(SUPPORTED_RICH_MESSAGE_PLATFORMS[6]),
+    textResponseOther.getV1ResponseObject_(SUPPORTED_RICH_MESSAGE_PLATFORMS[6]),
     {
       type: 0,
       speech: 'sample text',
@@ -225,14 +225,14 @@ test('Test v1 and v2 platform specific responses', async (t) => {
     }
   );
   t.deepEqual(
-    textResponseOther.getV2ResponseObject(SUPPORTED_RICH_MESSAGE_PLATFORMS[6]),
+    textResponseOther.getV2ResponseObject_(SUPPORTED_RICH_MESSAGE_PLATFORMS[6]),
     {
       text: {text: ['sample text']},
       platform: SUPPORTED_RICH_MESSAGE_PLATFORMS[6],
     }
   );
   t.deepEqual(
-    textResponseOther.getV2ResponseObject(SUPPORTED_RICH_MESSAGE_PLATFORMS[7]),
+    textResponseOther.getV2ResponseObject_(SUPPORTED_RICH_MESSAGE_PLATFORMS[7]),
     null
   );
 
@@ -243,7 +243,7 @@ test('Test v1 and v2 platform specific responses', async (t) => {
     title: title,
   });
   t.deepEqual(
-    cardResponseAoG.getV1ResponseObject(SUPPORTED_RICH_MESSAGE_PLATFORMS[7]),
+    cardResponseAoG.getV1ResponseObject_(SUPPORTED_RICH_MESSAGE_PLATFORMS[7]),
     {
       formattedText: ' ',
       platform: V2_TO_V1_PLATFORM_NAME[SUPPORTED_RICH_MESSAGE_PLATFORMS[7]],
@@ -252,14 +252,14 @@ test('Test v1 and v2 platform specific responses', async (t) => {
     }
   );
   t.deepEqual(
-    cardResponseAoG.getV2ResponseObject(SUPPORTED_RICH_MESSAGE_PLATFORMS[7]),
+    cardResponseAoG.getV2ResponseObject_(SUPPORTED_RICH_MESSAGE_PLATFORMS[7]),
     {
       basicCard: {title: title},
       platform: SUPPORTED_RICH_MESSAGE_PLATFORMS[7],
     }
   );
   t.deepEqual(
-    cardResponseAoG.getV2ResponseObject(SUPPORTED_RICH_MESSAGE_PLATFORMS[6]),
+    cardResponseAoG.getV2ResponseObject_(SUPPORTED_RICH_MESSAGE_PLATFORMS[6]),
     null
   );
 
@@ -269,7 +269,7 @@ test('Test v1 and v2 platform specific responses', async (t) => {
     title: title,
   });
   t.deepEqual(
-    cardResponseOther.getV1ResponseObject(SUPPORTED_RICH_MESSAGE_PLATFORMS[6]),
+    cardResponseOther.getV1ResponseObject_(SUPPORTED_RICH_MESSAGE_PLATFORMS[6]),
     {
       type: 1,
       title: title,
@@ -277,11 +277,11 @@ test('Test v1 and v2 platform specific responses', async (t) => {
     }
   );
   t.deepEqual(
-    cardResponseOther.getV2ResponseObject(SUPPORTED_RICH_MESSAGE_PLATFORMS[6]),
+    cardResponseOther.getV2ResponseObject_(SUPPORTED_RICH_MESSAGE_PLATFORMS[6]),
     {card: {title: title}, platform: SUPPORTED_RICH_MESSAGE_PLATFORMS[6]}
   );
   t.deepEqual(
-    cardResponseOther.getV2ResponseObject(SUPPORTED_RICH_MESSAGE_PLATFORMS[7]),
+    cardResponseOther.getV2ResponseObject_(SUPPORTED_RICH_MESSAGE_PLATFORMS[7]),
     null
   );
 });
@@ -294,17 +294,17 @@ Molecule-Formation-stop.png`;
   let card = new CardResponse('sample title');
   // setTitle test
   card.setTitle('card title');
-  t.deepEqual({type: 1, title: 'card title'}, card.getV1ResponseObject());
-  t.deepEqual({card: {title: 'card title'}}, card.getV2ResponseObject());
+  t.deepEqual({type: 1, title: 'card title'}, card.getV1ResponseObject_());
+  t.deepEqual({card: {title: 'card title'}}, card.getV2ResponseObject_());
   // setText test
   card.setText('card text');
   t.deepEqual(
     {type: 1, title: 'card title', subtitle: 'card text'},
-    card.getV1ResponseObject()
+    card.getV1ResponseObject_()
   );
   t.deepEqual(
     {card: {title: 'card title', subtitle: 'card text'}},
-    card.getV2ResponseObject()
+    card.getV2ResponseObject_()
   );
   // setImage test
   card.setImage(imageUrl);
@@ -316,7 +316,7 @@ Molecule-Formation-stop.png`;
       imageUrl: `https://assistant.google.com/static/images/molecule/\
 Molecule-Formation-stop.png`,
     },
-    card.getV1ResponseObject()
+    card.getV1ResponseObject_()
   );
   t.deepEqual(
     {
@@ -327,7 +327,7 @@ Molecule-Formation-stop.png`,
 Molecule-Formation-stop.png`,
       },
     },
-    card.getV2ResponseObject()
+    card.getV2ResponseObject_()
   );
   // setButton test
   card.setButton({url: linkUrl, text: 'button text'});
@@ -342,7 +342,7 @@ Molecule-Formation-stop.png`,
         {text: 'button text', postback: 'https://assistant.google.com/'},
       ],
     },
-    card.getV1ResponseObject()
+    card.getV1ResponseObject_()
   );
   t.deepEqual(
     {
@@ -356,7 +356,7 @@ Molecule-Formation-stop.png`,
         ],
       },
     },
-    card.getV2ResponseObject()
+    card.getV2ResponseObject_()
   );
 });
 
@@ -385,8 +385,8 @@ Molecule-Formation-stop.png`;
   let image = new ImageResponse('https://google.com');
   // setImage test
   image.setImage(imageUrl);
-  t.deepEqual({type: 3, imageUrl: imageUrl}, image.getV1ResponseObject());
-  t.deepEqual({image: {imageUri: imageUrl}}, image.getV2ResponseObject());
+  t.deepEqual({type: 3, imageUrl: imageUrl}, image.getV1ResponseObject_());
+  t.deepEqual({image: {imageUri: imageUrl}}, image.getV2ResponseObject_());
 });
 
 test('QuickReplies (setReply and setPlatform)', async (t) => {
@@ -413,9 +413,9 @@ test('QuickReplies (setReply and setPlatform)', async (t) => {
   let quickReply = new SuggestionsResponse('quick reply');
   // setImage test
   quickReply.setReply(reply);
-  t.deepEqual({type: 2, replies: [reply]}, quickReply.getV1ResponseObject());
+  t.deepEqual({type: 2, replies: [reply]}, quickReply.getV1ResponseObject_());
   t.deepEqual(
     {quickReplies: {quickReplies: [reply]}},
-    quickReply.getV2ResponseObject()
+    quickReply.getV2ResponseObject_()
   );
 });

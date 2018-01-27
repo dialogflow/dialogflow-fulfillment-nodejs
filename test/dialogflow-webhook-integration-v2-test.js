@@ -21,7 +21,7 @@
 
 const test = require('ava');
 
-const WebhookClient = require('../dialogflow-webhook');
+const WebhookClient = require('../dialogflow-fulfillment');
 
 test('v2 Integration test', async (t) => {
   // v2 Google welcome
@@ -744,6 +744,7 @@ const mockGoogleV2ResponseWebhook = {
         image: {
           imageUri:
             'https://developers.google.com/actions/images/badges/XPM_BADGING_GoogleAssistant_VER.png',
+          accessibilityText: 'accessibility text',
         },
       },
       platform: 'ACTIONS_ON_GOOGLE',

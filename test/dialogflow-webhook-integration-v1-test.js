@@ -21,7 +21,7 @@
 
 const test = require('ava');
 
-const WebhookClient = require('../dialogflow-webhook');
+const WebhookClient = require('../dialogflow-fulfillment');
 
 test('v1 Integration test', async (t) => {
   // v1 Google Welcome

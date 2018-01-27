@@ -64,7 +64,26 @@ const V1_TO_V2_PLATFORM_NAME = {
 };
 
 /**
+ * Enum for Dialogflow v1 message object values
+ * https://dialogflow.com/docs/reference/agent/message-objects
+ * @readonly
+ * @enum {number}
+ */
+const v1MessageObject = {
+    Text: 0,
+    Card: 1,
+    Suggestion: 2,
+    Image: 3,
+};
+
+/**
  * Class representing a rich response
+ *
+ * These classes construct v1&v2 message objects for Dialogflow
+ * v1 Message object docs:
+ * https://dialogflow.com/docs/reference/agent/message-objects
+ * v2 Message object docs:
+ * https://dialogflow.com/docs/reference/api-v2/rest/v2beta1/projects.agent.intents#Message
  */
 class RichResponse {
   /**
@@ -96,7 +115,7 @@ class RichResponse {
  */
 class TextResponse extends RichResponse {
   /**
-   * Constructor for TextResponse object.
+   * Constructor for TextResponse object
    *
    * @example
    * let textResponse = new TextResponse('response string');
@@ -155,12 +174,13 @@ class TextResponse extends RichResponse {
    *
    * @example
    * let richResponse = new RichResponse();
-   * richResponse.getV1ResponseObject(PLATFORMS.ACTIONS_ON_GOOGLE)
+   * richResponse.getV1ResponseObject_(PLATFORMS.ACTIONS_ON_GOOGLE)
    *
    * @param {string} platform desired message object platform
    * @return {Object} v1 response object
+   * @private
    */
-  getV1ResponseObject(platform) {
+  getV1ResponseObject_(platform) {
     // Check if response is platform specific
     if (this.platform && this.platform !== platform) {
       // if it is and is not for the specific platform return null
@@ -180,7 +200,7 @@ class TextResponse extends RichResponse {
       response.displayText = this.text;
     } else {
       // { 'type': 0, 'platform': 'facebook', 'speech': 'text response'};
-      response = {type: 0};
+      response = {type: v1MessageObject.Text};
       // response is the same for generic responses without the platform attribute
       // if the platform is not undefined or the platform is not unspecified
       if (SUPPORTED_RICH_MESSAGE_PLATFORMS.indexOf(platform) > -1) {
@@ -197,12 +217,13 @@ class TextResponse extends RichResponse {
    *
    * @example
    * let richResponse = new RichResponse();
-   * richResponse.getV2ResponseObject(PLATFORMS.ACTIONS_ON_GOOGLE)
+   * richResponse.getV2ResponseObject_(PLATFORMS.ACTIONS_ON_GOOGLE)
    *
    * @param {string} platform desired message object platform
    * @return {Object} v2 response object
+   * @private
    */
-  getV2ResponseObject(platform) {
+  getV2ResponseObject_(platform) {
     // Check if response is platform specific
     if (this.platform && this.platform !== platform) {
       // if it is and is not for the specific platform return null
@@ -232,7 +253,7 @@ class TextResponse extends RichResponse {
 }
 
 /**
- * Class representing a card response.
+ * Class representing a card response
  * @extends RichResponse
  */
 class CardResponse extends RichResponse {
@@ -270,7 +291,7 @@ class CardResponse extends RichResponse {
         (!card.buttonText && card.buttonUrl) ||
         (!card.buttonUrl && card.buttonText)
       ) {
-        throw new Error('card button requires button title and link');
+        throw new Error('card button requires both title and link');
       }
       this.buttonText = card.buttonText;
       this.buttonUrl = card.buttonUrl;
@@ -374,12 +395,13 @@ class CardResponse extends RichResponse {
    *
    * @example
    * let richResponse = new RichResponse();
-   * richResponse.getV1ResponseObject(PLATFORMS.ACTIONS_ON_GOOGLE)
+   * richResponse.getV1ResponseObject_(PLATFORMS.ACTIONS_ON_GOOGLE)
    *
    * @param {string} platform desired message object platform
    * @return {Object} v1 response object
+   * @private
    */
-  getV1ResponseObject(platform) {
+  getV1ResponseObject_(platform) {
     // Check if response is platform specific
     if (this.platform && this.platform !== platform) {
       // if it is and is not for the specific platform return null
@@ -411,7 +433,7 @@ class CardResponse extends RichResponse {
         response.buttons[0].openUrlAction.url = this.buttonUrl;
       }
     } else {
-      response = {type: 1};
+      response = {type: v1MessageObject.Card};
       response.title = this.title;
       if (this.text) response.subtitle = this.text;
       if (this.imageUrl) response.imageUrl = this.imageUrl;
@@ -438,12 +460,13 @@ class CardResponse extends RichResponse {
    *
    * @example
    * let richResponse = new RichResponse();
-   * richResponse.getV2ResponseObject(PLATFORMS.ACTIONS_ON_GOOGLE)
+   * richResponse.getV2ResponseObject_(PLATFORMS.ACTIONS_ON_GOOGLE)
    *
    * @param {string} platform desired message object platform
    * @return {Object} v2 response object
+   * @private
    */
-  getV2ResponseObject(platform) {
+  getV2ResponseObject_(platform) {
     // Check if response is platform specific
     if (this.platform && this.platform !== platform) {
       // if it is and is not for the specific platform return null
@@ -460,6 +483,7 @@ class CardResponse extends RichResponse {
       if (this.imageUrl) {
         response.basicCard.image = {};
         response.basicCard.image.imageUri = this.imageUrl;
+        response.basicCard.image.accessibilityText = 'accessibility text';
       }
       if (this.buttonsTitle && this.buttonUrl) {
         response.buttons = [{}];
@@ -493,7 +517,7 @@ class CardResponse extends RichResponse {
  */
 class ImageResponse extends RichResponse {
   /**
-   * Constructor for ImageResponse object.
+   * Constructor for ImageResponse object
    *
    * @example
    * const imageUrl = 'https://developers.google.com/actions/images/badges/XPM_BADGING_GoogleAssistant_VER.png'
@@ -551,12 +575,13 @@ class ImageResponse extends RichResponse {
    *
    * @example
    * let richResponse = new RichResponse();
-   * richResponse.getV1ResponseObject(PLATFORMS.ACTIONS_ON_GOOGLE)
+   * richResponse.getV1ResponseObject_(PLATFORMS.ACTIONS_ON_GOOGLE)
    *
    * @param {string} platform desired message object platform
    * @return {Object} v1 response object
+   * @private
    */
-  getV1ResponseObject(platform) {
+  getV1ResponseObject_(platform) {
     // Check if response is platform specific
     if (this.platform && this.platform !== platform) {
       // if it is and is not for the specific platform return null
@@ -576,7 +601,7 @@ class ImageResponse extends RichResponse {
         response.image.accessibilityText = 'accessibility text';
       }
     } else {
-      response = {type: 3};
+      response = {type: v1MessageObject.Image};
       if (this.imageUrl) response.imageUrl = this.imageUrl;
       // response is the same for generic responses without the platform attribute
       // if the platform is not undefined or the platform is not unspecified
@@ -593,12 +618,13 @@ class ImageResponse extends RichResponse {
    *
    * @example
    * let richResponse = new RichResponse();
-   * richResponse.getV2ResponseObject(PLATFORMS.ACTIONS_ON_GOOGLE)
+   * richResponse.getV2ResponseObject_(PLATFORMS.ACTIONS_ON_GOOGLE)
    *
    * @param {string} platform desired message object platform
    * @return {Object} v2 response object
+   * @private
    */
-  getV2ResponseObject(platform) {
+  getV2ResponseObject_(platform) {
     // Check if response is platform specific
     if (this.platform && this.platform !== platform) {
       // if it is and is not for the specific platform return null
@@ -613,6 +639,7 @@ class ImageResponse extends RichResponse {
       if (this.imageUrl) {
         response.basicCard.image = {};
         response.basicCard.image.imageUri = this.imageUrl;
+        response.basicCard.image.accessibilityText = 'accessibility text';
       }
     } else {
       response = {image: {}};
@@ -630,12 +657,12 @@ class ImageResponse extends RichResponse {
 }
 
 /**
- * Class representing a suggestions response.
+ * Class representing a suggestions response
  * @extends RichResponse
  */
 class SuggestionsResponse extends RichResponse {
   /**
-   * Constructor for SuggestionsResponse object.
+   * Constructor for SuggestionsResponse object
    *
    * @example
    * let suggestionsResponse = new SuggestionsResponse('suggestion');
@@ -724,12 +751,13 @@ class SuggestionsResponse extends RichResponse {
    *
    * @example
    * let richResponse = new RichResponse();
-   * richResponse.getV1ResponseObject(PLATFORMS.ACTIONS_ON_GOOGLE)
+   * richResponse.getV1ResponseObject_(PLATFORMS.ACTIONS_ON_GOOGLE)
    *
    * @param {string} platform desired message object platform
    * @return {Object} v1 response object
+   * @private
    */
-  getV1ResponseObject(platform) {
+  getV1ResponseObject_(platform) {
     // Check if response is platform specific
     if (this.platform && this.platform !== platform) {
       // If it is and is not for the specific platform return null
@@ -749,7 +777,7 @@ class SuggestionsResponse extends RichResponse {
         });
       }
     } else {
-      response = {type: 2};
+      response = {type: v1MessageObject.Suggestion};
       if (this.replies) response.replies = this.replies;
       // Response is the same for generic responses without the platform attribute
       // If the platform is not undefined or the platform is not unspecified
@@ -766,12 +794,13 @@ class SuggestionsResponse extends RichResponse {
    *
    * @example
    * let richResponse = new RichResponse();
-   * richResponse.getV2ResponseObject(PLATFORMS.ACTIONS_ON_GOOGLE)
+   * richResponse.getV2ResponseObject_(PLATFORMS.ACTIONS_ON_GOOGLE)
    *
    * @param {string} platform desired message object platform
    * @return {Object} v2 response object
+   * @private
    */
-  getV2ResponseObject(platform) {
+  getV2ResponseObject_(platform) {
     // Check if response is platform specific
     if (this.platform && this.platform !== platform) {
       // If it is and is not for the specific platform return null
@@ -799,12 +828,12 @@ class SuggestionsResponse extends RichResponse {
 }
 
 /**
- * Class representing a payload response.
+ * Class representing a payload response
  * @extends RichResponse
  */
 class PayloadResponse extends RichResponse {
   /**
-   * Constructor for PayloadResponse object.
+   * Constructor for PayloadResponse object
    *
    * @example
    * const googlePayloadJson = {
@@ -879,12 +908,13 @@ class PayloadResponse extends RichResponse {
    *
    * @example
    * let richResponse = new RichResponse();
-   * richResponse.getV1ResponseObject(PLATFORMS.ACTIONS_ON_GOOGLE)
+   * richResponse.getV1ResponseObject_(PLATFORMS.ACTIONS_ON_GOOGLE)
    *
    * @param {string} platform desired message object platform
    * @return {Object} v1 response object
+   * @private
    */
-  getV1ResponseObject(platform) {
+  getV1ResponseObject_(platform) {
     // If response is not for the inteded platform return null
     if (platform !== this.platform) {
       // if it is and is not for the specific platform return null
@@ -910,12 +940,13 @@ class PayloadResponse extends RichResponse {
    *
    * @example
    * let richResponse = new RichResponse();
-   * richResponse.getV2ResponseObject(PLATFORMS.ACTIONS_ON_GOOGLE)
+   * richResponse.getV2ResponseObject_(PLATFORMS.ACTIONS_ON_GOOGLE)
    *
    * @param {string} platform desired message object platform
    * @return {Object} v2 response object
+   * @private
    */
-  getV2ResponseObject(platform) {
+  getV2ResponseObject_(platform) {
     // If response is not for the inteded platform return null
     if (platform !== this.platform) {
       // If it is and is not for the specific platform return null

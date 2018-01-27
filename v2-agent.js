@@ -30,8 +30,8 @@ const {TextResponse, V1_TO_V2_PLATFORM_NAME} = require('./response-builder');
  */
 class V2Agent {
   /**
-   * Constructor for V2Agent object.
-   * To be used in with WebhookClient class.
+   * Constructor for V2Agent object
+   * To be used in with WebhookClient class
    *
    * @param {Object} agent instance of WebhookClient class
    */
@@ -57,6 +57,14 @@ class V2Agent {
     debug(`Action: ${this.agent.action}`);
 
     /**
+     * Dialogflow input contexts included in the request or null if no value
+     * https://dialogflow.com/docs/reference/api-v2/rest/v2beta1/WebhookRequest#FIELDS.session
+     * @type {string}
+     */
+    this.agent.session = this.agent.request_.body.session;
+    debug(`v2 Session: ${JSON.stringify(this.agent.session)}`);
+
+    /**
      * Dialogflow parameters included in the request or null if no value
      * https://dialogflow.com/docs/actions-and-parameters
      * @type {Object[]}
@@ -67,11 +75,17 @@ class V2Agent {
 
     /**
      * Dialogflow input contexts included in the request or null if no value
+     * convert v2 contexts to v1 contexts
      * https://dialogflow.com/docs/contexts
      * @type {string}
      */
-    this.agent.inputContexts = this.agent.request_.body.queryResult.contexts; // https://dialogflow.com/docs/contexts
-    debug(`Input contexts: ${JSON.stringify(this.agent.inputContexts)}`);
+    if (this.agent.request_.body.queryResult.outputContexts) {
+      this.agent.contexts = this.agent.request_.body.queryResult.outputContexts
+        .map((context) => this.convertV2ContextToV1Context_(context));
+    } else {
+      this.agent.contexts = [];
+    }
+    debug(`Request contexts: ${JSON.stringify(this.agent.contexts)}`);
 
     /**
      * Dialogflow source included in the request or null if no value
@@ -94,14 +108,6 @@ class V2Agent {
       this.agent.requestSource = V1_TO_V2_PLATFORM_NAME[v1SourceName];
     }
     debug(`Request source: ${JSON.stringify(this.agent.requestSource)}`);
-
-    /**
-     * Dialogflow input contexts included in the request or null if no value
-     * https://dialogflow.com/docs/reference/api-v2/rest/v2beta1/WebhookRequest#FIELDS.session
-     * @type {string}
-     */
-    this.agent.session = this.agent.request_.body.session;
-    debug(`v2 Session: ${JSON.stringify(this.agent.session)}`);
 
     /**
      * Original user query as indicated by Dialogflow or null if no value
@@ -166,7 +172,7 @@ class V2Agent {
    */
   buildResponseMessages_() {
     const responseMessages = this.agent.responseMessages_
-      .map((message) => message.getV2ResponseObject(this.agent.requestSource))
+      .map((message) => message.getV2ResponseObject_(this.agent.requestSource))
       .filter((arr) => arr);
     return responseMessages;
   }
@@ -174,7 +180,7 @@ class V2Agent {
   /**
    * Add an v2 outgoing context
    *
-   * @param {object} context an object representing a v2 outgoing context
+   * @param {object} context an object representing a v1 outgoing context
    * @private
    */
   addContext_(context) {
@@ -186,6 +192,22 @@ class V2Agent {
     v2Context.parameters = context.parameters;
 
     this.agent.outgoingContexts_.push(v2Context);
+  }
+
+  /**
+   * Convert a v2 context object to a v1 context object
+   *
+   * @param {object} v2Context an object representing a v2 context
+   * @return {object} v1Context an object representing a v1 context
+   * @private
+   */
+  convertV2ContextToV1Context_(v2Context) {
+    let v1Context = {};
+    const v2ContextNamePrefixLength = this.agent.session.length + '/contexts/'.length;
+    v1Context.name = v2Context.name.slice(v2ContextNamePrefixLength);
+    v1Context.lifespan = v2Context.lifespanCount;
+    v1Context.parameters = v2Context.parameters;
+    return v1Context;
   }
 }
 
