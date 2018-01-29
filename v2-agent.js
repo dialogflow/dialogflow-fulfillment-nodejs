@@ -105,7 +105,7 @@ class V2Agent {
     ) {
       const v1SourceName = this.agent.request_.body.originalDetectIntentRequest
         .payload.source;
-      this.agent.requestSource = V1_TO_V2_PLATFORM_NAME[v1SourceName];
+      this.agent.requestSource = V1_TO_V2_PLATFORM_NAME[v1SourceName] || v1SourceName;
     }
     debug(`Request source: ${JSON.stringify(this.agent.requestSource)}`);
 

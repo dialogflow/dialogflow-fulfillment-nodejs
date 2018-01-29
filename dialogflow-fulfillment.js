@@ -192,6 +192,7 @@ class WebhookClient {
    */
   send(response) {
     if (SUPPORTED_RICH_MESSAGE_PLATFORMS.indexOf(this.requestSource) < 0
+      && this.requestSource !== undefined
       && this.requestSource !== null
       && this.requestSource !== PLATFORMS.UNSPECIFIED) {
       throw new Error(`Platform is not supported.`);

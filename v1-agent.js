@@ -86,7 +86,7 @@ class V1Agent {
     ) {
       const requestSource = this.agent.request_.body.originalRequest.data
         .source;
-      this.agent.requestSource = V1_TO_V2_PLATFORM_NAME[requestSource];
+      this.agent.requestSource = V1_TO_V2_PLATFORM_NAME[requestSource] || requestSource;
     }
     debug(`Request source: ${JSON.stringify(this.agent.requestSource)}`);
 

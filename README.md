@@ -1,4 +1,4 @@
-# Dialoglfow Fulfillment Library Alpha
+# Dialogflow Fulfillment Library Alpha
 
 | Alpha |
 |-------|
@@ -33,15 +33,15 @@ const agent = new WebhookClient({request: request, response: response});
 ```
 
 ## Reference
-* Class Reference: [docs folder](https://github.com/dialogflow/dialogflow-fulfillment/tree/master/docs)
+* Class Reference: [docs](https://github.com/dialogflow/dialogflow-fulfillment-nodejs/tree/master/docs)
 * Dialogflow documentation: [https://docs.dialogflow.com](https://docs.dialogflow.com).
 
 ## Issues and Questions
-* If you find any issues, please open a bug on [GitHub](https://github.com/dialogflow/dialogflow-fulfillment/issues).
+* If you find any issues, please open a bug on [GitHub](https://github.com/dialogflow/dialogflow-fulfillment-nodejs/issues).
 * Questions are answered on [StackOverflow](https://stackoverflow.com/questions/tagged/dialogflow).
 * Known Issues/Limitations
     * No SSML support
-    * No support for follow up events (olow up event docs: [v1](https://dialogflow.com/docs/fulfillment#requirements), [v2](https://dialogflow.com/docs/reference/api-v2/rest/v2beta1/WebhookResponse))
+    * No support for follow up events (follow up event docs: [v1](https://dialogflow.com/docs/fulfillment#requirements), [v2](https://dialogflow.com/docs/reference/api-v2/rest/v2beta1/WebhookResponse))
     * No checking for if a certain combination of response is incompatible with certain platforms (i.e. multiple cards are not support in a single Actions on Google Response)
 
 

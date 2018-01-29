@@ -24,7 +24,7 @@
 
 ## References and How to report bugs
 * Dialogflow documentation: [https://docs.dialogflow.com](https://docs.dialogflow.com).
-* If you find any issues, please open a bug on [GitHub](https://github.com/dialogflow/dialogflow-fulfillment/issues).
+* If you find any issues, please open a bug on [GitHub](https://github.com/dialogflow/dialogflow-fulfillment-nodejs/issues).
 * Questions are answered on [StackOverflow](https://stackoverflow.com/questions/tagged/dialogflow).
 
 ## How to make contributions?
