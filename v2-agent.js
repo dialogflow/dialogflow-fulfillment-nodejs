@@ -158,6 +158,7 @@ class V2Agent {
     }
 
     responseJson.outputContexts = this.agent.outgoingContexts_;
+    this.agent.followupEvent_ ? responseJson.followupEventInput = this.agent.followupEvent_ : undefined;
 
     debug('Response to Dialogflow: ' + JSON.stringify(responseJson));
     this.agent.response_.json(responseJson);
@@ -208,6 +209,20 @@ class V2Agent {
     v1Context.lifespan = v2Context.lifespanCount;
     v1Context.parameters = v2Context.parameters;
     return v1Context;
+  }
+
+  /**
+   * Add an v2 followup event
+   *
+   * @param {Object} event an object representing a followup event
+   * @private
+   */
+  setFollowupEvent_(event) {
+    if (!event.languageCode) {
+      event.languageCode = this.agent.locale;
+    }
+
+    this.agent.followupEvent_ = event;
   }
 }
 

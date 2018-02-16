@@ -21,49 +21,38 @@
 
 const test = require('ava');
 
-const WebhookClient = require('../dialogflow-fulfillment');
+const {WebhookClient} = require('../dialogflow-fulfillment');
+const {Suggestion} = require('../dialogflow-fulfillment');
 
 test('Quick Replies Response test', async (t) => {
   // v1 simulator webhook request
-  let simulatorResponse = new ResponseMock();
   let simualtorRequest = {body: mockSimulatorV1Request}; // mockV1SimulatorRequest
-  let agent = new WebhookClient({
-    request: simualtorRequest,
-    response: simulatorResponse,
+  webhookSuggestionTest(simualtorRequest, (responseJson) => {
+    t.deepEqual(
+      {
+        messages: [{type: 2, replies: ['Quick Reply', 'Suggestion']}],
+        contextOut: [],
+      },
+      responseJson
+    );
   });
-  agent.addSuggestion('Quick Reply');
-  agent.addSuggestion('Suggestion');
-  agent.send();
-  t.deepEqual(
-    {
-      messages: [{type: 2, replies: ['Quick Reply', 'Suggestion']}],
-      contextOut: [],
-    },
-    simulatorResponse.get()
-  );
 
   // v2 facebook webhook request
-  let mockFacebookV2Response = new ResponseMock();
   let mockFacebookV2Request = {body: mockFacebookV2RequestWebhook}; // mockV1SimulatorRequest
-  agent = new WebhookClient({
-    request: mockFacebookV2Request,
-    response: mockFacebookV2Response,
+  webhookSuggestionTest(mockFacebookV2Request, (responseJson) => {
+    t.deepEqual(
+      {
+        fulfillmentMessages: [
+          {
+            quickReplies: {quickReplies: ['Quick Reply', 'Suggestion']},
+            platform: 'FACEBOOK',
+          },
+        ],
+        outputContexts: [],
+      },
+      responseJson
+    );
   });
-  agent.addSuggestion('Quick Reply');
-  agent.addSuggestion('Suggestion');
-  agent.send();
-  t.deepEqual(
-    {
-      fulfillmentMessages: [
-        {
-          quickReplies: {quickReplies: ['Quick Reply', 'Suggestion']},
-          platform: 'FACEBOOK',
-        },
-      ],
-      outputContexts: [],
-    },
-    mockFacebookV2Response.get()
-  );
 });
 
 test('Language Code test', async (t) => {
@@ -87,14 +76,39 @@ test('Language Code test', async (t) => {
 });
 
 /**
+ * Adds suggestions to response
+ * @param {Object} request express object
+ * @param {function} callback
+ */
+function webhookSuggestionTest(request, callback) {
+  // v1 simulator webhook request
+  let response = new ResponseMock(callback);
+  let agent = new WebhookClient({
+    request: request,
+    response: response,
+  });
+  /**
+   * Handler function to other
+   * @param {Object} agent
+   */
+  function handler(agent) {
+    agent.add(new Suggestion('Quick Reply'));
+    agent.add(new Suggestion('Suggestion'));
+  }
+
+  agent.handleRequest(handler);
+}
+
+/**
  * Class to mock a express response object for testing
  */
 class ResponseMock {
   /**
    * constructor
-   * @param {repsonseJson} JSON of the respones from WebhookClient
+   * @param {function} callback
    */
-  constructor() {
+  constructor(callback) {
+    this.callback = callback;
     this.responseJson = {};
   }
   /**
@@ -102,7 +116,7 @@ class ResponseMock {
    * @param {Object} responseJson
    */
   json(responseJson) {
-    this.responseJson = responseJson;
+    this.callback(responseJson);
   }
   /**
    * Get JSON response for testing comparison
@@ -125,7 +139,7 @@ class ResponseMock {
    * @param {Object} message response object
    */
   send(message) {
-    this.responseJson += message;
+    this.callback(message);
   }
 }
 

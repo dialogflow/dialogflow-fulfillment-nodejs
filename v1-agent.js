@@ -129,6 +129,7 @@ class V1Agent {
     }
 
     responseJson.contextOut = this.agent.outgoingContexts_;
+    this.agent.followupEvent_ ? responseJson.followupEvent = this.agent.followupEvent_ : undefined;
 
     debug('Response to Dialogflow: ' + JSON.stringify(responseJson));
     this.agent.response_.json(responseJson);
@@ -158,6 +159,21 @@ class V1Agent {
   addContext_(context) {
     // v1 contexts have the same structure as used by the library
     this.agent.outgoingContexts_.push(context);
+  }
+
+  /**
+   * Add an v1 followup event
+   *
+   * @param {Object} event an object representing a followup event
+   * @private
+   */
+  setFollowupEvent_(event) {
+    let eventJson = {
+      name: event.name,
+    };
+    event.parameters ? eventJson.data = event.parameters : undefined;
+
+    this.agent.followupEvent_ = eventJson;
   }
 }
 

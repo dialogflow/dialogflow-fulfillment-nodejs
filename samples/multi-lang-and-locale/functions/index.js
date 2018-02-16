@@ -17,7 +17,7 @@
 'use strict';
 
 const functions = require('firebase-functions');
-const WebhookClient = require('dialogflow-fulfillment');
+const {WebhookClient} = require('dialogflow-fulfillment');
 
 process.env.DEBUG = 'dialogflow:debug';
 
@@ -31,12 +31,11 @@ exports.dialogflowFulfillmentMultiLocale = functions.https.onRequest((request, r
 
   // English handler functions and action map
   function welcome(agent) {
-    agent.send(`Welcome to my agent!`);
+    agent.add(`Welcome to my agent!`);
   }
   function fallback(agent) {
-    agent.addText(`I didn't understand`);
-    agent.addText(`I'm sorry, can you try again?`);
-    agent.send();
+    agent.add(`I didn't understand`);
+    agent.add(`I'm sorry, can you try again?`);
   }
   let enActionMap = new Map();
   enActionMap.set(WELCOME_ACTION, welcome);
@@ -44,12 +43,11 @@ exports.dialogflowFulfillmentMultiLocale = functions.https.onRequest((request, r
 
   // French handler functions and action map
   function bienvenue(agent) {
-    agent.send(`Bienvenue à mon agent!`);
+    agent.add(`Bienvenue à mon agent!`);
   }
   function secours(agent) {
-    agent.addText(`Je n'ai pas compris`);
-    agent.addText(`Pouvez-vous essayer encore?`);
-    agent.send();
+    agent.add(`Je n'ai pas compris`);
+    agent.add(`Pouvez-vous essayer encore?`);
   }
   let frActionMap = new Map();
   frActionMap.set(WELCOME_ACTION, bienvenue);
@@ -62,5 +60,4 @@ exports.dialogflowFulfillmentMultiLocale = functions.https.onRequest((request, r
   } else if (agent.locale === 'fr') {
     agent.handleRequest(frActionMap);
   }
-
 });

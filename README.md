@@ -6,6 +6,8 @@
 
 The Dialogflow Fulfillment Library makes creating fulfillment for Dialogflow v1 and v2 agents for 8 chat and voice platforms on Node.js easy and simple. Cross-platform text, card, image, suggestion and custom payload responses are supported for Actions on Google, Facebook, Slack, Telegram, Kik, Skype, Line, Viber and Dialogflow's simulator.
 
+![fulfillment library works with 8 platforms](https://raw.githubusercontent.com/dialogflow/dialogflow-fulfillment-nodejs/master/dialogflow-fulfillment-graphic.png "Dialogflow's fulfillment library works with 8 platforms")
+
 Dialogflow fulfillment allows you to connect Dialogflow's natural language understanding and processing to your own systems, APIs and databases. Using fulfillment, you can surface commands and information from your services to your users through a natural conversational interface. More about Dialogflow fulfillment: https://dialogflow.com/docs/fulfillment
 
 ## Quick Start
@@ -23,7 +25,7 @@ Dialogflow fulfillment allows you to connect Dialogflow's natural language under
  1. Import the appropriate class:
 
 ```javascript
-const WebhookClient = require('dialogflow-fulfillment');
+const {WebhookClient} = require('dialogflow-fulfillment');
 ```
 
  2. Create an instance:
@@ -40,9 +42,7 @@ const agent = new WebhookClient({request: request, response: response});
 * If you find any issues, please open a bug on [GitHub](https://github.com/dialogflow/dialogflow-fulfillment-nodejs/issues).
 * Questions are answered on [StackOverflow](https://stackoverflow.com/questions/tagged/dialogflow).
 * Known Issues/Limitations
-    * No SSML support
-    * No support for follow up events (follow up event docs: [v1](https://dialogflow.com/docs/fulfillment#requirements), [v2](https://dialogflow.com/docs/reference/api-v2/rest/v2beta1/WebhookResponse))
-    * No checking for if a certain combination of response is incompatible with certain platforms (i.e. multiple cards are not support in a single Actions on Google Response)
+    * No verification for platforms-specific incompatible response combinations (i.e. multiple cards are not supported in a single Actions on Google response)
 
 
 ## How to make contributions?

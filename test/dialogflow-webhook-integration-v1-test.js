@@ -21,105 +21,73 @@
 
 const test = require('ava');
 
-const WebhookClient = require('../dialogflow-fulfillment');
+const {WebhookClient} = require('../dialogflow-fulfillment');
+const {Card, Suggestion} = require('../dialogflow-fulfillment');
 
 test('v1 Integration test', async (t) => {
   // v1 Google Welcome
-  let googleV1WelcomeResponse = new ResponseMock();
   let googleV1WelcomeRequest = {body: mockGoogleV1RequestWelcome};
-  let agent = new WebhookClient({
-    request: googleV1WelcomeRequest,
-    response: googleV1WelcomeResponse,
+  webhookTest(googleV1WelcomeRequest, (responseJson) => {
+    t.deepEqual(mockGoogleV1ResponseWelcome, responseJson);
   });
-  webhookTest(agent);
-  t.deepEqual(mockGoogleV1ResponseWelcome, googleV1WelcomeResponse.get());
 
   // v1 Slack Welcome
-  let slackV1WelcomeResponse = new ResponseMock();
   let slackV1WelcomeRequest = {body: mockSlackV1RequestWelcome};
-  agent = new WebhookClient({
-    request: slackV1WelcomeRequest,
-    response: slackV1WelcomeResponse,
+  webhookTest(slackV1WelcomeRequest, (responseJson) => {
+    t.deepEqual(mockSlackV1ResponseWelcome, responseJson);
   });
-  webhookTest(agent);
-  t.deepEqual(mockSlackV1ResponseWelcome, slackV1WelcomeResponse.get());
 
   // v1 Facebook Welcome
-  let facebookV1WelcomeResponse = new ResponseMock();
   let facebookV1WelcomeRequest = {body: mockFacebookV1RequestWelcome};
-  agent = new WebhookClient({
-    request: facebookV1WelcomeRequest,
-    response: facebookV1WelcomeResponse,
+  webhookTest(facebookV1WelcomeRequest, (responseJson) => {
+    t.deepEqual(mockFacebookV1ResponseWelcome, responseJson);
   });
-  webhookTest(agent);
-  t.deepEqual(mockFacebookV1ResponseWelcome, facebookV1WelcomeResponse.get());
 
   // v1 Google Fallback
-  let googleV1FallbackResponse = new ResponseMock();
-  let googleV1FallbackRequest = {body: mockGoogleV1RequestFallback};
-  agent = new WebhookClient({
-    request: googleV1FallbackRequest,
-    response: googleV1FallbackResponse,
+  let googleV1RequestFallback = {body: mockGoogleV1RequestFallback};
+  webhookTest(googleV1RequestFallback, (responseJson) => {
+    t.deepEqual(mockGoogleV1ResponseFallback, responseJson);
   });
-  webhookTest(agent);
-  t.deepEqual(mockGoogleV1ResponseFallback, googleV1FallbackResponse.get());
 
   // v1 Slack Fallback
-  let slackV1FallbackResponse = new ResponseMock();
   let slackV1FallbackRequest = {body: mockSlackV1RequestFallback};
-  agent = new WebhookClient({
-    request: slackV1FallbackRequest,
-    response: slackV1FallbackResponse,
+  webhookTest(slackV1FallbackRequest, (responseJson) => {
+    t.deepEqual(mockSlackV1ResponseFallback, responseJson);
   });
-  webhookTest(agent);
-  t.deepEqual(mockSlackV1ResponseFallback, slackV1FallbackResponse.get());
 
   // v1 Facebook Fallback
-  let facebookV1FallbackResponse = new ResponseMock();
   let facebookV1FallbackRequest = {body: mockFacebookV1RequestFallback};
-  agent = new WebhookClient({
-    request: facebookV1FallbackRequest,
-    response: facebookV1FallbackResponse,
+  webhookTest(facebookV1FallbackRequest, (responseJson) => {
+    t.deepEqual(mockFacebookV1ResponseFallback, responseJson);
   });
-  webhookTest(agent);
-  t.deepEqual(mockFacebookV1ResponseFallback, facebookV1FallbackResponse.get());
 
   // v1 Google Webhook
-  let googleV1WebhookResponse = new ResponseMock();
   let googleV1WebhookRequest = {body: mockGoogleV1RequestWebhook};
-  agent = new WebhookClient({
-    request: googleV1WebhookRequest,
-    response: googleV1WebhookResponse,
+  webhookTest(googleV1WebhookRequest, (responseJson) => {
+    t.deepEqual(mockGoogleV1ResponseWebhook, responseJson);
   });
-  webhookTest(agent);
-  t.deepEqual(mockGoogleV1ResponseWebhook, googleV1WebhookResponse.get());
 
   // v1 Slack Webhook
-  let slackV1WebhookResponse = new ResponseMock();
   let slackV1WebhookRequest = {body: mockSlackV1RequestWebhook};
-  agent = new WebhookClient({
-    request: slackV1WebhookRequest,
-    response: slackV1WebhookResponse,
+  webhookTest(slackV1WebhookRequest, (responseJson) => {
+    t.deepEqual(mockSlackV1ResponseWebhook, responseJson);
   });
-  webhookTest(agent);
-  t.deepEqual(mockSlackV1ResponseWebhook, slackV1WebhookResponse.get());
 
   // v1 Facebook Webhook
-  let facebookV1WebhookResponse = new ResponseMock();
   let facebookV1WebhookRequest = {body: mockFacebookV1RequestWebhook};
-  agent = new WebhookClient({
-    request: facebookV1WebhookRequest,
-    response: facebookV1WebhookResponse,
+  webhookTest(facebookV1WebhookRequest, (responseJson) => {
+    t.deepEqual(mockFacebookV1ResponseWebhook, responseJson);
   });
-  webhookTest(agent);
-  t.deepEqual(mockFacebookV1ResponseWebhook, facebookV1WebhookResponse.get());
 });
 
 /**
  * Helper function to perform WebhookClient options for testing
- * @param {Object} agent
+ * @param {Object} request mock express request object
+ * @param {function} callback
  */
-function webhookTest(agent) {
+function webhookTest(request, callback) {
+  let response = new ResponseMock(callback);
+  const agent = new WebhookClient({request: request, response: response});
   // webhook handler code
   const WELCOME_ACTION = 'input.welcome';
   const FALLBACK_ACTION = 'input.unknown';
@@ -128,47 +96,37 @@ function webhookTest(agent) {
    * @param {Object} agent
    */
   function welcome(agent) {
-    agent.send('Welcome to my agent!');
+    agent.add('Welcome to my agent!');
   }
   /**
    * Handler function to fallback
    * @param {Object} agent
    */
   function fallback(agent) {
-    agent.addText('I didn\'t understand');
-    agent.addText('I\'m sorry, can you try again?');
-    agent.send();
+    agent.add('I didn\'t understand');
+    agent.add('I\'m sorry, can you try again?');
   }
   /**
    * Handler function to other
    * @param {Object} agent
    */
   function other(agent) {
-    agent.addText(
-      'This message is from Dialogflow\'s Cloud Functions for Firebase editor!'
-    );
+    agent.add('This message is from Dialogflow\'s Cloud Functions for Firebase editor!');
     agent.setContext({
       name: 'weather',
       lifespan: 2,
       parameters: {city: 'Rome'},
     });
-    agent.addCard(
-      agent
-        .buildCard('Title: this is a card title')
-        .setImage(
-          'https://developers.google.com/actions/images/badges/XPM_BADGING_GoogleAssistant_VER.png'
-        )
-        .setText(
-          'This is the body text of a card.  You can even use line\nbreaks and emoji! 💁'
-        )
-        .setButton({
-          text: 'This is a button',
-          url: 'https://assistant.google.com/',
-        })
+    agent.add(new Card({
+        title: 'Title: this is a card title',
+        text: 'This is the body text of a card.  You can even use line\nbreaks and emoji! 💁',
+        imageUrl: 'https://developers.google.com/actions/images/badges/XPM_BADGING_GoogleAssistant_VER.png',
+        buttonText: 'This is a button',
+        buttonUrl: 'https://assistant.google.com/',
+      })
     );
-    agent.addSuggestion('Quick Reply');
-    agent.addSuggestion('Suggestion');
-    agent.send();
+    agent.add(new Suggestion('Quick Reply'));
+    agent.add(new Suggestion('Suggestion'));
   }
 
   let actionMap = new Map();
@@ -184,9 +142,10 @@ function webhookTest(agent) {
 class ResponseMock {
   /**
    * constructor
-   * @param {repsonseJson} JSON of the respones from WebhookClient
+   * @param {function} callback
    */
-  constructor() {
+  constructor(callback) {
+    this.callback = callback;
     this.responseJson = {};
   }
   /**
@@ -194,7 +153,7 @@ class ResponseMock {
    * @param {Object} responseJson
    */
   json(responseJson) {
-    this.responseJson = responseJson;
+    this.callback(responseJson);
   }
   /**
    * Get JSON response for testing comparison
@@ -217,7 +176,7 @@ class ResponseMock {
    * @param {Object} message response object
    */
   send(message) {
-    this.responseJson += message;
+    this.callback(message);
   }
 }
 

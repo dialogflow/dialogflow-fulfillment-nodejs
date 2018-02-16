@@ -17,7 +17,8 @@
 'use strict';
 
 const functions = require('firebase-functions');
-const WebhookClient = require('dialogflow-fulfillment');
+const {WebhookClient} = require('dialogflow-fulfillment');
+const {Text, Card, Image, Suggestion, Payload} = require('dialogflow-fulfillment');
 
 process.env.DEBUG = 'dialogflow:debug';
 
@@ -45,41 +46,49 @@ exports.dialogflowFulfillmentAdvancedSample = functions.https.onRequest((request
   console.log('Dialogflow Request body: ' + JSON.stringify(request.body));
 
   function welcome(agent) {
-    agent.addText(`Welcome to the temperature converter!`);
-    agent.addCard(agent.buildCard(`Vibrating molecules`)
-        .setImage(wikipediaTemperatureImageUrl)
-        .setText(`Did you know that temperature is really just a measure of how fast molecules are vibrating around?! 😱`)
-        .setButton({text: 'Temperature Wikipedia Page', url: wikipediaTemperatureUrl})
+    agent.add(`Welcome to the temperature converter!`);
+    agent.add(new Card({
+        title: `Vibrating molecules`,
+        imageUrl: wikipediaTemperatureImageUrl,
+        text: `Did you know that temperature is really just a measure of how fast molecules are vibrating around?! 😱`,
+        buttonText: 'Temperature Wikipedia Page', 
+        buttonUrl: wikipediaTemperatureUrl
+      })
     );
-    agent.addText(`I can convert Celsuis to Fahrenheit and Fahrenheit to Celsius!`);
-    agent.addText(`What temperature would you like to convert?`);
-    agent.addSuggestion(`27° Celsius`);
-    agent.addSuggestion(`-40° Fahrenheit`);
-    agent.addSuggestion(`Cancel`);
-    agent.send();
+    agent.add(`I can convert Celsuis to Fahrenheit and Fahrenheit to Celsius!`);
+    agent.add(`What temperature would you like to convert?`);
+    agent.add(new Suggestion(`27° Celsius`));
+    agent.add(new Suggestion(`-40° Fahrenheit`));
+    agent.add(new Suggestion(`Cancel`));
   }
 
   function convertFahrenheitAndCelsius(agent) {
     // Get parameters from Dialogflow to convert
     const temperature = agent.parameters.temperature;
     const unit = agent.parameters.unit;
-    console.log(`User requested to convert ${temperature}° ${unit}`)
+    console.log(`User requested to convert ${temperature}° ${unit}`);
 
     let convertedTemp, convertedUnit, temperatureHistory;
     if (unit === `Celsius`) {
       convertedTemp = temperature*(9/5) + 32;
       convertedUnit = `Fahrenheit`;
-      temperatureHistory = agent.buildCard(`Fahrenheit`)
-        .setImage(wikipediaFahrenheitImageUrl)
-        .setText(`Daniel Gabriel Fahrenheit, invented the Fahrenheit scale (first widely used, standardized temperature scale) and the mercury thermometer.`)
-        .setButton({text: 'Fahrenheit Wikipedia Page', url: wikipediaFahrenheitUrl})
+      temperatureHistory = new Card({
+        title: `Fahrenheit`,
+        imageUrl: wikipediaFahrenheitImageUrl,
+        text: `Daniel Gabriel Fahrenheit, invented the Fahrenheit scale (first widely used, standardized temperature scale) and the mercury thermometer.`,
+        buttonText: 'Fahrenheit Wikipedia Page',
+        buttonUrl: wikipediaFahrenheitUrl
+      });
     } else if (unit === `Fahrenheit`) {
       convertedTemp = (temperature-32)*(5/9);
       convertedUnit = `Celsius`;
-      temperatureHistory = agent.buildCard(`Celsius`)
-        .setImage(wikipediaCelsiusImageUrl)
-        .setText(`The original Celsius thermometer had a reversed scale, where 100 is the freezing point of water and 0 is its boiling point.`)
-        .setButton({text: 'Celsius Wikipedia Page', url: wikipediaCelsiusUrl})
+      temperatureHistory = new Card({
+        title: `Celsius`,
+        imageUrl: wikipediaCelsiusImageUrl,
+        text: `The original Celsius thermometer had a reversed scale, where 100 is the freezing point of water and 0 is its boiling point.`,
+        buttonText: 'Celsius Wikipedia Page',
+        buttonUrl: wikipediaCelsiusUrl
+      });
     }
 
     // Sent the context to store the parameter information
@@ -88,16 +97,15 @@ exports.dialogflowFulfillmentAdvancedSample = functions.https.onRequest((request
       name: 'temperature',
       lifespan: 1,
       parameters:{temperature: temperature, unit: unit}
-    })
+    });
 
     // Compile and send response
-    agent.addText(`${temperature}° ${unit} is  ${convertedTemp}° ${convertedUnit}`)
-    agent.addCard(temperatureHistory)
-    agent.addText(`Would you like to know what this temperature is in Kelvin or Rankine?`)
-    agent.addSuggestion(`Kelvin`);
-    agent.addSuggestion(`Rankine`);
-    agent.addSuggestion(`Cancel`);
-    agent.send();
+    agent.add(`${temperature}° ${unit} is  ${convertedTemp}° ${convertedUnit}`);
+    agent.add(temperatureHistory);
+    agent.add(`Would you like to know what this temperature is in Kelvin or Rankine?`);
+    agent.add(new Suggestion(`Kelvin`));
+    agent.add(new Suggestion(`Rankine`));
+    agent.add(new Suggestion(`Cancel`));
   }
 
   function convertRankineAndKelvin(agent) {
@@ -107,37 +115,36 @@ exports.dialogflowFulfillmentAdvancedSample = functions.https.onRequest((request
     const originalUnit = tempContext.parameters.unit;
 
     // Convert temperature
-    let convertedTemp, convertedUnit, temperatureHistoryText, temperatureHistoryImage
+    let convertedTemp, convertedUnit, temperatureHistoryText, temperatureHistoryImage;
     if (secondUnit === `Kelvin`) {
       convertedTemp = originalTemp === 'Celsius' ? originalTemp + 273.15 : (originalTemp-32)*(5/9) + 273.15;
       convertedUnit = `Kelvin`;
-      temperatureHistoryText = agent.buildText('Here is a picture of the namesake of the Rankine unit, William John Macquorn Rankine:')
-      temperatureHistoryImage = agent.buildImage(wikipediaKelvinImageUrl);
+      temperatureHistoryText = new Text('Here is a picture of the namesake of the Rankine unit, William John Macquorn Rankine:');
+      temperatureHistoryImage = new Image(wikipediaKelvinImageUrl);
     } else if (secondUnit === `Rankine`) {
       convertedTemp = originalTemp === 'Fahrenheit' ? originalTemp + 459.67 : originalTemp*(9/5) + 32 + 459.67; 
       convertedUnit = `Rankine`;
-      temperatureHistoryText = agent.buildText('Here is a picture of the namesake of the Kelvin unit, Lord Kelvin:')
-      temperatureHistoryImage = agent.buildImage(wikipediaRankineImageUrl);
+      temperatureHistoryText = new Text('Here is a picture of the namesake of the Kelvin unit, Lord Kelvin:');
+      temperatureHistoryImage = new Image(wikipediaRankineImageUrl);
     }
 
     // Set `temperature` context lifetime to zero
     // to reset the conversational state and parameters
-    agent.setContext({name: 'temperature', lifespan: 0})
+    agent.setContext({name: 'temperature', lifespan: 0});
 
     // Compile and send response
-    agent.addText(`${originalTemp}° ${originalUnit} is  ${convertedTemp}° ${convertedUnit}`)
-    agent.addText(temperatureHistoryText)
-    agent.addImage(temperatureHistoryImage)
-    agent.addText(`Go ahead and say another temperature to get the conversion.`)
-    agent.addSuggestion(`27° Celsius`);
-    agent.addSuggestion(`-40° Fahrenheit`);
-    agent.addSuggestion(`Cancel`);
-    agent.send();
+    agent.add(`${originalTemp}° ${originalUnit} is  ${convertedTemp}° ${convertedUnit}`);
+    agent.add(temperatureHistoryText);
+    agent.add(new Image(temperatureHistoryImage));
+    agent.add(`Go ahead and say another temperature to get the conversion.`);
+    agent.add(new Suggestion(`27° Celsius`));
+    agent.add(new Suggestion(`-40° Fahrenheit`));
+    agent.add(new Suggestion(`Cancel`));
   }
 
   function fallback(agent) {
-    agent.addText(`Woah! Its getting a little hot in here.`);
-    agent.send(`I didn't get that, can you try again?`);
+    agent.add(`Woah! Its getting a little hot in here.`);
+    agent.add(`I didn't get that, can you try again?`);
   }
 
   let actionMap = new Map();

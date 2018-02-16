@@ -9,6 +9,7 @@ Class representing a text response
 * [TextResponse](#TextResponse) ⇐ [<code>RichResponse</code>](#RichResponse)
     * [new TextResponse(text)](#new_TextResponse_new)
     * [.setText(text)](#TextResponse+setText) ⇒ [<code>TextResponse</code>](#TextResponse)
+    * [.setSsml(ssml)](#TextResponse+setSsml) ⇒ [<code>TextResponse</code>](#TextResponse)
     * [.setPlatform(platform)](#RichResponse+setPlatform) ⇒ [<code>RichResponse</code>](#RichResponse)
 
 <a name="new_TextResponse_new"></a>
@@ -36,6 +37,22 @@ Set the text for a TextResponse
 ```js
 let textResponse = new TextResponse();
 textResponse.setText('sample text response')
+```
+<a name="TextResponse+setSsml"></a>
+
+### textResponse.setSsml(ssml) ⇒ [<code>TextResponse</code>](#TextResponse)
+Set the SSML for a TextResponse
+
+**Kind**: instance method of [<code>TextResponse</code>](#TextResponse)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| ssml | <code>string</code> | containing the SSML response content |
+
+**Example**  
+```js
+let textResponse = new TextResponse();
+textResponse.setSsml('<speak>This is <say-as interpret-as="characters">SSML</say-as>.</speak>')
 ```
 <a name="RichResponse+setPlatform"></a>
 

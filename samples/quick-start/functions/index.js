@@ -17,7 +17,8 @@
 'use strict';
 
 const functions = require('firebase-functions');
-const WebhookClient = require('dialogflow-fulfillment');
+const {WebhookClient} = require('dialogflow-fulfillment');
+const {Card, Suggestion} = require('dialogflow-fulfillment');
 
 process.env.DEBUG = 'dialogflow:debug';
 
@@ -32,26 +33,27 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
   console.log('Dialogflow Request body: ' + JSON.stringify(request.body));
 
   function welcome(agent) {
-    agent.send(`Welcome to my agent!`);
+    agent.add(`Welcome to my agent!`);
   }
 
   function fallback(agent) {
-    agent.addText(`I didn't understand`);
-    agent.addText(`I'm sorry, can you try again?`);
-    agent.send();
+    agent.add(`I didn't understand`);
+    agent.add(`I'm sorry, can you try again?`);
   }
 
   function other(agent) {
-    agent.addText(`This message is from Dialogflow's Cloud Functions for Firebase editor!`);
-    agent.addCard(agent.buildCard(`Title: this is a card title`)
-        .setImage(imageUrl)
-        .setText(`This is the body text of a card.  You can even use line\n  breaks and emoji! 💁`)
-        .setButton({text: 'This is a button', url: linkUrl})
+    agent.add(`This message is from Dialogflow's Cloud Functions for Firebase editor!`);
+    agent.add(new Card({
+        title: `Title: this is a card title`,
+        imageUrl: imageUrl,
+        text: `This is the body text of a card.  You can even use line\n  breaks and emoji! 💁`,
+        buttonText: 'This is a button',
+        buttonUrl: linkUrl
+      })
     );
-    agent.addSuggestion(`Quick Reply`);
-    agent.addSuggestion(`Suggestion`);
+    agent.add(new Suggestion(`Quick Reply`));
+    agent.add(new Suggestion(`Suggestion`));
     agent.setContext({ name: 'weather', lifespan: 2, parameters: { city: 'Rome' }});
-    agent.send();
   }
 
   let actionMap = new Map();

@@ -2,7 +2,7 @@
   "name": "dialogflow-fulfillment",
   "description": "Dialogflow Fulfillment Library for Node.js Alpha",
   "main": "dialogflow-fulfillment.js",
-  "version": "0.1.0-alpha.2",
+  "version": "0.2.0-alpha.1",
   "license": "Apache Version 2.0",
   "author": "Google Inc.",
   "directories": {

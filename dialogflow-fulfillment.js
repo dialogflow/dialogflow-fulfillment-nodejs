@@ -97,6 +97,14 @@ class WebhookClient {
     this.responseMessages_ = [];
 
     /**
+     * Followup event as defined by the developer
+     *
+     * @private
+     * @type {Object}
+     */
+    this.followupEvent_ = null;
+
+    /**
      * List of outgoing contexts defined by the developer
      *
      * @private
@@ -189,8 +197,9 @@ class WebhookClient {
    *
    * @param {string[]|RichResponse[]} response additional responses to send
    * @return {void}
+   * @private
    */
-  send(response) {
+  send_(response) {
     if (SUPPORTED_RICH_MESSAGE_PLATFORMS.indexOf(this.requestSource) < 0
       && this.requestSource !== undefined
       && this.requestSource !== null
@@ -206,7 +215,7 @@ class WebhookClient {
       !(this.responseMessages_[0] instanceof TextResponse) &&
       !this.existingPayload_(PLATFORMS.ACTIONS_ON_GOOGLE)
     ) {
-      this.responseMessages_ = [this.buildText(' ')].concat(
+      this.responseMessages_ = [new TextResponse(' ')].concat(
         this.responseMessages_
       );
     }
@@ -221,13 +230,11 @@ class WebhookClient {
     // add it to the response and then send all responses
     const responseType = typeof response;
     // If it's a string, make a text response and send it with the other rich responses
-    if (responseType === 'string') {
-      this.addText(response);
-    } else if (response instanceof RichResponse) {
-      this.addResponse_(response);
+    if (responseType === 'string' || response instanceof RichResponse) {
+      this.add(response);
     } else if (response.isArray) {
       // Of it's a list of RichResponse objects or strings (or a mix) add them
-      response.forEach(this.addResponse_.bind(this));
+      response.forEach(this.add.bind(this));
     }
     this.client.sendResponse_();
   }
@@ -235,31 +242,18 @@ class WebhookClient {
   /**
    * Add a response to be sent to Dialogflow
    *
-   * @param {RichResponse} richResponse an object representing the rich response to be added
-   * @private
+   * @param {RichResponse|string} response an object or string representing the rich response to be added
    */
-  addResponse_(richResponse) {
-    switch (richResponse.constructor.name) {
-      case 'TextResponse':
-        this.addText(richResponse);
-        break;
-      case 'CardResponse':
-        this.addCard(richResponse);
-        break;
-      case 'ImageResponse':
-        this.addImage(richResponse);
-        break;
-      case 'QuickReplyResponse':
-        this.addQuickReply(richResponse);
-        break;
-      case 'PayloadResponse':
-        this.addPayload(richResponse);
-        break;
-      case 'String':
-        this.addText(richResponse);
-        break;
-      default:
-        throw new Error('unknown response type');
+  add(response) {
+    if (typeof response === 'string') {
+      response = new TextResponse(response);
+    }
+    if (response instanceof SuggestionsResponse && this.existingSuggestion_(response.platform)) {
+      this.existingSuggestion_(response.platform).addReply_(response.replies[0]);
+    } else if (response instanceof RichResponse) {
+      this.responseMessages_.push(response);
+    } else {
+      throw new Error('unknown response type');
     }
   }
 
@@ -269,191 +263,38 @@ class WebhookClient {
    *
    * @param {Map|requestCallback} handler map of Dialogflow action name to handler function or
    *     function to handle all requests (regardless of Dialogflow action).
-   * @return {void}
+   * @return {Promise}
    */
   handleRequest(handler) {
     if (typeof handler === 'function') {
-      handler(this);
-      return;
+      let result = handler(this);
+      let promise = result instanceof Promise ? result : Promise.resolve();
+      return promise.then(() => this.send_());
     }
 
     if (!(handler instanceof Map)) {
-      return new Error(
+      return Promise.reject( new Error(
         'handleRequest must contain a map of Dialogflow action names to function handlers'
-      );
+      ));
     }
 
     if (handler.get(this.action)) {
-      handler.get(this.action)(this);
+      let result = handler.get(this.action)(this);
+      // If handler is a promise use it, otherwise create use default (empty) promise
+      let promise = result instanceof Promise ? result : Promise.resolve();
+      return promise.then(() => this.send_());
     } else if (handler.get(null)) {
-      handler.get(null)(this);
+      let result = handler.get(null)(this);
+      // If handler is a promise use it, otherwise create use default (empty) promise
+      let promise = result instanceof Promise ? result : Promise.resolve();
+      return promise.then(() => this.send_());
     } else {
       debug('No handler for requested action');
       this.response_
         .status(RESPONSE_CODE_BAD_REQUEST)
         .status('No handler for requested action');
+      return Promise.reject(new Error('No handler for requested action'));
     }
-  }
-
-  // ---------------------------------------------------------------------------
-  //                   Rich Response Adders
-  // ---------------------------------------------------------------------------
-
-  /**
-   * Add a text response to be sent to Dialogflow via message objects
-   * v1 Generic: https://dialogflow.com/docs/reference/agent/message-objects#text_response
-   * v1 Google: https://dialogflow.com/docs/reference/agent/message-objects#simple_response
-   * v2 Generic: https://dialogflow.com/docs/reference/api-v2/rest/v2beta1/projects.agent.intents#text
-   * v2 Google: https://dialogflow.com/docs/reference/api-v2/rest/v2beta1/projects.agent.intents#simpleresponse
-   *
-   * @example
-   * const { WebhookClient } = require('dialogflow-webhook');
-   * const agent = new WebhookClient({request: request, response: response});
-   * agent.addText('sample text response');
-   * const googleTextResponse = {text: 'sample text response', platform: agent.ACTIONS_ON_GOOGLE};
-   * agent.addText(googleTextResponse);
-   * const textResponse = agent.buildText('sample text response');
-   * agent.addText(textResponse);
-   *
-   * @param {string|Object} textResponse text response string or an object representing a text response
-   * @return {WebhookClient}
-   */
-  addText(textResponse) {
-    if (typeof textResponse === 'string' ||
-        textResponse instanceof TextResponse) {
-      textResponse = new TextResponse(textResponse);
-    } else {
-      throw new Error(
-        'Unknown text response type. Please use a string or TextResponse object'
-      );
-    }
-
-    this.responseMessages_.push(textResponse);
-
-    return this;
-  }
-
-  /**
-   * Add a card response to be sent to Dialogflow via message objects
-   * v1 Generic: https://dialogflow.com/docs/reference/agent/message-objects#card_message_object
-   * v1 Google Assistant: https://dialogflow.com/docs/reference/agent/message-objects#basic_card_response
-   * v2 Generic: https://dialogflow.com/docs/reference/api-v2/rest/v2beta1/projects.agent.intents#card
-   * v2 Google Assistant: https://dialogflow.com/docs/reference/api-v2/rest/v2beta1/projects.agent.intents#basiccard
-   *
-   * @example
-   * const { WebhookClient } = require('dialogflow-webhook');
-   * const agent = new WebhookClient({request: request, response: response});
-   * agent.addCard('sample text response');
-   * const googleCardResponse = {title: 'sample text response', platform: agent.ACTIONS_ON_GOOGLE}
-   * agent.addCard(googleCardResponse);
-   * const cardResponse = agent.buildCard('sample text response')
-   * agent.addCard(cardResponse);
-   *
-   * @param {string|Object} cardResponse text response string or an object representing a text response
-   * @return {WebhookClient}
-   */
-  addCard(cardResponse) {
-    if (
-      typeof cardResponse === 'string' ||
-      typeof cardResponse === 'object' ||
-      cardResponse instanceof CardResponse
-    ) {
-      cardResponse = new CardResponse(cardResponse);
-    } else {
-      throw new Error(
-        'Unknown text response type. Please use a string or CardResponse object'
-      );
-    }
-
-    this.responseMessages_.push(cardResponse);
-
-    return this;
-  }
-
-  /**
-   * Add a image response to be sent to Dialogflow via message objects
-   * v1 Generic: https://dialogflow.com/docs/reference/api-v2/rest/v2beta1/projects.agent.intents#image
-   * v1 Google Assistant: https://dialogflow.com/docs/reference/agent/message-objects#basic_card_response
-   * v2 Generic: https://dialogflow.com/docs/reference/agent/message-objects#image_message_object
-   * v2 Google Assistant: https://dialogflow.com/docs/reference/api-v2/rest/v2beta1/projects.agent.intents#basiccard
-   *
-   * @example
-   * const imageUrl = 'https://developers.google.com/actions/images/badges/XPM_BADGING_GoogleAssistant_VER.png'
-   * const { WebhookClient } = require('dialogflow-webhook');
-   * const agent = new WebhookClient({request: request, response: response});
-   * agent.addImage(imageUrl);
-   * const googleImageResponse = {imageUrl: imageUrl, platform: agent.ACTIONS_ON_GOOGLE}
-   * agent.addImage(googleImageResponse);
-   * const imageResponse = agent.buildImage(imageUrl)
-   * agent.addImage(imageResponse);
-   *
-   * @param {string|Object} imageResponse image URL string or an object representing a image response
-   * @return {WebhookClient}
-   */
-  addImage(imageResponse) {
-    if (imageResponse instanceof ImageResponse) {
-      this.responseMessages_.push(imageResponse);
-    } else if (
-      typeof imageResponse === 'string' ||
-      typeof imageResponse === 'object'
-    ) {
-      imageResponse = new ImageResponse(imageResponse);
-      this.responseMessages_.push(imageResponse);
-    } else {
-      throw new Error(
-        'Unknown text response type. Please use a string or ImageResponse object'
-      );
-    }
-
-    return this;
-  }
-
-  /**
-   * Add a suggestion response to be sent to Dialogflow via message objects
-   * v1 Generic: https://dialogflow.com/docs/reference/agent/message-objects#quick_replies_message_object
-   * v1 Google Assistant: https://dialogflow.com/docs/reference/agent/message-objects#suggestion_chip_response
-   * v2 Generic: https://dialogflow.com/docs/reference/api-v2/rest/v2beta1/projects.agent.intents#quickreplies
-   * v2 Google Assistant: https://dialogflow.com/docs/reference/api-v2/rest/v2beta1/projects.agent.intents#suggestion
-   *
-   * @example
-   * const { WebhookClient } = require('dialogflow-webhook');
-   * const agent = new WebhookClient({request: request, response: response});
-   * agent.addSuggestion('suggestion');
-   * const googleSuggestionResponse = {title: 'suggestion', platform: agent.ACTIONS_ON_GOOGLE}
-   * agent.addSuggestion(googleSuggestionResponse);
-   * const suggestionResponse = agent.buildSuggestion('suggestion')
-   * agent.addSuggestion(suggestionResponse);
-   *
-   * @param {string|Object} suggestion title string or an object representing a suggestion response
-   * @return {WebhookClient}
-   */
-  addSuggestion(suggestion) {
-    const platform = suggestion.platform;
-    const existingQuickReply = this.existingSuggestion_(platform);
-    if (existingQuickReply) {
-      if (typeof suggestion === 'string') {
-        existingQuickReply.addReply_(suggestion);
-      } else if (suggestion instanceof SuggestionsResponse) {
-        existingQuickReply.addReply_(suggestion.replies[0]);
-      } else {
-        throw new Error(
-          'Unknown QuickReply response type. Please use a string or suggestion object'
-        );
-      }
-    } else {
-      if (typeof suggestion === 'string') {
-        this.responseMessages_.push(
-          new SuggestionsResponse(suggestion)
-        );
-      } else if (suggestion instanceof SuggestionsResponse) {
-        this.responseMessages_.push(suggestion);
-      } else {
-        throw new Error(
-          'Unknown QuickReply response type. Please use a string or SuggestionsResponse object'
-        );
-      }
-    }
-    return this;
   }
 
   /**
@@ -484,40 +325,6 @@ class WebhookClient {
   }
 
   /**
-   * Add a suggestion response to be sent to Dialogflow via message objects
-   * v1 Generic: https://dialogflow.com/docs/reference/agent/message-objects#quick_replies_message_object
-   * v1 Google Assistant: https://dialogflow.com/docs/reference/agent/message-objects#suggestion_chip_response
-   * v2 Generic: https://dialogflow.com/docs/reference/api-v2/rest/v2beta1/projects.agent.intents#quickreplies
-   * v2 Google Assistant: https://dialogflow.com/docs/reference/api-v2/rest/v2beta1/projects.agent.intents#suggestion
-   *
-   * @example
-   * const googlePayloadJson = {
-   *   expectUserResponse: true,
-   *   isSsml: false,
-   *   noInputPrompts: [],
-   *   richResponse: {
-   *     items: [{ simpleResponse: { textToSpeech: 'hello', displayText: 'hi' } }]
-   *   },
-   *   systemIntent: {
-   *     intent: 'actions.intent.OPTION',
-   *   }
-   * };
-   * const { WebhookClient } = require('dialogflow-webhook');
-   * const agent = new WebhookClient({request: request, response: response});
-   * agent.addPayload(agent.ACTIONS_ON_GOOGLE, googlePayloadJson);
-   * const googlePyaload = agent.buildPayload(agent.ACTIONS_ON_GOOGLE, googlePayloadJson)
-   * agent.addPayload(agent.ACTIONS_ON_GOOGLE, googlePayload);
-   *
-   * @param {string} platform representing the payload to be sent to target platform
-   * @param {Object} payload object representing payload's target platform
-   * @return {WebhookClient}
-   */
-  addPayload(platform, payload) {
-    this.responseMessages_.push(new PayloadResponse(platform, payload));
-    return this;
-  }
-
-  /**
    * Find a existing payload response message object for a specific platform
    *
    * @param {string} platform of incoming request
@@ -542,120 +349,6 @@ class WebhookClient {
       }
     }
     return existingPayload;
-  }
-
-  // ---------------------------------------------------------------------------
-  //                   Rich Response Builders
-  // ---------------------------------------------------------------------------
-
-  /**
-   * Build a text response message object
-   *
-   * @example
-   * const { WebhookClient } = require('dialogflow-webhook');
-   * const agent = new WebhookClient({request: request, response: response});
-   * const textResponse = agent.buildText('a sample text response');
-   * const googleTextResponse = agent.buildText({
-   *     text: 'sample text response',
-   *     platform: agent.ACTIONS_ON_GOOGLE
-   * });
-   *
-   * @param {string|Object} text response string or an object representing a text response
-   * @return {TextResponse}
-   */
-  buildText(text) {
-    return new TextResponse(text);
-  }
-
-  /**
-   * Build a card response message object
-   *
-   * @example
-   * const { WebhookClient } = require('dialogflow-webhook');
-   * const agent = new WebhookClient({request: request, response: response});
-   * let cardResponse = agent.buildCard('a sample card title');
-   * cardResponse.setImage('https://developers.google.com/actions/images/badges/XPM_BADGING_GoogleAssistant_VER.png');
-   * cardResponse.setText('sample card text');
-   * cardResponse.setButton({text: 'Button Text', url: 'https://assistant.google.com/'});
-   * const googleCardResponse = agent.buildText({
-   *     title: 'a sample card title',
-   *     text: 'sample card text',
-   *     imageUrl: 'https://developers.google.com/actions/images/badges/XPM_BADGING_GoogleAssistant_VER.png',
-   *     button: {text: 'Button Text', url: 'https://assistant.google.com/'},
-   *     platform: agent.ACTIONS_ON_GOOGLE
-   * });
-   *
-   * @param {string|Object} title card title string or an object representing a card
-   * @return {CardResponse}
-   */
-  buildCard(title) {
-    return new CardResponse(title);
-  }
-
-  /**
-   * Build a image response message object
-   *
-   * @example
-   * const imageUrl = 'https://developers.google.com/actions/images/badges/XPM_BADGING_GoogleAssistant_VER.png'
-   * const { WebhookClient } = require('dialogflow-webhook');
-   * const agent = new WebhookClient({request: request, response: response});
-   * let cardResponse = agent.buildImage(imageUrl);
-   * const googleCardResponse = agent.buildText({
-   *     imageUrl: imageUrl,
-   *     platform: agent.ACTIONS_ON_GOOGLE
-   * });
-   *
-   * @param {string|Object} imageUrl string or an object representing a image response
-   * @return {ImageResponse}
-   */
-  buildImage(imageUrl) {
-    return new ImageResponse(imageUrl);
-  }
-
-  /**
-   * Build a suggestion response message object
-   *
-   * @example
-   * const { WebhookClient } = require('dialogflow-webhook');
-   * const agent = new WebhookClient({request: request, response: response});
-   * const suggestionResponse = agent.buildSuggestion('suggestion');
-   * const googleCardResponse = agent.buildSuggestion({
-   *     title: 'suggestion',
-   *     platform: agent.ACTIONS_ON_GOOGLE
-   * });
-   *
-   * @param {string|Object} suggestion title string or an object representing a suggestion response
-   * @return {SuggestionsResponse}
-   */
-  buildSuggestion(suggestion) {
-    return new SuggestionsResponse(suggestion);
-  }
-
-  /**
-   * Build a payload response message object
-   *
-   * @example
-   * const googlePayloadJson = {
-   *   expectUserResponse: true,
-   *   isSsml: false,
-   *   noInputPrompts: [],
-   *   richResponse: {
-   *     items: [{ simpleResponse: { textToSpeech: 'hello', displayText: 'hi' } }]
-   *   },
-   *   systemIntent: {
-   *     intent: 'actions.intent.OPTION',
-   *   }
-   * };
-   * const { WebhookClient } = require('dialogflow-webhook');
-   * const agent = new WebhookClient({request: request, response: response});
-   * const googlePyaload = agent.buildPayload(agent.ACTIONS_ON_GOOGLE, googlePayloadJson)
-   *
-   * @param {string} platform representing the payload to be sent to target platform
-   * @param {Object} payload object representing payload's target platform
-   * @return {PayloadResponse}
-   */
-  buildPayload(platform, payload) {
-    return new PayloadResponse(payload);
   }
 
   // ---------------------------------------------------------------------------
@@ -745,6 +438,31 @@ class WebhookClient {
   getContext(contextName) {
     return this.contexts.filter( (context) => context.name === contextName )[0] || null;
   }
+
+  /**
+   * Set the followup event
+   *
+   * @example
+   * const { WebhookClient } = require('dialogflow-webhook');
+   * const agent = new WebhookClient({request: request, response: response});
+   * let event = agent.setFollowupEvent('sample event name');
+   *
+   * @param {string|Object} event string with the name of the event or an event object
+   */
+  setFollowupEvent(event) {
+    if (typeof event === 'string') {
+      event = {name: event};
+    } else if (typeof event.name !== 'string' || !event.name) {
+      throw new Error('Followup event must be a string or have a name string');
+    }
+
+    this.client.setFollowupEvent_(event);
+  }
 }
 
-module.exports = WebhookClient;
+module.exports.WebhookClient = WebhookClient;
+module.exports.Text = TextResponse;
+module.exports.Card = CardResponse;
+module.exports.Image = ImageResponse;
+module.exports.Suggestion = SuggestionsResponse;
+module.exports.Payload = PayloadResponse;

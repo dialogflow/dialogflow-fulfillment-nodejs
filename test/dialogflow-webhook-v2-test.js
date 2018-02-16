@@ -21,7 +21,8 @@
 
 const test = require('ava');
 
-const WebhookClient = require('../dialogflow-fulfillment');
+const {WebhookClient} = require('../dialogflow-fulfillment');
+const {Card, Image, Suggestion, Payload} = require('../dialogflow-fulfillment');
 
 const imageUrl = `https://assistant.google.com/static/images/molecule/\
 Molecule-Formation-stop.png`;
@@ -29,556 +30,187 @@ const linkUrl = 'https://assistant.google.com/';
 
 test('Test v2 Google Assistant responses', async (t) => {
   // Google Assistant Request: text and card response
-  let googleResponse = new ResponseMock();
   let googleRequest = {body: mockGoogleV2Request};
-  let agent = new WebhookClient({
-    request: googleRequest,
-    response: googleResponse,
+  webhookTest(googleRequest, textAndCard, (responseJson) => {
+    t.deepEqual(responseJson, responseGoogleV2TextAndCard);
   });
-  agent.addText('text response');
-  agent.addCard(
-    agent
-      .buildCard('card title')
-      .setText('card text')
-      .setImage(imageUrl)
-      .setButton({text: 'button text', url: linkUrl})
-  );
-  agent.send();
-  let responseGoogleV2 = {
-    fulfillmentMessages: [
-      {
-        platform: 'ACTIONS_ON_GOOGLE',
-        simpleResponses: {
-          simpleResponses: [
-            {textToSpeech: 'text response', displayText: 'text response'},
-          ],
-        },
-      },
-      {
-        basicCard: {
-          title: 'card title',
-          formattedText: 'card text',
-          image: {
-            imageUri: `https://assistant.google.com/static/images/molecule/\
-Molecule-Formation-stop.png`,
-            accessibilityText: 'accessibility text',
-          },
-        },
-        platform: 'ACTIONS_ON_GOOGLE',
-      },
-    ],
-    outputContexts: [],
-  };
-  t.deepEqual(googleResponse.get(), responseGoogleV2);
 
   // Google Assistant Request: text response
-  googleResponse = new ResponseMock();
-  googleRequest = {body: mockGoogleV2Request};
-  agent = new WebhookClient({
-    request: googleRequest,
-    response: googleResponse,
-  });
-  agent.addText('text response');
-  agent.send();
-  responseGoogleV2 = {
-    fulfillmentMessages: [
-      {
-        platform: 'ACTIONS_ON_GOOGLE',
-        simpleResponses: {
-          simpleResponses: [
-            {textToSpeech: 'text response', displayText: 'text response'},
-          ],
-        },
-      },
-    ],
-    outputContexts: [],
-  };
-  t.deepEqual(googleResponse.get(), responseGoogleV2);
+  webhookTest(
+    googleRequest,
+    (agent)=>{
+      agent.add('text response');
+    },
+    (responseJson) => {
+      t.deepEqual(responseJson, responseGoogleV2Text);
+    }
+  );
 
   // Google Assistant Request: card response
-  googleResponse = new ResponseMock();
-  googleRequest = {body: mockGoogleV2Request};
-  agent = new WebhookClient({
-    request: googleRequest,
-    response: googleResponse,
-  });
-  agent.addCard(
-    agent
-      .buildCard('card title')
-      .setText('card text')
-      .setImage(imageUrl)
-      .setButton({text: 'button text', url: linkUrl})
+  webhookTest(
+    googleRequest,
+    addCard,
+    (responseJson) => {
+      t.deepEqual(responseJson, responseGoogleV2Card);
+    }
   );
-  agent.send();
-  // Card response requires simiple response first
-  // so add a simple reponse first consisting of a space (' ')
-  responseGoogleV2 = {
-    fulfillmentMessages: [
-      {
-        platform: 'ACTIONS_ON_GOOGLE',
-        simpleResponses: {
-          simpleResponses: [{textToSpeech: ' ', displayText: ' '}],
-        },
-      },
-      {
-        basicCard: {
-          title: 'card title',
-          formattedText: 'card text',
-          image: {
-            imageUri: `https://assistant.google.com/static/images/molecule/\
-Molecule-Formation-stop.png`,
-            accessibilityText: 'accessibility text',
-          },
-        },
-        platform: 'ACTIONS_ON_GOOGLE',
-      },
-    ],
-    outputContexts: [],
-  };
-  t.deepEqual(googleResponse.get(), responseGoogleV2);
 
   // Image response
-  googleResponse = new ResponseMock();
-  googleRequest = {body: mockGoogleV2Request};
-  agent = new WebhookClient({
-    request: googleRequest,
-    response: googleResponse,
-  });
-  agent.addImage(imageUrl);
-  agent.send();
-  responseGoogleV2 = {
-    fulfillmentMessages: [
-      {
-        platform: 'ACTIONS_ON_GOOGLE',
-        simpleResponses: {
-          simpleResponses: [{textToSpeech: ' ', displayText: ' '}],
-        },
-      },
-      {
-        basicCard: {
-          image: {
-            imageUri: `https://assistant.google.com/static/images/molecule/\
-Molecule-Formation-stop.png`,
-            accessibilityText: 'accessibility text',
-          },
-        },
-        platform: 'ACTIONS_ON_GOOGLE',
-      },
-    ],
-    outputContexts: [],
-  };
-  t.deepEqual(googleResponse.get(), responseGoogleV2);
+  webhookTest(
+    googleRequest,
+    (agent)=>{
+      agent.add(new Image(imageUrl));
+    },
+    (responseJson) => {
+      t.deepEqual(responseJson, responseGoogleV2Image);
+    }
+  );
 
-  // quick reply
-  googleResponse = new ResponseMock();
-  googleRequest = {body: mockGoogleV2Request};
-  agent = new WebhookClient({
-    request: googleRequest,
-    response: googleResponse,
-  });
-  agent.addSuggestion('sample reply');
-  agent.send();
-  responseGoogleV2 = {
-    fulfillmentMessages: [
-      {
-        platform: 'ACTIONS_ON_GOOGLE',
-        simpleResponses: {
-          simpleResponses: [{textToSpeech: ' ', displayText: ' '}],
-        },
-      },
-      {
-        suggestions: {suggestions: [{title: 'sample reply'}]},
-        platform: 'ACTIONS_ON_GOOGLE',
-      },
-    ],
-    outputContexts: [],
-  };
-  t.deepEqual(googleResponse.get(), responseGoogleV2);
+  // Suggestion
+  webhookTest(
+    googleRequest,
+    (agent)=>{
+      agent.add(new Suggestion('sample reply'));
+    },
+    (responseJson) => {
+      t.deepEqual(responseJson, responseGoogleV2Suggestion);
+    }
+  );
 
   // Payload
-  googleResponse = new ResponseMock();
-  googleRequest = {body: mockGoogleV2Request};
-  agent = new WebhookClient({
-    request: googleRequest,
-    response: googleResponse,
-  });
-  agent.addPayload(agent.ACTIONS_ON_GOOGLE, googlePayload);
-  agent.send();
-  responseGoogleV2 = {
-    fulfillmentMessages: [
-      {
-        platform: 'ACTIONS_ON_GOOGLE',
-        payload: {
-          google: {
-            expectUserResponse: true,
-            isSsml: false,
-            noInputPrompts: [],
-            richResponse: {
-              items: [
-                {simpleResponse: {textToSpeech: 'hello', displayText: 'hi'}},
-              ],
-              suggestions: [{title: 'Say this'}, {title: 'or this'}],
-            },
-            systemIntent: {
-              intent: 'actions.intent.OPTION',
-              data: {
-                '@type':
-                  'type.googleapis.com/google.actions.v2.OptionValueSpec',
-                'listSelect': {
-                  items: [
-                    {
-                      optionInfo: {key: 'key1', synonyms: ['key one']},
-                      title: 'must not be empty',
-                    },
-                    {
-                      optionInfo: {key: 'key2', synonyms: ['key two']},
-                      title: 'must not be empty, but unquie, for some reason',
-                    },
-                  ],
-                },
-              },
-            },
-          },
-        },
-      },
-    ],
-    fulfillmentText: '',
-    outputContexts: [],
-  };
-  t.deepEqual(googleResponse.get(), responseGoogleV2);
+  webhookTest(
+    googleRequest,
+    (agent)=>{
+      agent.add(new Payload(agent.ACTIONS_ON_GOOGLE, googlePayload));
+    },
+    (responseJson) => {
+      t.deepEqual(responseJson, responseGoogleV2Payload);
+    }
+  );
 });
 
 test('Test v2 Slack responses', async (t) => {
   // CardResponse
-  let slackResponse = new ResponseMock();
   let slackRequest = {body: mockSlackV2Request};
-  let agent = new WebhookClient({
-    request: slackRequest,
-    response: slackResponse,
-  });
-  agent.addCard(
-    agent
-      .buildCard('card title')
-      .setText('card text')
-      .setImage(imageUrl)
-      .setButton({text: 'button text', url: linkUrl})
+  webhookTest(
+    slackRequest,
+    addCard,
+    (responseJson) => {
+      t.deepEqual(responseJson, responseSlackV2Card);
+    }
   );
-  agent.send();
-  let responseSlackV2 = {
-    fulfillmentMessages: [
-      {
-        card: {
-          title: 'card title',
-          subtitle: 'card text',
-          imageUri: `https://assistant.google.com/static/images/molecule/\
-Molecule-Formation-stop.png`,
-          buttons: [
-            {text: 'button text', postback: 'https://assistant.google.com/'},
-          ],
-        },
-        platform: 'SLACK',
-      },
-    ],
-    outputContexts: [],
-  };
-  t.deepEqual(slackResponse.get(), responseSlackV2);
 
   // TextResponse and CardResponse
-  slackResponse = new ResponseMock();
-  slackRequest = {};
-  slackRequest = {body: mockSlackV2Request};
-  agent = new WebhookClient({request: slackRequest, response: slackResponse});
-  agent.addText('text response');
-  agent.addCard(
-    agent
-      .buildCard('card title')
-      .setText('card text')
-      .setImage(imageUrl)
-      .setButton({text: 'button text', url: linkUrl})
-  );
-  agent.send();
-  responseSlackV2 = {
-    fulfillmentMessages: [
-      {text: {text: ['text response']}, platform: 'SLACK'},
-      {
-        card: {
-          title: 'card title',
-          subtitle: 'card text',
-          imageUri: `https://assistant.google.com/static/images/molecule/\
-Molecule-Formation-stop.png`,
-          buttons: [
-            {text: 'button text', postback: 'https://assistant.google.com/'},
-          ],
-        },
-        platform: 'SLACK',
-      },
-    ],
-    outputContexts: [],
-  };
-  t.deepEqual(slackResponse.get(), responseSlackV2);
+  webhookTest(slackRequest, textAndCard, (responseJson) => {
+    t.deepEqual(responseJson, responseSlackV2TextAndCard);
+  });
 
   // TextReponse
-  slackResponse = new ResponseMock();
-  slackRequest = {};
-  slackRequest = {body: mockSlackV2Request};
-  agent = new WebhookClient({request: slackRequest, response: slackResponse});
-  agent.addText('text response');
-  agent.send();
-  responseSlackV2 = {
-    fulfillmentMessages: [
-      {platform: 'SLACK', text: {text: ['text response']}},
-    ],
-    outputContexts: [],
-  };
-  t.deepEqual(slackResponse.get(), responseSlackV2);
+  webhookTest(slackRequest,
+    (agent) => {
+agent.add('text response');
+},
+    (responseJson) => {
+t.deepEqual(responseJson, responseSlackV2Text);
+  });
 
   // ImageResponse
-  slackResponse = new ResponseMock();
-  slackRequest = {body: mockSlackV2Request};
-  agent = new WebhookClient({request: slackRequest, response: slackResponse});
-  agent.addImage(imageUrl);
-  agent.send();
-  responseSlackV2 = {
-    fulfillmentMessages: [
-      {
-        image: {
-          imageUri: `https://assistant.google.com/static/images/molecule/\
-Molecule-Formation-stop.png`,
-        },
-        platform: 'SLACK',
-      },
-    ],
-    outputContexts: [],
-  };
-  t.deepEqual(slackResponse.get(), responseSlackV2);
+  webhookTest(
+    slackRequest,
+    (agent) => {
+      agent.add(new Image(imageUrl));
+    },
+    (responseJson) => {
+      t.deepEqual(responseJson, responseSlackV2Image);
+    }
+  );
 
-  // QuickRepliesReponse
-  slackResponse = new ResponseMock();
-  slackRequest = {body: mockSlackV2Request};
-  agent = new WebhookClient({request: slackRequest, response: slackResponse});
-  agent.addSuggestion('sample reply');
-  agent.send();
-  responseSlackV2 = {
-    fulfillmentMessages: [
-      {quickReplies: {quickReplies: ['sample reply']}, platform: 'SLACK'},
-    ],
-    outputContexts: [],
-  };
-  t.deepEqual(slackResponse.get(), responseSlackV2);
+  // SuggestionsReponse
+  webhookTest(
+    slackRequest,
+    (agent) => {
+      agent.add(new Suggestion('sample reply'));
+    },
+    (responseJson) => {
+      t.deepEqual(responseJson, responseSlackV2Suggestions);
+    }
+  );
 
   // PayloadReponse
-  slackResponse = new ResponseMock();
-  slackRequest = {body: mockSlackV2Request};
-  agent = new WebhookClient({request: slackRequest, response: slackResponse});
-  agent.addPayload(agent.SLACK, slackPayload);
-  agent.send();
-  responseSlackV2 = {
-    fulfillmentMessages: [
-      {
-        platform: 'SLACK',
-        payload: {
-          slack: {
-            text: 'This is a text response for Slack.',
-            attachments: [
-              {
-                title: 'Title: this is a title',
-                title_link: 'https://assistant.google.com/',
-                text: `This is an attachment.  Text in attachments can include \
-\'quotes\' and most other unicode characters including emoji 📱.  \
-Attachments also upport line\n  breaks.`,
-                image_url: `https://assistant.google.com/static/images/molecule/\
-Molecule-Formation-stop.png`,
-                fallback: 'This is a fallback.',
-              },
-            ],
-          },
-        },
-      },
-    ],
-    fulfillmentText: '',
-    outputContexts: [],
-  };
-  t.deepEqual(slackResponse.get(), responseSlackV2);
+  webhookTest(
+    slackRequest,
+    (agent) => {
+      agent.add(new Payload(agent.SLACK, slackPayload));
+    },
+    (responseJson) => {
+      t.deepEqual(responseJson, responseSlackV2Payload);
+    }
+  );
 });
 
 test('Test v2 Facebook responses', async (t) => {
   // CardReponse
-  let facebookResponse = new ResponseMock();
   let facebookRequest = {body: mockFacebookV2Request};
-  let agent = new WebhookClient({
-    request: facebookRequest,
-    response: facebookResponse,
-  });
-  agent.addCard(
-    agent
-      .buildCard('card title')
-      .setText('card text')
-      .setImage(imageUrl)
-      .setButton({text: 'button text', url: linkUrl})
+  webhookTest(
+    facebookRequest,
+    addCard,
+    (responseJson) => {
+      t.deepEqual(responseJson, responseFacebookV2Card);
+    }
   );
-  agent.send();
-  let responseFacebookV2 = {
-    fulfillmentMessages: [
-      {
-        card: {
-          title: 'card title',
-          subtitle: 'card text',
-          imageUri: `https://assistant.google.com/static/images/molecule/\
-Molecule-Formation-stop.png`,
-          buttons: [
-            {text: 'button text', postback: 'https://assistant.google.com/'},
-          ],
-        },
-        platform: 'FACEBOOK',
-      },
-    ],
-    outputContexts: [],
-  };
-  t.deepEqual(facebookResponse.get(), responseFacebookV2);
 
   // TextResponse and CardResponse
-  facebookResponse = new ResponseMock();
-  facebookRequest = {};
-  facebookRequest = {body: mockFacebookV2Request};
-  agent = new WebhookClient({
-    request: facebookRequest,
-    response: facebookResponse,
-  });
-  agent.addText('text response');
-  agent.addCard(
-    agent
-      .buildCard('card title')
-      .setText('card text')
-      .setImage(imageUrl)
-      .setButton({text: 'button text', url: linkUrl})
+  webhookTest(
+    facebookRequest,
+    textAndCard,
+    (responseJson) => {
+      t.deepEqual(responseJson, responseFacebookV2TextAndCard);
+    }
   );
-  agent.send();
-  responseFacebookV2 = {
-    fulfillmentMessages: [
-      {text: {text: ['text response']}, platform: 'FACEBOOK'},
-      {
-        card: {
-          title: 'card title',
-          subtitle: 'card text',
-          imageUri: `https://assistant.google.com/static/images/molecule/\
-Molecule-Formation-stop.png`,
-          buttons: [
-            {text: 'button text', postback: 'https://assistant.google.com/'},
-          ],
-        },
-        platform: 'FACEBOOK',
-      },
-    ],
-    outputContexts: [],
-  };
-  t.deepEqual(facebookResponse.get(), responseFacebookV2);
 
   // TextResponse
-  facebookResponse = new ResponseMock();
-  facebookRequest = {};
-  facebookRequest = {body: mockFacebookV2Request};
-  agent = new WebhookClient({
-    request: facebookRequest,
-    response: facebookResponse,
-  });
-  agent.addText('text response');
-  agent.send();
-  responseFacebookV2 = {
-    fulfillmentMessages: [
-      {platform: 'FACEBOOK', text: {text: ['text response']}},
-    ],
-    outputContexts: [],
-  };
-  t.deepEqual(facebookResponse.get(), responseFacebookV2);
+  webhookTest(
+    facebookRequest,
+    (agent) => {
+      agent.add('text response');
+    },
+    (responseJson) => {
+      t.deepEqual(responseJson, responseFacebookV2Text);
+    }
+  );
 
   // ImageResponse
-  facebookResponse = new ResponseMock();
-  facebookRequest = {body: mockFacebookV2Request};
-  agent = new WebhookClient({
-    request: facebookRequest,
-    response: facebookResponse,
-  });
-  agent.addImage(imageUrl);
-  agent.send();
-  responseFacebookV2 = {
-    fulfillmentMessages: [
-      {
-        image: {
-          imageUri: `https://assistant.google.com/static/images/molecule/\
-Molecule-Formation-stop.png`,
-        },
-        platform: 'FACEBOOK',
-      },
-    ],
-    outputContexts: [],
-  };
-  t.deepEqual(facebookResponse.get(), responseFacebookV2);
+  webhookTest(
+    facebookRequest,
+    (agent) => {
+      agent.add(new Image(imageUrl));
+    },
+    (responseJson) => {
+      t.deepEqual(responseJson, responseFacebookV2Image);
+    }
+  );
 
   // QuickRepliesReponse
-  facebookResponse = new ResponseMock();
-  facebookRequest = {body: mockFacebookV2Request};
-  agent = new WebhookClient({
-    request: facebookRequest,
-    response: facebookResponse,
-  });
-  agent.addSuggestion('sample reply');
-  agent.send();
-  responseFacebookV2 = {
-    fulfillmentMessages: [
-      {quickReplies: {quickReplies: ['sample reply']}, platform: 'FACEBOOK'},
-    ],
-    outputContexts: [],
-  };
-  t.deepEqual(facebookResponse.get(), responseFacebookV2);
+  webhookTest(
+    facebookRequest,
+    (agent) => {
+      agent.add(new Suggestion('sample reply'));
+    },
+    (responseJson) => {
+      t.deepEqual(responseJson, responseFacebookV2Suggestion);
+    }
+  );
 
   // PayloadReponse
-  facebookResponse = new ResponseMock();
-  facebookRequest = {body: mockFacebookV2Request};
-  agent = new WebhookClient({
-    request: facebookRequest,
-    response: facebookResponse,
-  });
-  agent.addPayload(agent.FACEBOOK, facebookPayload);
-  agent.send();
-  responseFacebookV2 = {
-    fulfillmentMessages: [
-      {
-        platform: 'FACEBOOK',
-        payload: {
-          facebook: {
-            attachment: {
-              type: 'template',
-              payload: {
-                template_type: 'generic',
-                elements: [
-                  {
-                    title: 'Title: this is a title',
-                    image_url: `https://assistant.google.com/static/images/\
-molecule/Molecule-Formation-stop.png`,
-                    subtitle: 'This is a subtitle',
-                    default_action: {
-                      type: 'web_url',
-                      url: 'https://assistant.google.com/',
-                    },
-                    buttons: [
-                      {
-                        type: 'web_url',
-                        url: 'https://assistant.google.com/',
-                        title: 'This is a button',
-                      },
-                    ],
-                  },
-                ],
-              },
-            },
-          },
-        },
-      },
-    ],
-    fulfillmentText: '',
-    outputContexts: [],
-  };
-  t.deepEqual(facebookResponse.get(), responseFacebookV2);
+  webhookTest(
+    facebookRequest,
+    (agent) => {
+      agent.add(new Payload(agent.FACEBOOK, facebookPayload));
+    },
+    (responseJson) => {
+      t.deepEqual(responseJson, responseFacebookV2Payload);
+    }
+  );
 });
 
 test('Test v2 incompatible platform', async (t) => {
@@ -591,13 +223,16 @@ test('Test v2 incompatible platform', async (t) => {
   });
 
   // Sending a response to Twitter (unsupported platform) will fail
-  const unsupportedPlatformError = t.throws(() => {
-    agent.send('this will never get sent');
-  }, Error);
-  t.is(
-    unsupportedPlatformError.message,
-    `Platform is not supported.`
-  );
+  try {
+    await agent.handleRequest((agent) => {
+      agent.add('this will never get sent');
+    });
+  } catch (err) {
+    t.is(
+      err.message,
+      `Platform is not supported.`
+    );
+  }
 });
 
 test('Test v2 contexts', async (t) => {
@@ -695,15 +330,41 @@ test('Test v2 getContext', async (t) => {
   t.deepEqual(null, context);
 });
 
+test('Test v2 followup events', async (t) => {
+  const sampleEventName = 'sample event name';
+  const secondEventName = 'second Event name';
+  const complexEvent = {
+    name: 'weather',
+    parameters: {city: 'Rome'},
+    languageCode: 'en',
+  };
+
+  let googleResponse = new ResponseMock();
+  let googleRequest = {body: mockGoogleV2Request};
+  const requestLangCode = mockGoogleV2Request.queryResult.languageCode;
+  let agent = new WebhookClient({
+    request: googleRequest,
+    response: googleResponse,
+  });
+  // setFollowupEvent
+  agent.setFollowupEvent(sampleEventName);
+  t.deepEqual({name: sampleEventName, languageCode: requestLangCode}, agent.followupEvent_);
+  agent.setFollowupEvent(secondEventName);
+  t.deepEqual({name: secondEventName, languageCode: requestLangCode}, agent.followupEvent_);
+  agent.setFollowupEvent(complexEvent);
+  t.deepEqual(complexEvent, agent.followupEvent_);
+});
+
 /**
  * Class to mock a express response object for testing
  */
 class ResponseMock {
   /**
    * constructor
-   * @param {repsonseJson} JSON of the respones from WebhookClient
+   * @param {function} callback
    */
-  constructor() {
+  constructor(callback) {
+    this.callback = callback;
     this.responseJson = {};
   }
   /**
@@ -711,7 +372,7 @@ class ResponseMock {
    * @param {Object} responseJson
    */
   json(responseJson) {
-    this.responseJson = responseJson;
+    this.callback(responseJson);
   }
   /**
    * Get JSON response for testing comparison
@@ -734,9 +395,378 @@ class ResponseMock {
    * @param {Object} message response object
    */
   send(message) {
-    this.responseJson += message;
+    this.callback(message);
   }
 }
+
+/**
+ * utility function to setup webhook test
+ * @param {Object} request express object
+ * @param {function} handler for agent.add commands
+ * @param {function} callback for after response is complied
+ */
+function webhookTest(request, handler, callback) {
+  let response = new ResponseMock(callback);
+  let agent = new WebhookClient({
+    request: request,
+    response: response,
+  });
+  agent.handleRequest(handler);
+}
+
+/**
+ * handler to add text and card responses
+ * @param {Object} agent
+ */
+function textAndCard(agent) {
+  agent.add('text response');
+  agent.add(new Card({
+      title: 'card title',
+      text: 'card text',
+      imageUrl: imageUrl,
+      buttonText: 'button text',
+      buttonUrl: linkUrl,
+    })
+  );
+};
+
+/**
+ * handler to add text and card responses
+ * @param {Object} agent
+ */
+function addCard(agent) {
+  agent.add(new Card({
+      title: 'card title',
+      text: 'card text',
+      imageUrl: imageUrl,
+      buttonText: 'button text',
+      buttonUrl: linkUrl,
+    })
+  );
+}
+
+const responseFacebookV2Payload = {
+  fulfillmentMessages: [
+    {
+      platform: 'FACEBOOK',
+      payload: {
+        facebook: {
+          attachment: {
+            type: 'template',
+            payload: {
+              template_type: 'generic',
+              elements: [
+                {
+                  title: 'Title: this is a title',
+                  image_url: `https://assistant.google.com/static/images/\
+molecule/Molecule-Formation-stop.png`,
+                  subtitle: 'This is a subtitle',
+                  default_action: {
+                    type: 'web_url',
+                    url: 'https://assistant.google.com/',
+                  },
+                  buttons: [
+                    {
+                      type: 'web_url',
+                      url: 'https://assistant.google.com/',
+                      title: 'This is a button',
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+        },
+      },
+    },
+  ],
+  fulfillmentText: '',
+  outputContexts: [],
+};
+const responseFacebookV2Suggestion = {
+  fulfillmentMessages: [
+    {quickReplies: {quickReplies: ['sample reply']}, platform: 'FACEBOOK'},
+  ],
+  outputContexts: [],
+};
+const responseFacebookV2Image = {
+  fulfillmentMessages: [
+    {
+      image: {
+        imageUri: `https://assistant.google.com/static/images/molecule/\
+Molecule-Formation-stop.png`,
+      },
+      platform: 'FACEBOOK',
+    },
+  ],
+  outputContexts: [],
+};
+const responseFacebookV2Text = {
+  fulfillmentMessages: [
+    {platform: 'FACEBOOK', text: {text: ['text response']}},
+  ],
+  outputContexts: [],
+};
+const responseFacebookV2TextAndCard = {
+  fulfillmentMessages: [
+    {text: {text: ['text response']}, platform: 'FACEBOOK'},
+    {
+      card: {
+        title: 'card title',
+        subtitle: 'card text',
+        imageUri: `https://assistant.google.com/static/images/molecule/\
+Molecule-Formation-stop.png`,
+        buttons: [
+          {text: 'button text', postback: 'https://assistant.google.com/'},
+        ],
+      },
+      platform: 'FACEBOOK',
+    },
+  ],
+  outputContexts: [],
+};
+const responseFacebookV2Card = {
+  fulfillmentMessages: [
+    {
+      card: {
+        title: 'card title',
+        subtitle: 'card text',
+        imageUri: `https://assistant.google.com/static/images/molecule/\
+Molecule-Formation-stop.png`,
+        buttons: [
+          {text: 'button text', postback: 'https://assistant.google.com/'},
+        ],
+      },
+      platform: 'FACEBOOK',
+    },
+  ],
+  outputContexts: [],
+};
+
+const responseSlackV2Text = {
+  fulfillmentMessages: [
+    {platform: 'SLACK', text: {text: ['text response']}},
+  ],
+  outputContexts: [],
+};
+const responseSlackV2Payload = {
+  fulfillmentMessages: [
+    {
+      platform: 'SLACK',
+      payload: {
+        slack: {
+          text: 'This is a text response for Slack.',
+          attachments: [
+            {
+              title: 'Title: this is a title',
+              title_link: 'https://assistant.google.com/',
+              text: `This is an attachment.  Text in attachments can include \
+\'quotes\' and most other unicode characters including emoji 📱.  \
+Attachments also upport line\n  breaks.`,
+              image_url: `https://assistant.google.com/static/images/molecule/\
+Molecule-Formation-stop.png`,
+              fallback: 'This is a fallback.',
+            },
+          ],
+        },
+      },
+    },
+  ],
+  fulfillmentText: '',
+  outputContexts: [],
+};
+const responseSlackV2Suggestions = {
+  fulfillmentMessages: [
+    {quickReplies: {quickReplies: ['sample reply']}, platform: 'SLACK'},
+  ],
+  outputContexts: [],
+};
+  const responseSlackV2Image = {
+  fulfillmentMessages: [
+    {
+      image: {
+        imageUri: `https://assistant.google.com/static/images/molecule/\
+Molecule-Formation-stop.png`,
+      },
+      platform: 'SLACK',
+    },
+  ],
+  outputContexts: [],
+};
+const responseSlackV2TextAndCard = {
+  fulfillmentMessages: [
+    {text: {text: ['text response']}, platform: 'SLACK'},
+    {
+      card: {
+        title: 'card title',
+        subtitle: 'card text',
+        imageUri: `https://assistant.google.com/static/images/molecule/\
+Molecule-Formation-stop.png`,
+        buttons: [
+          {text: 'button text', postback: 'https://assistant.google.com/'},
+        ],
+      },
+      platform: 'SLACK',
+    },
+  ],
+  outputContexts: [],
+};
+const responseSlackV2Card = {
+  fulfillmentMessages: [
+    {
+      card: {
+        title: 'card title',
+        subtitle: 'card text',
+        imageUri: `https://assistant.google.com/static/images/molecule/\
+Molecule-Formation-stop.png`,
+        buttons: [
+          {text: 'button text', postback: 'https://assistant.google.com/'},
+        ],
+      },
+      platform: 'SLACK',
+    },
+  ],
+  outputContexts: [],
+};
+
+const responseGoogleV2Payload = {
+  fulfillmentMessages: [
+    {
+      platform: 'ACTIONS_ON_GOOGLE',
+      payload: {
+        google: {
+          expectUserResponse: true,
+          isSsml: false,
+          noInputPrompts: [],
+          richResponse: {
+            items: [
+              {simpleResponse: {textToSpeech: 'hello', displayText: 'hi'}},
+            ],
+            suggestions: [{title: 'Say this'}, {title: 'or this'}],
+          },
+          systemIntent: {
+            intent: 'actions.intent.OPTION',
+            data: {
+              '@type':
+                'type.googleapis.com/google.actions.v2.OptionValueSpec',
+              'listSelect': {
+                items: [
+                  {
+                    optionInfo: {key: 'key1', synonyms: ['key one']},
+                    title: 'must not be empty',
+                  },
+                  {
+                    optionInfo: {key: 'key2', synonyms: ['key two']},
+                    title: 'must not be empty, but unquie, for some reason',
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+    },
+  ],
+  fulfillmentText: '',
+  outputContexts: [],
+};
+const responseGoogleV2Suggestion = {
+  fulfillmentMessages: [
+    {
+      platform: 'ACTIONS_ON_GOOGLE',
+      simpleResponses: {
+        simpleResponses: [{textToSpeech: ' ', displayText: ' '}],
+      },
+    },
+    {
+      suggestions: {suggestions: [{title: 'sample reply'}]},
+      platform: 'ACTIONS_ON_GOOGLE',
+    },
+  ],
+  outputContexts: [],
+};
+const responseGoogleV2Image = {
+  fulfillmentMessages: [
+    {
+      platform: 'ACTIONS_ON_GOOGLE',
+      simpleResponses: {
+        simpleResponses: [{textToSpeech: ' ', displayText: ' '}],
+      },
+    },
+    {
+      basicCard: {
+        image: {
+          imageUri: `https://assistant.google.com/static/images/molecule/\
+Molecule-Formation-stop.png`,
+          accessibilityText: 'accessibility text',
+        },
+      },
+      platform: 'ACTIONS_ON_GOOGLE',
+    },
+  ],
+  outputContexts: [],
+};
+const responseGoogleV2Card = {
+  fulfillmentMessages: [
+    {
+      platform: 'ACTIONS_ON_GOOGLE',
+      simpleResponses: {
+        simpleResponses: [{textToSpeech: ' ', displayText: ' '}],
+      },
+    },
+    {
+      basicCard: {
+        title: 'card title',
+        formattedText: 'card text',
+        image: {
+          imageUri: `https://assistant.google.com/static/images/molecule/\
+Molecule-Formation-stop.png`,
+          accessibilityText: 'accessibility text',
+        },
+      },
+      platform: 'ACTIONS_ON_GOOGLE',
+    },
+  ],
+  outputContexts: [],
+};
+const responseGoogleV2Text = {
+  fulfillmentMessages: [
+    {
+      platform: 'ACTIONS_ON_GOOGLE',
+      simpleResponses: {
+        simpleResponses: [
+          {textToSpeech: 'text response', displayText: 'text response'},
+        ],
+      },
+    },
+  ],
+  outputContexts: [],
+};
+const responseGoogleV2TextAndCard = {
+  fulfillmentMessages: [
+    {
+      platform: 'ACTIONS_ON_GOOGLE',
+      simpleResponses: {
+        simpleResponses: [
+          {textToSpeech: 'text response', displayText: 'text response'},
+        ],
+      },
+    },
+    {
+      basicCard: {
+        title: 'card title',
+        formattedText: 'card text',
+        image: {
+          imageUri: `https://assistant.google.com/static/images/molecule/\
+Molecule-Formation-stop.png`,
+          accessibilityText: 'accessibility text',
+        },
+      },
+      platform: 'ACTIONS_ON_GOOGLE',
+    },
+  ],
+  outputContexts: [],
+};
 
 // Mock v2 webhook request from Dialogflow
 const mockGoogleV2Request = {

@@ -27,6 +27,7 @@ const {
   ImageResponse,
   SuggestionsResponse,
   SUPPORTED_RICH_MESSAGE_PLATFORMS,
+  PLATFORMS,
   V2_TO_V1_PLATFORM_NAME,
   PLATFORM_UNSPECIFIED,
 } = require('../response-builder');
@@ -418,4 +419,34 @@ test('QuickReplies (setReply and setPlatform)', async (t) => {
     {quickReplies: {quickReplies: [reply]}},
     quickReply.getV2ResponseObject_()
   );
+});
+
+test('TextResponse SSML', async (t) => {
+  // TextResponse generic response
+  let textResponse = new TextResponse({
+    text: 'sample text',
+    ssml: '<speak>This is <say-as interpret-as="characters">SSML</say-as>.</speak>',
+  });
+  t.deepEqual(textResponse.getV1ResponseObject_(), {
+    type: 0,
+    speech: 'sample text',
+  });
+  t.deepEqual(textResponse.getV2ResponseObject_(), {
+    text: {text: ['sample text']},
+  });
+  t.deepEqual(textResponse.getV1ResponseObject_(PLATFORMS.ACTIONS_ON_GOOGLE), {
+    type: 'simple_response',
+    platform: 'google',
+    textToSpeech: '<speak>This is <say-as interpret-as="characters">SSML</say-as>.</speak>',
+    displayText: 'sample text',
+  });
+
+  textResponse.setSsml('<speak>This is SSML</speak>');
+  t.deepEqual(textResponse.getV2ResponseObject_(PLATFORMS.ACTIONS_ON_GOOGLE), {
+    platform: 'ACTIONS_ON_GOOGLE',
+    simpleResponses: {simpleResponses: [{
+      ssml: '<speak>This is SSML</speak>',
+      displayText: 'sample text',
+    }]},
+  });
 });

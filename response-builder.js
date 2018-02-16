@@ -137,6 +137,7 @@ class TextResponse extends RichResponse {
       this.text = text;
     } else if (typeof text === 'object') {
       this.text = text.text;
+      this.ssml = text.ssml;
       if (
         typeof text.platform !== 'undefined' &&
         text.platform !== PLATFORMS.UNSPECIFIED
@@ -169,6 +170,24 @@ class TextResponse extends RichResponse {
   }
 
   /**
+   * Set the SSML for a TextResponse
+   *
+   * @example
+   * let textResponse = new TextResponse();
+   * textResponse.setSsml('<speak>This is <say-as interpret-as="characters">SSML</say-as>.</speak>')
+   *
+   * @param {string} ssml containing the SSML response content
+   * @return {TextResponse}
+   */
+  setSsml(ssml) {
+    if (typeof ssml !== 'string') {
+      throw new Error('setSsml requires a single string argument');
+    }
+    this.ssml = ssml;
+    return this;
+  }
+
+  /**
    * Get the v1 response object for the rich response
    * https://dialogflow.com/docs/reference/agent/message-objects
    *
@@ -196,7 +215,7 @@ class TextResponse extends RichResponse {
         type: 'simple_response',
         platform: V2_TO_V1_PLATFORM_NAME[PLATFORMS.ACTIONS_ON_GOOGLE],
       };
-      response.textToSpeech = this.text;
+      response.textToSpeech = this.ssml || this.text;
       response.displayText = this.text;
     } else {
       // { 'type': 0, 'platform': 'facebook', 'speech': 'text response'};
@@ -235,9 +254,13 @@ class TextResponse extends RichResponse {
     if (platform === PLATFORMS.ACTIONS_ON_GOOGLE) {
       response = {
         platform: 'ACTIONS_ON_GOOGLE',
-        simpleResponses: {simpleResponses: [{textToSpeech: ''}]},
+        simpleResponses: {simpleResponses: [{}]},
       };
-      response.simpleResponses.simpleResponses[0].textToSpeech = this.text;
+      if (this.ssml) {
+        response.simpleResponses.simpleResponses[0].ssml = this.ssml;
+      } else {
+        response.simpleResponses.simpleResponses[0].textToSpeech = this.text;
+      }
       response.simpleResponses.simpleResponses[0].displayText = this.text;
     } else {
       // {"text": {"text": ["text response"]},"platform": "FACEBOOK"}
