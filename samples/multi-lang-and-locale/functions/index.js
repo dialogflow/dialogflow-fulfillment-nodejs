@@ -21,9 +21,6 @@ const {WebhookClient} = require('dialogflow-fulfillment');
 
 process.env.DEBUG = 'dialogflow:debug';
 
-const WELCOME_ACTION = 'input.welcome';
-const FALLBACK_ACTION = 'input.unknown';
-
 exports.dialogflowFulfillmentMultiLocale = functions.https.onRequest((request, response) => {
   const agent = new WebhookClient({ request, response });
   console.log('Dialogflow Request headers: ' + JSON.stringify(request.headers));
@@ -38,8 +35,8 @@ exports.dialogflowFulfillmentMultiLocale = functions.https.onRequest((request, r
     agent.add(`I'm sorry, can you try again?`);
   }
   let enActionMap = new Map();
-  enActionMap.set(WELCOME_ACTION, welcome);
-  enActionMap.set(FALLBACK_ACTION, fallback);
+  enActionMap.set('Default Welcome Intent', welcome);
+  enActionMap.set('Default Fallback Intent', fallback);
 
   // French handler functions and action map
   function bienvenue(agent) {
@@ -50,8 +47,8 @@ exports.dialogflowFulfillmentMultiLocale = functions.https.onRequest((request, r
     agent.add(`Pouvez-vous essayer encore?`);
   }
   let frActionMap = new Map();
-  frActionMap.set(WELCOME_ACTION, bienvenue);
-  frActionMap.set(FALLBACK_ACTION, secours);
+  frActionMap.set('Default Welcome Intent', bienvenue);
+  frActionMap.set('Default Fallback Intent', secours);
 
   // Chose which action map to use based on the language of the request
   console.log(`Request locale: ${agent.locale}`);

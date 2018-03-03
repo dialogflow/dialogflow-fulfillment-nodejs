@@ -20,8 +20,8 @@ const fs = require('fs');
 const path = require('path');
 const jsdoc2md = require('jsdoc-to-markdown');
 
-const inputFile = './*.js';
-const outputDir = './docs';
+const inputFile = './src/*.js';
+const outputDir = './docs/';
 
 const templateData = jsdoc2md.getTemplateDataSync({files: inputFile});
 const classNames = templateData.reduce((classNames, identifier) => {

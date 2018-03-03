@@ -17,7 +17,7 @@
 'use strict';
 
 // Enable dialogflow debug logging
-process.env.DEBUG = 'dialogflow:*';
+// process.env.DEBUG = 'dialogflow:*';
 
 const test = require('ava');
 
@@ -30,7 +30,7 @@ const {
   PLATFORMS,
   V2_TO_V1_PLATFORM_NAME,
   PLATFORM_UNSPECIFIED,
-} = require('../response-builder');
+} = require('../src/response-builder');
 
 test('Test v1 and v2 generic responses', async (t) => {
   // TextResponse generic response

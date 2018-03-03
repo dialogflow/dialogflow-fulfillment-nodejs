@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-const Debug = require('debug');
-const debug = new Debug('dialogflow:debug');
+const debug = require('debug')('dialogflow:debug');
 
 // Configure logging for hosting platforms agent only support console.log and console.error
 debug.log = console.log.bind(console);
@@ -23,7 +22,7 @@ debug.log = console.log.bind(console);
 const DEFAULT_CONTEXT_LIFESPAN = 5;
 
 // Response Builder classes
-const {TextResponse, V1_TO_V2_PLATFORM_NAME} = require('./response-builder');
+const {V1_TO_V2_PLATFORM_NAME} = require('./response-builder');
 
 /**
  * Class representing a v2 Dialogflow agent
@@ -47,6 +46,14 @@ class V2Agent {
    * @private
    */
   processRequest_() {
+    /**
+     * Dialogflow intent or null if no value
+     * https://dialogflow.com/docs/intents
+     * @type {string}
+     */
+    this.agent.intent = this.agent.request_.body.queryResult.intent.displayName;
+    debug(`Intent: ${this.agent.intent}`);
+
     /**
      * Dialogflow action or null if no value: https://dialogflow.com/docs/actions-and-parameters
      * @type {string}
@@ -92,20 +99,10 @@ class V2Agent {
      * https://dialogflow.com/docs/reference/api-v2/rest/v2beta1/projects.agent.intents#Platform
      * @type {string}
      */
-    if (this.agent.request_.body.originalDetectIntentRequest) {
-      const requestSource = this.agent.request_.body.originalDetectIntentRequest
-        .source;
-      this.agent.requestSource = V1_TO_V2_PLATFORM_NAME[requestSource];
-    }
-    // Use request source from original request if present
-    if (
-      !this.agent.requestSource &&
-      this.agent.request_.body.originalDetectIntentRequest &&
-      this.agent.request_.body.originalDetectIntentRequest.payload
-    ) {
-      const v1SourceName = this.agent.request_.body.originalDetectIntentRequest
-        .payload.source;
-      this.agent.requestSource = V1_TO_V2_PLATFORM_NAME[v1SourceName] || v1SourceName;
+    const detectIntentRequest = this.agent.request_.body.originalDetectIntentRequest;
+    if (detectIntentRequest) {
+      const requestSource = detectIntentRequest.source || detectIntentRequest.payload.source;
+      this.agent.requestSource = V1_TO_V2_PLATFORM_NAME[requestSource] || requestSource;
     }
     debug(`Request source: ${JSON.stringify(this.agent.requestSource)}`);
 
@@ -126,37 +123,47 @@ class V2Agent {
   }
 
   /**
-   * Send v2 response to Dialogflow fulfillment webhook request based on developer
-   * defined response messages and original request source
+   * Send v2 text response to Dialogflow fulfillment webhook request based on
+   * single, developer defined text response
    *
    * @private
    */
-  sendResponse_() {
-    let responseJson = {};
+  sendTextResponse_() {
+    const message = this.agent.responseMessages_[0];
+    const fulfillmentText = message.ssml || message.text;
+    this.sendJson_({fulfillmentText: fulfillmentText});
+  }
 
-    // Set response content
-    const responseMessages = this.buildResponseMessages_();
-    if (responseMessages.length < 1) {
-      throw new Error(`No responses defined for ${this.agent.requestSource}`);
-    }
-    if (
-      responseMessages.length === 1 &&
-      responseMessages[0] instanceof TextResponse
-    ) {
-      responseJson.fulfillmentText =
-        responseMessages[0].text.text[0] ||
-        responseMessages[0].simpleResponses[0].textToSpeech;
-    } else {
-      responseJson.fulfillmentMessages = responseMessages;
-    }
-    // If the message is a payload and doesn't have fulfillmentText Dialogflow breaks
-    if (
-      this.agent.existingPayload_(this.agent.requestSource) &&
-      !responseJson.fulfillmentText
-    ) {
-      responseJson.fulfillmentText = '';
-    }
+  /**
+   * Send v2 payload response to Dialogflow fulfillment webhook request based
+   * on developer defined payload response
+   *
+   * @param {Object} payload to back to requestSource (i.e. Google, Slack, etc.)
+   * @param {string} requestSource string indicating the source of the initial request
+   * @private
+   */
+  sendPayloadResponse_(payload, requestSource) {
+    this.sendJson_({payload: payload.getPayload_(requestSource)});
+  }
 
+  /**
+   * Send v2 response to Dialogflow fulfillment webhook request based on developer
+   * defined response messages and original request source
+   *
+   * @param {string} requestSource string indicating the source of the initial request
+   * @private
+   */
+  sendMessagesResponse_(requestSource) {
+    this.sendJson_({fulfillmentMessages: this.buildResponseMessages_(requestSource)});
+  }
+
+  /**
+   * Send v2 response to Dialogflow fulfillment webhook request
+   *
+   * @param {Object} responseJson JSON to send to Dialogflow
+   * @private
+   */
+  sendJson_(responseJson) {
     responseJson.outputContexts = this.agent.outgoingContexts_;
     this.agent.followupEvent_ ? responseJson.followupEventInput = this.agent.followupEvent_ : undefined;
 
@@ -168,12 +175,13 @@ class V2Agent {
    * Builds a list of v2 message objects to send back to Dialogflow based on
    * developer defined responses and the request source
    *
+   * @param {string} requestSource string indicating the source of the initial request
    * @return {Object[]} message objects
    * @private
    */
-  buildResponseMessages_() {
+  buildResponseMessages_(requestSource) {
     const responseMessages = this.agent.responseMessages_
-      .map((message) => message.getV2ResponseObject_(this.agent.requestSource))
+      .map((message) => message.getV2ResponseObject_(requestSource))
       .filter((arr) => arr);
     return responseMessages;
   }

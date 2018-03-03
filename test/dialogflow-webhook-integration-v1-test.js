@@ -21,62 +21,62 @@
 
 const test = require('ava');
 
-const {WebhookClient} = require('../dialogflow-fulfillment');
-const {Card, Suggestion} = require('../dialogflow-fulfillment');
+const {WebhookClient} = require('../src/dialogflow-fulfillment');
+const {Card, Suggestion} = require('../src/dialogflow-fulfillment');
 
 test('v1 Integration test', async (t) => {
   // v1 Google Welcome
   let googleV1WelcomeRequest = {body: mockGoogleV1RequestWelcome};
   webhookTest(googleV1WelcomeRequest, (responseJson) => {
-    t.deepEqual(mockGoogleV1ResponseWelcome, responseJson);
+    t.deepEqual(responseJson, mockGoogleV1ResponseWelcome);
   });
 
   // v1 Slack Welcome
   let slackV1WelcomeRequest = {body: mockSlackV1RequestWelcome};
   webhookTest(slackV1WelcomeRequest, (responseJson) => {
-    t.deepEqual(mockSlackV1ResponseWelcome, responseJson);
+    t.deepEqual(responseJson, mockSlackV1ResponseWelcome);
   });
 
   // v1 Facebook Welcome
   let facebookV1WelcomeRequest = {body: mockFacebookV1RequestWelcome};
   webhookTest(facebookV1WelcomeRequest, (responseJson) => {
-    t.deepEqual(mockFacebookV1ResponseWelcome, responseJson);
+    t.deepEqual(responseJson, mockFacebookV1ResponseWelcome);
   });
 
   // v1 Google Fallback
   let googleV1RequestFallback = {body: mockGoogleV1RequestFallback};
   webhookTest(googleV1RequestFallback, (responseJson) => {
-    t.deepEqual(mockGoogleV1ResponseFallback, responseJson);
+    t.deepEqual(responseJson, mockGoogleV1ResponseFallback);
   });
 
   // v1 Slack Fallback
   let slackV1FallbackRequest = {body: mockSlackV1RequestFallback};
   webhookTest(slackV1FallbackRequest, (responseJson) => {
-    t.deepEqual(mockSlackV1ResponseFallback, responseJson);
+    t.deepEqual(responseJson, mockSlackV1ResponseFallback);
   });
 
   // v1 Facebook Fallback
   let facebookV1FallbackRequest = {body: mockFacebookV1RequestFallback};
   webhookTest(facebookV1FallbackRequest, (responseJson) => {
-    t.deepEqual(mockFacebookV1ResponseFallback, responseJson);
+    t.deepEqual(responseJson, mockFacebookV1ResponseFallback);
   });
 
   // v1 Google Webhook
   let googleV1WebhookRequest = {body: mockGoogleV1RequestWebhook};
   webhookTest(googleV1WebhookRequest, (responseJson) => {
-    t.deepEqual(mockGoogleV1ResponseWebhook, responseJson);
+    t.deepEqual(responseJson, mockGoogleV1ResponseWebhook);
   });
 
   // v1 Slack Webhook
   let slackV1WebhookRequest = {body: mockSlackV1RequestWebhook};
   webhookTest(slackV1WebhookRequest, (responseJson) => {
-    t.deepEqual(mockSlackV1ResponseWebhook, responseJson);
+    t.deepEqual(responseJson, mockSlackV1ResponseWebhook);
   });
 
   // v1 Facebook Webhook
   let facebookV1WebhookRequest = {body: mockFacebookV1RequestWebhook};
   webhookTest(facebookV1WebhookRequest, (responseJson) => {
-    t.deepEqual(mockFacebookV1ResponseWebhook, responseJson);
+    t.deepEqual(responseJson, mockFacebookV1ResponseWebhook);
   });
 });
 
@@ -88,9 +88,6 @@ test('v1 Integration test', async (t) => {
 function webhookTest(request, callback) {
   let response = new ResponseMock(callback);
   const agent = new WebhookClient({request: request, response: response});
-  // webhook handler code
-  const WELCOME_ACTION = 'input.welcome';
-  const FALLBACK_ACTION = 'input.unknown';
   /**
    * Handler function to welcome
    * @param {Object} agent
@@ -129,11 +126,11 @@ function webhookTest(request, callback) {
     agent.add(new Suggestion('Suggestion'));
   }
 
-  let actionMap = new Map();
-  actionMap.set(WELCOME_ACTION, welcome);
-  actionMap.set(FALLBACK_ACTION, fallback);
-  actionMap.set(null, other);
-  agent.handleRequest(actionMap);
+  let intentMap = new Map();
+  intentMap.set('Default Welcome Intent', welcome);
+  intentMap.set('Default Fallback Intent', fallback);
+  intentMap.set(null, other);
+  agent.handleRequest(intentMap);
 }
 
 /**
@@ -253,14 +250,8 @@ const mockGoogleV1RequestWelcome = {
   sessionId: '1515191296300',
 };
 const mockGoogleV1ResponseWelcome = {
-  messages: [
-    {
-      type: 'simple_response',
-      platform: 'google',
-      textToSpeech: 'Welcome to my agent!',
-      displayText: 'Welcome to my agent!',
-    },
-  ],
+  speech: 'Welcome to my agent!',
+  displayText: 'Welcome to my agent!',
   contextOut: [],
 };
 
@@ -309,7 +300,8 @@ const mockSlackV1RequestWelcome = {
   sessionId: '88d13aa8-2999-4f71-b233-39cbf3a824a0',
 };
 const mockSlackV1ResponseWelcome = {
-  messages: [{type: 0, platform: 'slack', speech: 'Welcome to my agent!'}],
+  speech: 'Welcome to my agent!',
+  displayText: 'Welcome to my agent!',
   contextOut: [],
 };
 
@@ -360,7 +352,8 @@ const mockFacebookV1RequestWelcome = {
   sessionId: '3c32f610-3f2b-4bd8-9712-43eb69c06c43',
 };
 const mockFacebookV1ResponseWelcome = {
-  messages: [{type: 0, platform: 'facebook', speech: 'Welcome to my agent!'}],
+  speech: 'Welcome to my agent!',
+  displayText: 'Welcome to my agent!',
   contextOut: [],
 };
 

@@ -22,12 +22,6 @@ const {Text, Card, Image, Suggestion, Payload} = require('dialogflow-fulfillment
 
 process.env.DEBUG = 'dialogflow:debug';
 
-// Dialogflow action names
-const WELCOME_ACTION = 'input.welcome';
-const CONVERT_COMMON_TEMP = 'convert.common.temperature';
-const CONVERT_ABSOLUTE_TEMP = 'convert.absolute.temperature';
-const FALLBACK_ACTION = 'input.unknown';
-
 // Wikipedia link and image URLs
 const wikipediaTemperatureUrl = 'https://en.wikipedia.org/wiki/Temperature';
 const wikipediaTemperatureImageUrl = 'https://upload.wikimedia.org/wikipedia/commons/2/23/Thermally_Agitated_Molecule.gif';
@@ -147,10 +141,10 @@ exports.dialogflowFulfillmentAdvancedSample = functions.https.onRequest((request
     agent.add(`I didn't get that, can you try again?`);
   }
 
-  let actionMap = new Map();
-  actionMap.set(WELCOME_ACTION, welcome);
-  actionMap.set(CONVERT_COMMON_TEMP, convertFahrenheitAndCelsius);
-  actionMap.set(CONVERT_ABSOLUTE_TEMP, convertRankineAndKelvin);
-  actionMap.set(FALLBACK_ACTION, fallback);
-  agent.handleRequest(actionMap);
+  let intentMap = new Map();
+  intentMap.set('Default Welcome Intent', welcome);
+  intentMap.set('Convert Fahrenheit and Celsius', convertFahrenheitAndCelsius);
+  intentMap.set('Convert Rankine and Kelvin', convertRankineAndKelvin);
+  intentMap.set('Default Fallback Intent', fallback);
+  agent.handleRequest(intentMap);
 });

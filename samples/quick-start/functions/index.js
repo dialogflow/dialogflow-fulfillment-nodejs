@@ -22,8 +22,6 @@ const {Card, Suggestion} = require('dialogflow-fulfillment');
 
 process.env.DEBUG = 'dialogflow:debug';
 
-const WELCOME_ACTION = 'input.welcome';
-const FALLBACK_ACTION = 'input.unknown';
 const imageUrl = 'https://developers.google.com/actions/images/badges/XPM_BADGING_GoogleAssistant_VER.png';
 const linkUrl = 'https://assistant.google.com/';
 
@@ -56,9 +54,11 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
     agent.setContext({ name: 'weather', lifespan: 2, parameters: { city: 'Rome' }});
   }
 
-  let actionMap = new Map();
-  actionMap.set(WELCOME_ACTION, welcome);
-  actionMap.set(FALLBACK_ACTION, fallback);
-  actionMap.set(null, other);
-  agent.handleRequest(actionMap);
+  // Add handlers for your other Dialogflow intents here
+
+  let intentMap = new Map();
+  intentMap.set('Default Welcome Intent', welcome);
+  intentMap.set('Default Fallback Intent', fallback);
+  intentMap.set(null, other);
+  agent.handleRequest(intentMap);
 });

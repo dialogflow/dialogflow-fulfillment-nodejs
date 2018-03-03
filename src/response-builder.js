@@ -508,10 +508,13 @@ class CardResponse extends RichResponse {
         response.basicCard.image.imageUri = this.imageUrl;
         response.basicCard.image.accessibilityText = 'accessibility text';
       }
-      if (this.buttonsTitle && this.buttonUrl) {
-        response.buttons = [{}];
-        response.basicCard.buttons[0].title = this.buttonsTitle;
-        response.basicCard.buttons[0].openUriAction.uri = this.buttonUrl;
+      if (this.buttonText && this.buttonUrl) {
+        response.basicCard.buttons = [{
+          title: this.buttonText,
+          openUriAction: {
+            uri: this.buttonUrl,
+          },
+        }];
       }
     } else {
       response = {card: {}};
@@ -886,9 +889,6 @@ class PayloadResponse extends RichResponse {
     if (!platform) {
       throw new Error('Platform can NOT be empty');
     }
-    if (SUPPORTED_RICH_MESSAGE_PLATFORMS.indexOf(platform) < 0) {
-      throw new Error(`Platform '${platform}' not supported.`);
-    }
 
     if (!payload) {
       this.platform = platform.platform;
@@ -926,62 +926,42 @@ class PayloadResponse extends RichResponse {
   }
 
   /**
-   * Get the v1 response object for the rich response
-   * https://dialogflow.com/docs/reference/agent/message-objects
-   *
-   * @example
-   * let richResponse = new RichResponse();
-   * richResponse.getV1ResponseObject_(PLATFORMS.ACTIONS_ON_GOOGLE)
+   * Get the the contents of the payload
    *
    * @param {string} platform desired message object platform
-   * @return {Object} v1 response object
+   * @return {Object} payload
    * @private
    */
-  getV1ResponseObject_(platform) {
-    // If response is not for the inteded platform return null
-    if (platform !== this.platform) {
-      // if it is and is not for the specific platform return null
-      return null;
-    }
-
-    let response;
+  getPayload_(platform) {
+    let response = {};
     if (platform === PLATFORMS.ACTIONS_ON_GOOGLE) {
-      response = {type: 'custom_payload', payload: {}};
-      response.platform = V2_TO_V1_PLATFORM_NAME[platform];
-      response.payload[V2_TO_V1_PLATFORM_NAME[platform]] = this.payload;
+      response['google'] = this.payload;
     } else {
-      response = {type: 4, payload: {}};
-      response.platform = V2_TO_V1_PLATFORM_NAME[platform];
-      response.payload[V2_TO_V1_PLATFORM_NAME[platform]] = this.payload;
+      const responsePlatform = V2_TO_V1_PLATFORM_NAME[platform] || platform;
+      response[responsePlatform] = this.payload;
     }
     return response;
   }
 
   /**
-   * Get the v2 response object for the rich response
-   * https://dialogflow.com/docs/reference/api-v2/rest/v2beta1/projects.agent.intents#Message
+   * Get the the response object of the payload
    *
-   * @example
-   * let richResponse = new RichResponse();
-   * richResponse.getV2ResponseObject_(PLATFORMS.ACTIONS_ON_GOOGLE)
-   *
-   * @param {string} platform desired message object platform
-   * @return {Object} v2 response object
+   * @return {null} payload
    * @private
    */
-  getV2ResponseObject_(platform) {
-    // If response is not for the inteded platform return null
-    if (platform !== this.platform) {
-      // If it is and is not for the specific platform return null
-      return null;
-    } else {
-      let response = {};
-      response.platform = this.platform;
-      response.payload = {};
-      response.payload[V2_TO_V1_PLATFORM_NAME[this.platform]] = this.payload;
-      return response;
-    }
-  }
+  getV1ResponseObject_() {
+ return null;
+}
+
+  /**
+   * Get the the response object of the payload
+   *
+   * @return {null} payload
+   * @private
+   */
+  getV2ResponseObject_() {
+ return null;
+}
 }
 
 module.exports = {

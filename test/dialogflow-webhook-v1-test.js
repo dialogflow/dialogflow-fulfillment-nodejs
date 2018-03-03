@@ -21,8 +21,8 @@
 
 const test = require('ava');
 
-const {WebhookClient} = require('../dialogflow-fulfillment');
-const {Card, Image, Suggestion, Payload} = require('../dialogflow-fulfillment');
+const {WebhookClient} = require('../src/dialogflow-fulfillment');
+const {Card, Image, Suggestion, Payload} = require('../src/dialogflow-fulfillment');
 
 const imageUrl =
   'https://assistant.google.com/static/images/molecule/Molecule-Formation-stop.png';
@@ -139,26 +139,44 @@ test('Test v1 Facebook responses', async (t) => {
   );
 });
 
-test('Test v2 incompatible platform', async (t) => {
-  // Twitter request/response
-  let twitterResponse = new ResponseMock();
+test('Test v1 Twitter requestSource', async (t) => {
   let twitterRequest = {body: mockTwitterV1Request};
+  let response = new ResponseMock();
   let agent = new WebhookClient({
     request: twitterRequest,
-    response: twitterResponse,
+    response: response,
   });
 
-  // Sending a response to Twitter (unsupported platform) will fail
-  try {
-    await agent.handleRequest((agent) => {
-      agent.add('this will never get sent');
-    });
-  } catch (err) {
-    t.is(
-      err.message,
-      `Platform is not supported.`
-    );
-  }
+  t.deepEqual(agent.requestSource, 'twitter');
+});
+
+test('Test v1 Twitter text-only response', async (t) => {
+  let twitterRequest = {body: mockTwitterV1Request};
+  const textResponse = 'twitter text response';
+
+  webhookTest(
+    twitterRequest,
+    (agent) => {
+      agent.add(textResponse);
+    },
+    (responseJson) => {
+      t.deepEqual(responseJson, {speech: textResponse, displayText: textResponse, contextOut: []});
+    }
+  );
+});
+
+test('Test v1 Twitter payload response', async (t) => {
+  let twitterRequest = {body: mockTwitterV1Request};
+
+  webhookTest(
+    twitterRequest,
+    (agent) => {
+      agent.add(new Payload('twitter', {test: 'payload'}));
+    },
+    (responseJson) => {
+      t.deepEqual(responseJson, {data: {twitter: {test: 'payload'}}, contextOut: []});
+    }
+  );
 });
 
 test('Test v1 contexts', async (t) => {
@@ -315,41 +333,35 @@ class ResponseMock {
 }
 
 const responseFacebookV1Payload = {
-  messages: [
-    {
-      type: 4,
-      payload: {
-        facebook: {
-          attachment: {
-            type: 'template',
-            payload: {
-              template_type: 'generic',
-              elements: [
+  data: {
+    facebook: {
+      attachment: {
+        type: 'template',
+        payload: {
+          template_type: 'generic',
+          elements: [
+            {
+              title: 'Title: this is a title',
+              image_url:
+                'https://developers.google.com/actions/images/badges/XPM_BADGING_GoogleAssistant_VER.png',
+              subtitle: 'This is a subtitle',
+              default_action: {
+                type: 'web_url',
+                url: 'https://assistant.google.com/',
+              },
+              buttons: [
                 {
-                  title: 'Title: this is a title',
-                  image_url:
-                    'https://developers.google.com/actions/images/badges/XPM_BADGING_GoogleAssistant_VER.png',
-                  subtitle: 'This is a subtitle',
-                  default_action: {
-                    type: 'web_url',
-                    url: 'https://assistant.google.com/',
-                  },
-                  buttons: [
-                    {
-                      type: 'web_url',
-                      url: 'https://assistant.google.com/',
-                      title: 'This is a button',
-                    },
-                  ],
+                  type: 'web_url',
+                  url: 'https://assistant.google.com/',
+                  title: 'This is a button',
                 },
               ],
             },
-          },
+          ],
         },
       },
-      platform: 'facebook',
     },
-  ],
+  },
   contextOut: [],
 };
 const responsefacebookV1Suggestion = {
@@ -358,29 +370,23 @@ const responsefacebookV1Suggestion = {
 };
 
 const responseSlackV1Payload = {
-  messages: [
-    {
-      type: 4,
-      payload: {
-        slack: {
-          text: 'This is a text response for Slack.',
-          attachments: [
-            {
-              title: 'Title: this is a title',
-              title_link: 'https://assistant.google.com/',
-              text: `This is an attachment.  Text in attachments can include \
+  data: {
+    slack: {
+      text: 'This is a text response for Slack.',
+      attachments: [
+        {
+          title: 'Title: this is a title',
+          title_link: 'https://assistant.google.com/',
+          text: `This is an attachment.  Text in attachments can include \
 \'quotes\' and most other unicode characters including emoji 📱.  \
 Attachments also upport line\nbreaks.`,
-              image_url:
-                'https://developers.google.com/actions/images/badges/XPM_BADGING_GoogleAssistant_VER.png',
-              fallback: 'This is a fallback.',
-            },
-          ],
+          image_url:
+            'https://developers.google.com/actions/images/badges/XPM_BADGING_GoogleAssistant_VER.png',
+          fallback: 'This is a fallback.',
         },
-      },
-      platform: 'slack',
+      ],
     },
-  ],
+  },
   contextOut: [],
 };
 const responseSlackV1Suggestion = {
@@ -417,44 +423,38 @@ const responseSlackV1TextAndCard = {
 };
 
 const responseGoogleV1Payload = {
-  messages: [
-    {
-      type: 'custom_payload',
-      payload: {
-        google: {
-          expectUserResponse: true,
-          isSsml: false,
-          noInputPrompts: [],
-          richResponse: {
+  data: {
+    google: {
+      expectUserResponse: true,
+      isSsml: false,
+      noInputPrompts: [],
+      richResponse: {
+        items: [
+          {simpleResponse: {textToSpeech: 'hello', displayText: 'hi'}},
+        ],
+        suggestions: [{title: 'Say this'}, {title: 'or this'}],
+      },
+      systemIntent: {
+        intent: 'actions.intent.OPTION',
+        data: {
+          '@type':
+            'type.googleapis.com/google.actions.v2.OptionValueSpec',
+          'listSelect': {
             items: [
-              {simpleResponse: {textToSpeech: 'hello', displayText: 'hi'}},
-            ],
-            suggestions: [{title: 'Say this'}, {title: 'or this'}],
-          },
-          systemIntent: {
-            intent: 'actions.intent.OPTION',
-            data: {
-              '@type':
-                'type.googleapis.com/google.actions.v2.OptionValueSpec',
-              'listSelect': {
-                items: [
-                  {
-                    optionInfo: {key: 'key1', synonyms: ['key one']},
-                    title: 'must not be empty',
-                  },
-                  {
-                    optionInfo: {key: 'key2', synonyms: ['key two']},
-                    title: 'must not be empty, but unquie, for some reason',
-                  },
-                ],
+              {
+                optionInfo: {key: 'key1', synonyms: ['key one']},
+                title: 'must not be empty',
               },
-            },
+              {
+                optionInfo: {key: 'key2', synonyms: ['key two']},
+                title: 'must not be empty, but unquie, for some reason',
+              },
+            ],
           },
         },
       },
-      platform: 'google',
     },
-  ],
+  },
   contextOut: [],
 };
 

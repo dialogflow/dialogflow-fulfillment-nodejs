@@ -10,6 +10,7 @@ Dialogflow's simulator
 * [WebhookClient](#WebhookClient)
     * [new WebhookClient(options)](#new_WebhookClient_new)
     * [.agentVersion](#WebhookClient+agentVersion) : <code>number</code>
+    * [.intent](#WebhookClient+intent) : <code>string</code>
     * [.action](#WebhookClient+action) : <code>string</code>
     * [.parameters](#WebhookClient+parameters) : <code>Array.&lt;Object&gt;</code>
     * [.contexts](#WebhookClient+contexts) : <code>string</code>
@@ -43,6 +44,12 @@ To be used in the Dialogflow fulfillment webhook logic
 ### webhookClient.agentVersion : <code>number</code>
 The agent version (v1 or v2) based on Dialogflow webhook request
 https://dialogflow.com/docs/reference/v2-comparison
+
+**Kind**: instance property of [<code>WebhookClient</code>](#WebhookClient)  
+<a name="WebhookClient+intent"></a>
+
+### webhookClient.intent : <code>string</code>
+Dialogflow intent name or null if no value: https://dialogflow.com/docs/intents
 
 **Kind**: instance property of [<code>WebhookClient</code>](#WebhookClient)  
 <a name="WebhookClient+action"></a>

@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-const Debug = require('debug');
-const debug = new Debug('dialogflow:debug');
+const debug = require('debug')('dialogflow:debug');
 
 // Configure logging for hosting platforms that only support console.log and console.error
 debug.log = console.log.bind(console);
@@ -113,6 +112,12 @@ class WebhookClient {
     this.outgoingContexts_ = [];
 
     /**
+     * Dialogflow intent name or null if no value: https://dialogflow.com/docs/intents
+     * @type {string}
+     */
+    this.intent = null;
+
+    /**
      * Dialogflow action or null if no value: https://dialogflow.com/docs/actions-and-parameters
      * @type {string}
      */
@@ -199,44 +204,35 @@ class WebhookClient {
    * @return {void}
    * @private
    */
-  send_(response) {
-    if (SUPPORTED_RICH_MESSAGE_PLATFORMS.indexOf(this.requestSource) < 0
-      && this.requestSource !== undefined
-      && this.requestSource !== null
-      && this.requestSource !== PLATFORMS.UNSPECIFIED) {
-      throw new Error(`Platform is not supported.`);
-    }
+  send_() {
+    const requestSource = this.requestSource;
+    const messages = this.responseMessages_;
 
     // If AoG response and the first response isn't a text response,
     // add a empty text response as the first item
     if (
-      this.requestSource === PLATFORMS.ACTIONS_ON_GOOGLE &&
-      this.responseMessages_[0] &&
-      !(this.responseMessages_[0] instanceof TextResponse) &&
+      requestSource === PLATFORMS.ACTIONS_ON_GOOGLE && messages[0] &&
+      !(messages[0] instanceof TextResponse) &&
       !this.existingPayload_(PLATFORMS.ACTIONS_ON_GOOGLE)
     ) {
-      this.responseMessages_ = [new TextResponse(' ')].concat(
-        this.responseMessages_
-      );
+      this.responseMessages_ = [new TextResponse(' ')].concat(messages);
     }
 
-    // If no response is defined in send args, send the existing responses
-    if (!response) {
-      this.client.sendResponse_();
-      return;
+    // if there is only text, send response
+    // if there is a payload, send the payload for the repsonse
+    // if platform supports messages, send messages
+    const payload = this.existingPayload_(requestSource);
+    if (messages.length === 1 &&
+      messages[0] instanceof TextResponse) {
+      this.client.sendTextResponse_();
+    } else if (payload) {
+      this.client.sendPayloadResponse_(payload, requestSource);
+    } else if (SUPPORTED_RICH_MESSAGE_PLATFORMS.indexOf(this.requestSource) > -1
+      || this.requestSource === null) {
+      this.client.sendMessagesResponse_(requestSource);
+    } else {
+      throw new Error(`No responses defined for platform: ${this.requestSource}`);
     }
-
-    // If there is a response in the response arg,
-    // add it to the response and then send all responses
-    const responseType = typeof response;
-    // If it's a string, make a text response and send it with the other rich responses
-    if (responseType === 'string' || response instanceof RichResponse) {
-      this.add(response);
-    } else if (response.isArray) {
-      // Of it's a list of RichResponse objects or strings (or a mix) add them
-      response.forEach(this.add.bind(this));
-    }
-    this.client.sendResponse_();
   }
 
   /**
@@ -250,6 +246,8 @@ class WebhookClient {
     }
     if (response instanceof SuggestionsResponse && this.existingSuggestion_(response.platform)) {
       this.existingSuggestion_(response.platform).addReply_(response.replies[0]);
+    } else if (response instanceof PayloadResponse && this.existingPayload_(response.platform)) {
+      throw new Error(`Payload response for ${response.platform} already defined.`);
     } else if (response instanceof RichResponse) {
       this.responseMessages_.push(response);
     } else {
@@ -278,8 +276,8 @@ class WebhookClient {
       ));
     }
 
-    if (handler.get(this.action)) {
-      let result = handler.get(this.action)(this);
+    if (handler.get(this.intent)) {
+      let result = handler.get(this.intent)(this);
       // If handler is a promise use it, otherwise create use default (empty) promise
       let promise = result instanceof Promise ? result : Promise.resolve();
       return promise.then(() => this.send_());

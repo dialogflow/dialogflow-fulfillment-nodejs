@@ -21,8 +21,8 @@
 
 const test = require('ava');
 
-const {WebhookClient} = require('../dialogflow-fulfillment');
-const {Suggestion} = require('../dialogflow-fulfillment');
+const {WebhookClient} = require('../src/dialogflow-fulfillment');
+const {Suggestion} = require('../src/dialogflow-fulfillment');
 
 test('Quick Replies Response test', async (t) => {
   // v1 simulator webhook request

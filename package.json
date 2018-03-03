@@ -1,8 +1,8 @@
 {
   "name": "dialogflow-fulfillment",
   "description": "Dialogflow Fulfillment Library for Node.js Alpha",
-  "main": "dialogflow-fulfillment.js",
-  "version": "0.2.0-alpha.1",
+  "main": "src/dialogflow-fulfillment.js",
+  "version": "0.3.0-alpha.1",
   "license": "Apache Version 2.0",
   "author": "Google Inc.",
   "directories": {
@@ -13,8 +13,8 @@
   },
   "scripts": {
     "test": "npm run lint && ava",
-    "lint": "eslint --fix \"*.js\" \"test/*.js\" \"utils/*.js\"",
-    "docs": "node ./utils/generateDocs.js"
+    "lint": "eslint --fix \"*.js\" \"test/*.js\" \"docs/*.js\"",
+    "docs": "node ./docs/generateDocs.js"
   },
   "repository": {
     "type": "git",
