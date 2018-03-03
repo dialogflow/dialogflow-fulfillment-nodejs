@@ -17,20 +17,19 @@
 'use strict';
 
 // Enable dialogflow debug logging
-process.env.DEBUG = 'dialogflow:*';
+// process.env.DEBUG = 'dialogflow:*';
 
 const test = require('ava');
 
+const TextResponse = require('../src/rich-responses/text-response');
+const CardResponse = require('../src/rich-responses/card-response');
+const ImageResponse = require('../src/rich-responses/image-response');
+const SuggestionsResponse = require('../src/rich-responses/suggestions-response');
 const {
-  TextResponse,
-  CardResponse,
-  ImageResponse,
-  SuggestionsResponse,
-  SUPPORTED_RICH_MESSAGE_PLATFORMS,
   PLATFORMS,
+  SUPPORTED_RICH_MESSAGE_PLATFORMS,
   V2_TO_V1_PLATFORM_NAME,
-  PLATFORM_UNSPECIFIED,
-} = require('../response-builder');
+} = require('../src/rich-responses/rich-response');
 
 test('Test v1 and v2 generic responses', async (t) => {
   // TextResponse generic response
@@ -112,7 +111,7 @@ test('Test v1 and v2 platform responses', async (t) => {
       platform: V2_TO_V1_PLATFORM_NAME[SUPPORTED_RICH_MESSAGE_PLATFORMS[6]],
     }
   );
-  t.deepEqual(textResponse.getV1ResponseObject_(PLATFORM_UNSPECIFIED), {
+  t.deepEqual(textResponse.getV1ResponseObject_(PLATFORMS.UNSPECIFIED), {
     type: 0,
     speech: 'sample text',
   });
@@ -134,7 +133,7 @@ test('Test v1 and v2 platform responses', async (t) => {
       platform: SUPPORTED_RICH_MESSAGE_PLATFORMS[2],
     }
   );
-  t.deepEqual(textResponse.getV2ResponseObject_(PLATFORM_UNSPECIFIED), {
+  t.deepEqual(textResponse.getV2ResponseObject_(PLATFORMS.UNSPECIFIED), {
     text: {text: ['sample text']},
   });
 
@@ -158,7 +157,7 @@ test('Test v1 and v2 platform responses', async (t) => {
       title: cardTitle,
     }
   );
-  t.deepEqual(cardResponse.getV1ResponseObject_(PLATFORM_UNSPECIFIED), {
+  t.deepEqual(cardResponse.getV1ResponseObject_(PLATFORMS.UNSPECIFIED), {
     type: 1,
     title: cardTitle,
   });
@@ -176,7 +175,7 @@ test('Test v1 and v2 platform responses', async (t) => {
       platform: SUPPORTED_RICH_MESSAGE_PLATFORMS[2],
     }
   );
-  t.deepEqual(cardResponse.getV2ResponseObject_(PLATFORM_UNSPECIFIED), {
+  t.deepEqual(cardResponse.getV2ResponseObject_(PLATFORMS.UNSPECIFIED), {
     card: {title: cardTitle},
   });
 });

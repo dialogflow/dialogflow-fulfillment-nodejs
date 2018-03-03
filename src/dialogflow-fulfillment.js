@@ -13,24 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-const Debug = require('debug');
-const debug = new Debug('dialogflow:debug');
+const {DialogflowConversation} = require('actions-on-google');
+const debug = require('debug')('dialogflow:debug');
 
 // Configure logging for hosting platforms that only support console.log and console.error
 debug.log = console.log.bind(console);
 
-// Response Builder classes
+// Response and agent classes
+const TextResponse = require('./rich-responses/text-response');
+const CardResponse = require('./rich-responses/card-response');
+const ImageResponse = require('./rich-responses/image-response');
+const SuggestionsResponse = require('./rich-responses/suggestions-response');
+const PayloadResponse = require('./rich-responses/payload-response');
 const {
   RichResponse,
-  TextResponse,
-  CardResponse,
-  ImageResponse,
-  SuggestionsResponse,
-  PayloadResponse,
   PLATFORMS,
   SUPPORTED_RICH_MESSAGE_PLATFORMS,
-} = require('./response-builder');
+} = require('./rich-responses/rich-response');
 const V1Agent = require('./v1-agent');
 const V2Agent = require('./v2-agent');
 
@@ -113,6 +112,12 @@ class WebhookClient {
     this.outgoingContexts_ = [];
 
     /**
+     * Dialogflow intent name or null if no value: https://dialogflow.com/docs/intents
+     * @type {string}
+     */
+    this.intent = null;
+
+    /**
      * Dialogflow action or null if no value: https://dialogflow.com/docs/actions-and-parameters
      * @type {string}
      */
@@ -191,54 +196,6 @@ class WebhookClient {
   // ---------------------------------------------------------------------------
   //                   Generic Methods
   // ---------------------------------------------------------------------------
-
-  /**
-   * Sends a response back to a Dialogflow fulfillment webhook request
-   *
-   * @param {string[]|RichResponse[]} response additional responses to send
-   * @return {void}
-   * @private
-   */
-  send_(response) {
-    if (SUPPORTED_RICH_MESSAGE_PLATFORMS.indexOf(this.requestSource) < 0
-      && this.requestSource !== undefined
-      && this.requestSource !== null
-      && this.requestSource !== PLATFORMS.UNSPECIFIED) {
-      throw new Error(`Platform is not supported.`);
-    }
-
-    // If AoG response and the first response isn't a text response,
-    // add a empty text response as the first item
-    if (
-      this.requestSource === PLATFORMS.ACTIONS_ON_GOOGLE &&
-      this.responseMessages_[0] &&
-      !(this.responseMessages_[0] instanceof TextResponse) &&
-      !this.existingPayload_(PLATFORMS.ACTIONS_ON_GOOGLE)
-    ) {
-      this.responseMessages_ = [new TextResponse(' ')].concat(
-        this.responseMessages_
-      );
-    }
-
-    // If no response is defined in send args, send the existing responses
-    if (!response) {
-      this.client.sendResponse_();
-      return;
-    }
-
-    // If there is a response in the response arg,
-    // add it to the response and then send all responses
-    const responseType = typeof response;
-    // If it's a string, make a text response and send it with the other rich responses
-    if (responseType === 'string' || response instanceof RichResponse) {
-      this.add(response);
-    } else if (response.isArray) {
-      // Of it's a list of RichResponse objects or strings (or a mix) add them
-      response.forEach(this.add.bind(this));
-    }
-    this.client.sendResponse_();
-  }
-
   /**
    * Add a response to be sent to Dialogflow
    *
@@ -248,8 +205,12 @@ class WebhookClient {
     if (typeof response === 'string') {
       response = new TextResponse(response);
     }
-    if (response instanceof SuggestionsResponse && this.existingSuggestion_(response.platform)) {
+    if (response instanceof DialogflowConversation) {
+      this.client.addActionsOnGoogle_(response.serialize());
+    } else if (response instanceof SuggestionsResponse && this.existingSuggestion_(response.platform)) {
       this.existingSuggestion_(response.platform).addReply_(response.replies[0]);
+    } else if (response instanceof PayloadResponse && this.existingPayload_(response.platform)) {
+      throw new Error(`Payload response for ${response.platform} already defined.`);
     } else if (response instanceof RichResponse) {
       this.responseMessages_.push(response);
     } else {
@@ -278,8 +239,8 @@ class WebhookClient {
       ));
     }
 
-    if (handler.get(this.action)) {
-      let result = handler.get(this.action)(this);
+    if (handler.get(this.intent)) {
+      let result = handler.get(this.intent)(this);
       // If handler is a promise use it, otherwise create use default (empty) promise
       let promise = result instanceof Promise ? result : Promise.resolve();
       return promise.then(() => this.send_());
@@ -297,64 +258,9 @@ class WebhookClient {
     }
   }
 
-  /**
-   * Find a existing suggestion response message object for a specific platform
-   *
-   * @param {string} platform of incoming request
-   * @return {SuggestionsResponse|null} quick reply response of corresponding platform or null if no value
-   * @private
-   */
-  existingSuggestion_(platform) {
-    let existingQuickReply;
-    for (let response of this.responseMessages_) {
-      if (response instanceof SuggestionsResponse) {
-        if (
-          (!response.platform || response.platform === PLATFORMS.UNSPECIFIED) &&
-          (!platform || platform === PLATFORMS.UNSPECIFIED)
-        ) {
-          existingQuickReply = response;
-          break;
-        }
-        if (platform === response.platform) {
-          existingQuickReply = response;
-          break;
-        }
-      }
-    }
-    return existingQuickReply;
-  }
-
-  /**
-   * Find a existing payload response message object for a specific platform
-   *
-   * @param {string} platform of incoming request
-   * @return {PayloadResponse|null} Payload response of corresponding platform or null if no value
-   * @private
-   */
-  existingPayload_(platform) {
-    let existingPayload;
-    for (let response of this.responseMessages_) {
-      if (response instanceof PayloadResponse) {
-        if (
-          (!response.platform || response.platform === PLATFORMS.UNSPECIFIED) &&
-          (!platform || platform === PLATFORMS.UNSPECIFIED)
-        ) {
-          existingPayload = response;
-          break;
-        }
-        if (platform === response.platform) {
-          existingPayload = response;
-          break;
-        }
-      }
-    }
-    return existingPayload;
-  }
-
-  // ---------------------------------------------------------------------------
-  //                            Contexts
-  // ---------------------------------------------------------------------------
-
+  // --------------------------------------------------------------------------
+  //          Context and follow-up event methods
+  // --------------------------------------------------------------------------
   /**
    * Set a new Dialogflow outgoing context: https://dialogflow.com/docs/contexts
    *
@@ -457,6 +363,124 @@ class WebhookClient {
     }
 
     this.client.setFollowupEvent_(event);
+  }
+
+  // ---------------------------------------------------------------------------
+  //              Actions on Google methods
+  // ---------------------------------------------------------------------------
+  /**
+   * Get Actions on Google DialogflowConversation object
+   *
+   * @example
+   * const { WebhookClient } = require('dialogflow-webhook');
+   * const agent = new WebhookClient({request: request, response: response});
+   * let conv = agent.conv();
+   * conv.ask('Hi from the Actions on Google client library');
+   * agent.add(conv);
+   *
+   * @return {DialogflowConversation|null} DialogflowConversation object or null
+   */
+  conv() {
+    if (this.requestSource === PLATFORMS.ACTIONS_ON_GOOGLE) {
+      return new DialogflowConversation(this.request_);
+    } else {
+      return null;
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  //              Private utility methods
+  // ---------------------------------------------------------------------------
+  /**
+   * Sends a response back to a Dialogflow fulfillment webhook request
+   *
+   * @param {string[]|RichResponse[]} response additional responses to send
+   * @return {void}
+   * @private
+   */
+  send_() {
+    const requestSource = this.requestSource;
+    const messages = this.responseMessages_;
+
+    // If AoG response and the first response isn't a text response,
+    // add a empty text response as the first item
+    if (
+      requestSource === PLATFORMS.ACTIONS_ON_GOOGLE && messages[0] &&
+      !(messages[0] instanceof TextResponse) &&
+      !this.existingPayload_(PLATFORMS.ACTIONS_ON_GOOGLE)
+    ) {
+      this.responseMessages_ = [new TextResponse(' ')].concat(messages);
+    }
+
+    // if there is only text, send response
+    // if there is a payload, send the payload for the repsonse
+    // if platform supports messages, send messages
+    const payload = this.existingPayload_(requestSource);
+    if (messages.length === 1 &&
+      messages[0] instanceof TextResponse) {
+      this.client.sendTextResponse_();
+    } else if (payload) {
+      this.client.sendPayloadResponse_(payload, requestSource);
+    } else if (SUPPORTED_RICH_MESSAGE_PLATFORMS.indexOf(this.requestSource) > -1
+      || this.requestSource === null) {
+      this.client.sendMessagesResponse_(requestSource);
+    } else {
+      throw new Error(`No responses defined for platform: ${this.requestSource}`);
+    }
+  }
+
+  /**
+   * Find a existing suggestion response message object for a specific platform
+   *
+   * @param {string} platform of incoming request
+   * @return {SuggestionsResponse|null} quick reply response of corresponding platform or null if no value
+   * @private
+   */
+  existingSuggestion_(platform) {
+    let existingQuickReply;
+    for (let response of this.responseMessages_) {
+      if (response instanceof SuggestionsResponse) {
+        if (
+          (!response.platform || response.platform === PLATFORMS.UNSPECIFIED) &&
+          (!platform || platform === PLATFORMS.UNSPECIFIED)
+        ) {
+          existingQuickReply = response;
+          break;
+        }
+        if (platform === response.platform) {
+          existingQuickReply = response;
+          break;
+        }
+      }
+    }
+    return existingQuickReply;
+  }
+
+  /**
+   * Find a existing payload response message object for a specific platform
+   *
+   * @param {string} platform of incoming request
+   * @return {PayloadResponse|null} Payload response of corresponding platform or null if no value
+   * @private
+   */
+  existingPayload_(platform) {
+    let existingPayload;
+    for (let response of this.responseMessages_) {
+      if (response instanceof PayloadResponse) {
+        if (
+          (!response.platform || response.platform === PLATFORMS.UNSPECIFIED) &&
+          (!platform || platform === PLATFORMS.UNSPECIFIED)
+        ) {
+          existingPayload = response;
+          break;
+        }
+        if (platform === response.platform) {
+          existingPayload = response;
+          break;
+        }
+      }
+    }
+    return existingPayload;
   }
 }
 

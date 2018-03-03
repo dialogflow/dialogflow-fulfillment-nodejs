@@ -20,13 +20,7 @@ const functions = require('firebase-functions');
 const {WebhookClient} = require('dialogflow-fulfillment');
 const {Text, Card, Image, Suggestion, Payload} = require('dialogflow-fulfillment');
 
-process.env.DEBUG = 'dialogflow:debug';
-
-// Dialogflow action names
-const WELCOME_ACTION = 'input.welcome';
-const CONVERT_COMMON_TEMP = 'convert.common.temperature';
-const CONVERT_ABSOLUTE_TEMP = 'convert.absolute.temperature';
-const FALLBACK_ACTION = 'input.unknown';
+process.env.DEBUG = 'dialogflow:debug'; // enables lib debugging statements
 
 // Wikipedia link and image URLs
 const wikipediaTemperatureUrl = 'https://en.wikipedia.org/wiki/Temperature';
@@ -40,7 +34,7 @@ const wikipediaKelvinImageUrl = 'https://upload.wikimedia.org/wikipedia/commons/
 const wikipediaRankineUrl = 'https://en.wikipedia.org/wiki/Rankine_scale';
 const wikipediaRankineImageUrl = 'https://upload.wikimedia.org/wikipedia/commons/5/58/Rankine_William_signature.jpg';
 
-exports.dialogflowFulfillmentAdvancedSample = functions.https.onRequest((request, response) => {
+exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, response) => {
   const agent = new WebhookClient({ request, response });
   console.log('Dialogflow Request headers: ' + JSON.stringify(request.headers));
   console.log('Dialogflow Request body: ' + JSON.stringify(request.body));
@@ -64,8 +58,8 @@ exports.dialogflowFulfillmentAdvancedSample = functions.https.onRequest((request
 
   function convertFahrenheitAndCelsius(agent) {
     // Get parameters from Dialogflow to convert
-    const temperature = agent.parameters.temperature;
-    const unit = agent.parameters.unit;
+    const temperature = agent.params.temperature;
+    const unit = agent.params.unit;
     console.log(`User requested to convert ${temperature}° ${unit}`);
 
     let convertedTemp, convertedUnit, temperatureHistory;
@@ -109,10 +103,10 @@ exports.dialogflowFulfillmentAdvancedSample = functions.https.onRequest((request
   }
 
   function convertRankineAndKelvin(agent) {
-    const secondUnit = agent.parameters.absoluteTempUnit;
+    const secondUnit = agent.params.absoluteTempUnit;
     const tempContext = agent.getContext('temperature');
-    const originalTemp = tempContext.parameters.temperature;
-    const originalUnit = tempContext.parameters.unit;
+    const originalTemp = tempContext.params.temperature;
+    const originalUnit = tempContext.params.unit;
 
     // Convert temperature
     let convertedTemp, convertedUnit, temperatureHistoryText, temperatureHistoryImage;
@@ -147,10 +141,10 @@ exports.dialogflowFulfillmentAdvancedSample = functions.https.onRequest((request
     agent.add(`I didn't get that, can you try again?`);
   }
 
-  let actionMap = new Map();
-  actionMap.set(WELCOME_ACTION, welcome);
-  actionMap.set(CONVERT_COMMON_TEMP, convertFahrenheitAndCelsius);
-  actionMap.set(CONVERT_ABSOLUTE_TEMP, convertRankineAndKelvin);
-  actionMap.set(FALLBACK_ACTION, fallback);
-  agent.handleRequest(actionMap);
+  let intentMap = new Map(); // Map functions to Dialogflow intent names
+  intentMap.set('Default Welcome Intent', welcome);
+  intentMap.set('Convert Fahrenheit and Celsius', convertFahrenheitAndCelsius);
+  intentMap.set('Convert Rankine and Kelvin', convertRankineAndKelvin);
+  intentMap.set('Default Fallback Intent', fallback);
+  agent.handleRequest(intentMap);
 });

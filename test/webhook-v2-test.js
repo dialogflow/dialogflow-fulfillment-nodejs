@@ -21,8 +21,8 @@
 
 const test = require('ava');
 
-const {WebhookClient} = require('../dialogflow-fulfillment');
-const {Card, Image, Suggestion, Payload} = require('../dialogflow-fulfillment');
+const {WebhookClient} = require('../src/dialogflow-fulfillment');
+const {Card, Image, Suggestion, Payload} = require('../src/dialogflow-fulfillment');
 
 const imageUrl = `https://assistant.google.com/static/images/molecule/\
 Molecule-Formation-stop.png`;
@@ -213,26 +213,45 @@ test('Test v2 Facebook responses', async (t) => {
   );
 });
 
-test('Test v2 incompatible platform', async (t) => {
-  // Twitter request/response
-  let twitterResponse = new ResponseMock();
+test('Test v2 Twitter requestSource', async (t) => {
   let twitterRequest = {body: mockTwitterV2Request};
+  let response = new ResponseMock();
   let agent = new WebhookClient({
     request: twitterRequest,
-    response: twitterResponse,
+    response: response,
   });
 
-  // Sending a response to Twitter (unsupported platform) will fail
-  try {
-    await agent.handleRequest((agent) => {
-      agent.add('this will never get sent');
-    });
-  } catch (err) {
-    t.is(
-      err.message,
-      `Platform is not supported.`
-    );
-  }
+  t.deepEqual(agent.requestSource, 'twitter');
+});
+
+test('Test v2 Twitter response', async (t) => {
+  // Twitter request
+  let twitterRequest = {body: mockTwitterV2Request};
+  const textResponse = 'twitter text response';
+
+  webhookTest(
+    twitterRequest,
+    (agent) => {
+      agent.add(textResponse);
+    },
+    (responseJson) => {
+      t.deepEqual(responseJson, {fulfillmentText: textResponse, outputContexts: []});
+    }
+  );
+});
+
+test('Test v2 Twitter payload response', async (t) => {
+  let twitterRequest = {body: mockTwitterV2Request};
+
+  webhookTest(
+    twitterRequest,
+    (agent) => {
+      agent.add(new Payload('twitter', {test: 'payload'}));
+    },
+    (responseJson) => {
+      t.deepEqual(responseJson, {payload: {twitter: {test: 'payload'}}, outputContexts: []});
+    }
+  );
 });
 
 test('Test v2 contexts', async (t) => {
@@ -446,41 +465,35 @@ function addCard(agent) {
 }
 
 const responseFacebookV2Payload = {
-  fulfillmentMessages: [
-    {
-      platform: 'FACEBOOK',
-      payload: {
-        facebook: {
-          attachment: {
-            type: 'template',
-            payload: {
-              template_type: 'generic',
-              elements: [
-                {
-                  title: 'Title: this is a title',
-                  image_url: `https://assistant.google.com/static/images/\
+  payload: {
+    facebook: {
+      attachment: {
+        type: 'template',
+        payload: {
+          template_type: 'generic',
+          elements: [
+            {
+              title: 'Title: this is a title',
+              image_url: `https://assistant.google.com/static/images/\
 molecule/Molecule-Formation-stop.png`,
-                  subtitle: 'This is a subtitle',
-                  default_action: {
-                    type: 'web_url',
-                    url: 'https://assistant.google.com/',
-                  },
-                  buttons: [
-                    {
-                      type: 'web_url',
-                      url: 'https://assistant.google.com/',
-                      title: 'This is a button',
-                    },
-                  ],
+              subtitle: 'This is a subtitle',
+              default_action: {
+                type: 'web_url',
+                url: 'https://assistant.google.com/',
+              },
+              buttons: [
+                {
+                  type: 'web_url',
+                  url: 'https://assistant.google.com/',
+                  title: 'This is a button',
                 },
               ],
             },
-          },
+          ],
         },
       },
     },
-  ],
-  fulfillmentText: '',
+  },
   outputContexts: [],
 };
 const responseFacebookV2Suggestion = {
@@ -502,9 +515,7 @@ Molecule-Formation-stop.png`,
   outputContexts: [],
 };
 const responseFacebookV2Text = {
-  fulfillmentMessages: [
-    {platform: 'FACEBOOK', text: {text: ['text response']}},
-  ],
+  fulfillmentText: 'text response',
   outputContexts: [],
 };
 const responseFacebookV2TextAndCard = {
@@ -544,35 +555,27 @@ Molecule-Formation-stop.png`,
 };
 
 const responseSlackV2Text = {
-  fulfillmentMessages: [
-    {platform: 'SLACK', text: {text: ['text response']}},
-  ],
+  fulfillmentText: 'text response',
   outputContexts: [],
 };
 const responseSlackV2Payload = {
-  fulfillmentMessages: [
-    {
-      platform: 'SLACK',
-      payload: {
-        slack: {
-          text: 'This is a text response for Slack.',
-          attachments: [
-            {
-              title: 'Title: this is a title',
-              title_link: 'https://assistant.google.com/',
-              text: `This is an attachment.  Text in attachments can include \
+  payload: {
+    slack: {
+      text: 'This is a text response for Slack.',
+      attachments: [
+        {
+          title: 'Title: this is a title',
+          title_link: 'https://assistant.google.com/',
+          text: `This is an attachment.  Text in attachments can include \
 \'quotes\' and most other unicode characters including emoji 📱.  \
 Attachments also upport line\n  breaks.`,
-              image_url: `https://assistant.google.com/static/images/molecule/\
+          image_url: `https://assistant.google.com/static/images/molecule/\
 Molecule-Formation-stop.png`,
-              fallback: 'This is a fallback.',
-            },
-          ],
+          fallback: 'This is a fallback.',
         },
-      },
+      ],
     },
-  ],
-  fulfillmentText: '',
+  },
   outputContexts: [],
 };
 const responseSlackV2Suggestions = {
@@ -630,44 +633,38 @@ Molecule-Formation-stop.png`,
 };
 
 const responseGoogleV2Payload = {
-  fulfillmentMessages: [
-    {
-      platform: 'ACTIONS_ON_GOOGLE',
-      payload: {
-        google: {
-          expectUserResponse: true,
-          isSsml: false,
-          noInputPrompts: [],
-          richResponse: {
+  payload: {
+    google: {
+      expectUserResponse: true,
+      isSsml: false,
+      noInputPrompts: [],
+      richResponse: {
+        items: [
+          {simpleResponse: {textToSpeech: 'hello', displayText: 'hi'}},
+        ],
+        suggestions: [{title: 'Say this'}, {title: 'or this'}],
+      },
+      systemIntent: {
+        intent: 'actions.intent.OPTION',
+        data: {
+          '@type':
+            'type.googleapis.com/google.actions.v2.OptionValueSpec',
+          'listSelect': {
             items: [
-              {simpleResponse: {textToSpeech: 'hello', displayText: 'hi'}},
-            ],
-            suggestions: [{title: 'Say this'}, {title: 'or this'}],
-          },
-          systemIntent: {
-            intent: 'actions.intent.OPTION',
-            data: {
-              '@type':
-                'type.googleapis.com/google.actions.v2.OptionValueSpec',
-              'listSelect': {
-                items: [
-                  {
-                    optionInfo: {key: 'key1', synonyms: ['key one']},
-                    title: 'must not be empty',
-                  },
-                  {
-                    optionInfo: {key: 'key2', synonyms: ['key two']},
-                    title: 'must not be empty, but unquie, for some reason',
-                  },
-                ],
+              {
+                optionInfo: {key: 'key1', synonyms: ['key one']},
+                title: 'must not be empty',
               },
-            },
+              {
+                optionInfo: {key: 'key2', synonyms: ['key two']},
+                title: 'must not be empty, but unquie, for some reason',
+              },
+            ],
           },
         },
       },
     },
-  ],
-  fulfillmentText: '',
+  },
   outputContexts: [],
 };
 const responseGoogleV2Suggestion = {
@@ -723,6 +720,7 @@ const responseGoogleV2Card = {
 Molecule-Formation-stop.png`,
           accessibilityText: 'accessibility text',
         },
+        buttons: [{openUriAction: {uri: 'https://assistant.google.com/'}, title: 'button text'}],
       },
       platform: 'ACTIONS_ON_GOOGLE',
     },
@@ -730,16 +728,7 @@ Molecule-Formation-stop.png`,
   outputContexts: [],
 };
 const responseGoogleV2Text = {
-  fulfillmentMessages: [
-    {
-      platform: 'ACTIONS_ON_GOOGLE',
-      simpleResponses: {
-        simpleResponses: [
-          {textToSpeech: 'text response', displayText: 'text response'},
-        ],
-      },
-    },
-  ],
+  fulfillmentText: 'text response',
   outputContexts: [],
 };
 const responseGoogleV2TextAndCard = {
@@ -761,6 +750,7 @@ const responseGoogleV2TextAndCard = {
 Molecule-Formation-stop.png`,
           accessibilityText: 'accessibility text',
         },
+        buttons: [{openUriAction: {uri: 'https://assistant.google.com/'}, title: 'button text'}],
       },
       platform: 'ACTIONS_ON_GOOGLE',
     },

@@ -1,12 +1,8 @@
-# Dialogflow Fulfillment Library Alpha
+# Dialogflow Fulfillment Library Beta
 
-| Alpha |
-|-------|
-| This is an Alpha release of Dialogflow's fulfillment library. This library might be changed in backward-incompatible ways and is not recommended for production use. It is not subject to any SLA or deprecation policy. |
+The Dialogflow Fulfillment Library makes creating fulfillment for Dialogflow v1 and v2 agents for 8 chat and voice platforms on Node.js easy and simple. Cross-platform text, card, image, suggestion are supported for Actions on Google, Facebook, Slack, Telegram, Kik, Skype, Line, Viber and Dialogflow's simulator with custom payload support for all platforms.
 
-The Dialogflow Fulfillment Library makes creating fulfillment for Dialogflow v1 and v2 agents for 8 chat and voice platforms on Node.js easy and simple. Cross-platform text, card, image, suggestion and custom payload responses are supported for Actions on Google, Facebook, Slack, Telegram, Kik, Skype, Line, Viber and Dialogflow's simulator.
-
-![fulfillment library works with 8 platforms](https://raw.githubusercontent.com/dialogflow/dialogflow-fulfillment-nodejs/master/dialogflow-fulfillment-graphic.png "Dialogflow's fulfillment library works with 8 platforms")
+![fulfillment library works with 8 platforms](https://raw.githubusercontent.com/dialogflow/dialogflow-fulfillment-nodejs/master/docs/dialogflow-fulfillment-graphic.png "Dialogflow's fulfillment library works with 8 platforms")
 
 Dialogflow fulfillment allows you to connect Dialogflow's natural language understanding and processing to your own systems, APIs and databases. Using fulfillment, you can surface commands and information from your services to your users through a natural conversational interface. More about Dialogflow fulfillment: https://dialogflow.com/docs/fulfillment
 
@@ -16,7 +12,7 @@ Dialogflow fulfillment allows you to connect Dialogflow's natural language under
 1. Create a Dialogflow agent
 1. [Enable the Cloud Function for Firebase inline editor](https://dialogflow.com/docs/fulfillment#cloud_functions_for_firebase)
 1. Copy this code in `samples/quick-start/functions/index.js` the `index.js` file in the Dialogflow Cloud Function for Firebase inline editor.
-1. Add `"dialogflow-fulfillment": "alpha"` to the `package.json` file's `dependencies` object in the Dialogflow Cloud Function for Firebase inline editor.
+1. Add `"dialogflow-fulfillment": "0.3.0-beta.1"` to the `package.json` file's `dependencies` object in the Dialogflow Cloud Function for Firebase inline editor.
 1. Click `Deploy`
 
 
@@ -25,7 +21,7 @@ Dialogflow fulfillment allows you to connect Dialogflow's natural language under
  1. Import the appropriate class:
 
 ```javascript
-const {WebhookClient} = require('dialogflow-fulfillment');
+const { WebhookClient } = require('dialogflow-fulfillment');
 ```
 
  2. Create an instance:
