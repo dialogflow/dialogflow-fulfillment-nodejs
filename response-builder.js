@@ -508,10 +508,11 @@ class CardResponse extends RichResponse {
         response.basicCard.image.imageUri = this.imageUrl;
         response.basicCard.image.accessibilityText = 'accessibility text';
       }
-      if (this.buttonsTitle && this.buttonUrl) {
-        response.buttons = [{}];
-        response.basicCard.buttons[0].title = this.buttonsTitle;
-        response.basicCard.buttons[0].openUriAction.uri = this.buttonUrl;
+      if (this.buttonText && this.buttonUrl) {
+        response.basicCard.buttons = [{}];
+        response.basicCard.buttons[0].title = this.buttonText;
+        response.basicCard.buttons[0].open_uri_action = {};
+        response.basicCard.buttons[0].open_uri_action.uri = this.buttonUrl;
       }
     } else {
       response = {card: {}};
