@@ -1,4 +1,4 @@
-# Muli-language and Locale Sample
+# Multi-language and Locale Sample
 
 ## Setup: Dialogflow Inline Editor (option 1)
 
