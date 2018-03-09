@@ -361,6 +361,7 @@ const responseSlackV1Payload = {
   messages: [
     {
       type: 4,
+      platform: 'slack',
       payload: {
         slack: {
           text: 'This is a text response for Slack.',
@@ -377,9 +378,7 @@ Attachments also upport line\nbreaks.`,
             },
           ],
         },
-      },
-      platform: 'slack',
-    },
+      }},
   ],
   contextOut: [],
 };
@@ -407,11 +406,10 @@ const responseSlackV1TextAndCard = {
       subtitle: 'card text',
       imageUrl:
         'https://assistant.google.com/static/images/molecule/Molecule-Formation-stop.png',
+      platform: 'slack',
       buttons: [
         {text: 'button text', postback: 'https://assistant.google.com/'},
-      ],
-      platform: 'slack',
-    },
+      ]},
   ],
   contextOut: [],
 };

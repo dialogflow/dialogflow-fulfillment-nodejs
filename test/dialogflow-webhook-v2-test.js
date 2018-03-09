@@ -108,11 +108,11 @@ test('Test v2 Slack responses', async (t) => {
   // TextReponse
   webhookTest(slackRequest,
     (agent) => {
-agent.add('text response');
-},
+      agent.add('text response');
+    },
     (responseJson) => {
-t.deepEqual(responseJson, responseSlackV2Text);
-  });
+      t.deepEqual(responseJson, responseSlackV2Text);
+    });
 
   // ImageResponse
   webhookTest(
@@ -215,7 +215,7 @@ test('Test v2 Facebook responses', async (t) => {
 
 test('Test v2 incompatible platform', async (t) => {
   // Twitter request/response
-  let twitterResponse = new ResponseMock();
+  let twitterResponse = new ResponseMock(() => {});
   let twitterRequest = {body: mockTwitterV2Request};
   let agent = new WebhookClient({
     request: twitterRequest,
@@ -224,9 +224,9 @@ test('Test v2 incompatible platform', async (t) => {
 
   // Sending a response to Twitter (unsupported platform) will fail
   try {
-    await agent.handleRequest((agent) => {
-      agent.add('this will never get sent');
-    });
+    await agent.handleRequest((agent) => agent.add('this will never get sent'));
+    // TODO: FIX why the following line appears
+    console.log('You shouldn\'t see me right now');
   } catch (err) {
     t.is(
       err.message,
@@ -296,12 +296,12 @@ test('Test converstion of v2 contexts to v1 contexts', async (t) => {
   });
 
   t.deepEqual([{
-    name: 'generic',
-    lifespan: 4,
-    parameters: {
-      slack_user_id: 'U2URF86K1',
-      slack_channel: 'D3XQ6AF9A'},
-  }],
+      name: 'generic',
+      lifespan: 4,
+      parameters: {
+        slack_user_id: 'U2URF86K1',
+        slack_channel: 'D3XQ6AF9A'},
+    }],
     agent.contexts
   );
 });
@@ -317,12 +317,12 @@ test('Test v2 getContext', async (t) => {
 
   let context = agent.getContext('generic');
   t.deepEqual({
-    name: 'generic',
-    lifespan: 4,
-    parameters: {
-      slack_user_id: 'U2URF86K1',
-      slack_channel: 'D3XQ6AF9A'},
-  },
+      name: 'generic',
+      lifespan: 4,
+      parameters: {
+        slack_user_id: 'U2URF86K1',
+        slack_channel: 'D3XQ6AF9A'},
+    },
     context
   );
 
@@ -485,32 +485,39 @@ molecule/Molecule-Formation-stop.png`,
 };
 const responseFacebookV2Suggestion = {
   fulfillmentMessages: [
-    {quickReplies: {quickReplies: ['sample reply']}, platform: 'FACEBOOK'},
+    {
+      platform: 'FACEBOOK',
+      quickReplies: {quickReplies: ['sample reply']}},
   ],
   outputContexts: [],
 };
 const responseFacebookV2Image = {
   fulfillmentMessages: [
     {
+      platform: 'FACEBOOK',
       image: {
         imageUri: `https://assistant.google.com/static/images/molecule/\
 Molecule-Formation-stop.png`,
       },
-      platform: 'FACEBOOK',
     },
   ],
   outputContexts: [],
 };
 const responseFacebookV2Text = {
   fulfillmentMessages: [
-    {platform: 'FACEBOOK', text: {text: ['text response']}},
+    {
+      platform: 'FACEBOOK',
+      text: {text: ['text response']}},
   ],
   outputContexts: [],
 };
 const responseFacebookV2TextAndCard = {
   fulfillmentMessages: [
-    {text: {text: ['text response']}, platform: 'FACEBOOK'},
     {
+      platform: 'FACEBOOK',
+      text: {text: ['text response']}},
+    {
+      platform: 'FACEBOOK',
       card: {
         title: 'card title',
         subtitle: 'card text',
@@ -520,7 +527,6 @@ Molecule-Formation-stop.png`,
           {text: 'button text', postback: 'https://assistant.google.com/'},
         ],
       },
-      platform: 'FACEBOOK',
     },
   ],
   outputContexts: [],
@@ -528,6 +534,7 @@ Molecule-Formation-stop.png`,
 const responseFacebookV2Card = {
   fulfillmentMessages: [
     {
+      platform: 'FACEBOOK',
       card: {
         title: 'card title',
         subtitle: 'card text',
@@ -537,7 +544,6 @@ Molecule-Formation-stop.png`,
           {text: 'button text', postback: 'https://assistant.google.com/'},
         ],
       },
-      platform: 'FACEBOOK',
     },
   ],
   outputContexts: [],
@@ -545,7 +551,9 @@ Molecule-Formation-stop.png`,
 
 const responseSlackV2Text = {
   fulfillmentMessages: [
-    {platform: 'SLACK', text: {text: ['text response']}},
+    {
+      platform: 'SLACK',
+      text: {text: ['text response']}},
   ],
   outputContexts: [],
 };
@@ -577,25 +585,29 @@ Molecule-Formation-stop.png`,
 };
 const responseSlackV2Suggestions = {
   fulfillmentMessages: [
-    {quickReplies: {quickReplies: ['sample reply']}, platform: 'SLACK'},
+    {
+      platform: 'SLACK',
+      quickReplies: {quickReplies: ['sample reply']}},
   ],
   outputContexts: [],
 };
-  const responseSlackV2Image = {
+const responseSlackV2Image = {
   fulfillmentMessages: [
     {
+      platform: 'SLACK',
       image: {
         imageUri: `https://assistant.google.com/static/images/molecule/\
 Molecule-Formation-stop.png`,
-      },
-      platform: 'SLACK',
-    },
+      }},
   ],
   outputContexts: [],
 };
 const responseSlackV2TextAndCard = {
   fulfillmentMessages: [
-    {text: {text: ['text response']}, platform: 'SLACK'},
+    {
+      platform: 'SLACK',
+      text: {text: ['text response']},
+    },
     {
       card: {
         title: 'card title',
@@ -614,6 +626,7 @@ Molecule-Formation-stop.png`,
 const responseSlackV2Card = {
   fulfillmentMessages: [
     {
+      platform: 'SLACK',
       card: {
         title: 'card title',
         subtitle: 'card text',
@@ -622,9 +635,7 @@ Molecule-Formation-stop.png`,
         buttons: [
           {text: 'button text', postback: 'https://assistant.google.com/'},
         ],
-      },
-      platform: 'SLACK',
-    },
+      }},
   ],
   outputContexts: [],
 };
@@ -679,8 +690,8 @@ const responseGoogleV2Suggestion = {
       },
     },
     {
-      suggestions: {suggestions: [{title: 'sample reply'}]},
       platform: 'ACTIONS_ON_GOOGLE',
+      suggestions: {suggestions: [{title: 'sample reply'}]},
     },
   ],
   outputContexts: [],
@@ -694,6 +705,7 @@ const responseGoogleV2Image = {
       },
     },
     {
+      platform: 'ACTIONS_ON_GOOGLE',
       basicCard: {
         image: {
           imageUri: `https://assistant.google.com/static/images/molecule/\
@@ -701,7 +713,6 @@ Molecule-Formation-stop.png`,
           accessibilityText: 'accessibility text',
         },
       },
-      platform: 'ACTIONS_ON_GOOGLE',
     },
   ],
   outputContexts: [],
@@ -715,8 +726,17 @@ const responseGoogleV2Card = {
       },
     },
     {
+      platform: 'ACTIONS_ON_GOOGLE',
       basicCard: {
         title: 'card title',
+        buttons: [
+          {
+            open_uri_action: {
+              uri: 'https://assistant.google.com/',
+            },
+            title: 'button text',
+          },
+        ],
         formattedText: 'card text',
         image: {
           imageUri: `https://assistant.google.com/static/images/molecule/\
@@ -724,7 +744,6 @@ Molecule-Formation-stop.png`,
           accessibilityText: 'accessibility text',
         },
       },
-      platform: 'ACTIONS_ON_GOOGLE',
     },
   ],
   outputContexts: [],
@@ -735,7 +754,10 @@ const responseGoogleV2Text = {
       platform: 'ACTIONS_ON_GOOGLE',
       simpleResponses: {
         simpleResponses: [
-          {textToSpeech: 'text response', displayText: 'text response'},
+          {
+            displayText: 'text response',
+            textToSpeech: 'text response',
+          },
         ],
       },
     },
@@ -743,24 +765,33 @@ const responseGoogleV2Text = {
   outputContexts: [],
 };
 const responseGoogleV2TextAndCard = {
-  fulfillmentMessages: [
-    {
-      platform: 'ACTIONS_ON_GOOGLE',
-      simpleResponses: {
-        simpleResponses: [
-          {textToSpeech: 'text response', displayText: 'text response'},
-        ],
-      },
+  fulfillmentMessages: [{
+    platform: 'ACTIONS_ON_GOOGLE',
+    simpleResponses: {
+      simpleResponses: [
+        {
+          displayText: 'text response',
+          textToSpeech: 'text response',
+        },
+      ],
     },
+  },
     {
       basicCard: {
-        title: 'card title',
+        buttons: [
+          {
+            open_uri_action: {
+              uri: 'https://assistant.google.com/',
+            },
+            title: 'button text',
+          },
+        ],
         formattedText: 'card text',
         image: {
-          imageUri: `https://assistant.google.com/static/images/molecule/\
-Molecule-Formation-stop.png`,
           accessibilityText: 'accessibility text',
+          imageUri: 'https://assistant.google.com/static/images/molecule/Molecule-Formation-stop.png',
         },
+        title: 'card title',
       },
       platform: 'ACTIONS_ON_GOOGLE',
     },
@@ -857,6 +888,7 @@ const mockSlackV2Request = {
     languageCode: 'en',
   },
   originalDetectIntentRequest: {
+    source: 'slack',
     payload: {
       data: {
         event_ts: '1515094024.000379',
@@ -875,18 +907,16 @@ const mockSlackV2Request = {
 const mockFacebookV2Request = {
   originalDetectIntentRequest: {
     payload: {
-      data: {
-        message: {
-          mid: 'mid.$cAAMy_rGG1eZm9AmoMlgwsRgQIImP',
-          seq: 714,
-          text: 'webhook',
-        },
-        recipient: {id: '958823367603818'},
-        sender: {id: '1534862223272449'},
-        timestamp: 1515096137778,
+      message: {
+        mid: 'mid.$cAAMy_rGG1eZm9AmoMlgwsRgQIImP',
+        seq: 714,
+        text: 'webhook',
       },
-      source: 'facebook',
+      recipient: {id: '958823367603818'},
+      sender: {id: '1534862223272449'},
+      timestamp: 1515096137778,
     },
+    source: 'facebook',
   },
   queryResult: {
     allRequiredParamsPresent: true,

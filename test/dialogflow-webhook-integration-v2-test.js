@@ -320,7 +320,7 @@ const mockSlackV2RequestWelcome = {
 };
 const mockSlackV2ResponseWelcome = {
   fulfillmentMessages: [
-    {text: {text: ['Welcome to my agent!']}, platform: 'SLACK'},
+    {text: {text: ['Welcome to my agent!']}},
   ],
   outputContexts: [],
 };
@@ -376,7 +376,7 @@ const mockFacebookV2RequestWelcome = {
 };
 const mockFacebookV2ResponseWelcome = {
   fulfillmentMessages: [
-    {text: {text: ['Welcome to my agent!']}, platform: 'FACEBOOK'},
+    {text: {text: ['Welcome to my agent!']}},
   ],
   outputContexts: [],
 };
@@ -542,8 +542,8 @@ const mockSlackV2RequestFallback = {
 };
 const mockSlackV2ResponseFallback = {
   fulfillmentMessages: [
-    {text: {text: ['I didn\'t understand']}, platform: 'SLACK'},
-    {text: {text: ['I\'m sorry, can you try again?']}, platform: 'SLACK'},
+    {text: {text: ['I didn\'t understand']}},
+    {text: {text: ['I\'m sorry, can you try again?']}},
   ],
   outputContexts: [],
 };
@@ -594,8 +594,8 @@ const mockFacebookV2RequestFallback = {
 };
 const mockFacebookV2ResponseFallback = {
   fulfillmentMessages: [
-    {text: {text: ['I didn\'t understand']}, platform: 'FACEBOOK'},
-    {text: {text: ['I\'m sorry, can you try again?']}, platform: 'FACEBOOK'},
+    {text: {text: ['I didn\'t understand']}},
+    {text: {text: ['I\'m sorry, can you try again?']}},
   ],
   outputContexts: [],
 };
@@ -697,6 +697,15 @@ const mockGoogleV2ResponseWebhook = {
     },
     {
       basicCard: {
+        buttons: [
+          {
+            open_uri_action: {
+              uri: 'https://assistant.google.com/',
+            },
+            title: 'This is a button',
+          },
+        ],
+
         title: 'Title: this is a card title',
         formattedText:
           'This is the body text of a card.  You can even use line\nbreaks and emoji! 💁',
@@ -760,8 +769,8 @@ const mockSlackV2RequestWebhook = {
         user: 'U2URF86K1',
         ts: '1515190802.000347',
       },
-      source: 'slack_testbot',
     },
+    source: 'slack',
   },
   session:
     'projects/stagent-f2236/agent/sessions/88d13aa8-2999-4f71-b233-39cbf3a824a0',
@@ -769,14 +778,15 @@ const mockSlackV2RequestWebhook = {
 const mockSlackV2ResponseWebhook = {
   fulfillmentMessages: [
     {
+      platform: 'SLACK',
       text: {
         text: [
           'This message is from Dialogflow\'s Cloud Functions for Firebase editor!',
         ],
       },
-      platform: 'SLACK',
     },
     {
+      platform: 'SLACK',
       card: {
         title: 'Title: this is a card title',
         subtitle:
@@ -790,12 +800,10 @@ const mockSlackV2ResponseWebhook = {
           },
         ],
       },
-      platform: 'SLACK',
     },
     {
-      quickReplies: {quickReplies: ['Quick Reply', 'Suggestion']},
       platform: 'SLACK',
-    },
+      quickReplies: {quickReplies: ['Quick Reply', 'Suggestion']}},
   ],
   outputContexts: [
     {
@@ -844,8 +852,8 @@ const mockFacebookV2RequestWebhook = {
         },
         timestamp: 1515180561306,
       },
-      source: 'facebook',
     },
+    source: 'facebook',
   },
   session:
     'projects/stagent-f2236/agent/sessions/3c32f610-3f2b-4bd8-9712-43eb69c06c43',
