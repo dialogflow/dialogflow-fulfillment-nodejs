@@ -20,10 +20,10 @@ const fs = require('fs');
 const path = require('path');
 const jsdoc2md = require('jsdoc-to-markdown');
 
-const inputFile = './src/*.js';
+const inputFiles = ['./src/*.js', './src/rich-responses/*.js'];
 const outputDir = './docs/';
 
-const templateData = jsdoc2md.getTemplateDataSync({files: inputFile});
+const templateData = jsdoc2md.getTemplateDataSync({files: inputFiles});
 const classNames = templateData.reduce((classNames, identifier) => {
   if (identifier.kind === 'class') {
 classNames.push(identifier.name);

@@ -20,7 +20,11 @@ const debug = require('debug')('dialogflow:debug');
 debug.log = console.log.bind(console);
 
 // Response Builder classes
-const {V1_TO_V2_PLATFORM_NAME} = require('./response-builder');
+const {
+  V1_TO_V2_PLATFORM_NAME,
+  PLATFORMS,
+} = require('./rich-responses/rich-response');
+const PayloadResponse = require('./rich-responses/payload-response');
 
 /**
  * Class representing a v1 Dialogflow agent
@@ -191,6 +195,23 @@ class V1Agent {
     event.parameters ? eventJson.data = event.parameters : undefined;
 
     this.agent.followupEvent_ = eventJson;
+  }
+
+  /**
+   * Add an v1 Actions on Google response
+   *
+   * @param {Object} response a Actions on Google Dialogflow v1 webhook response
+   * @private
+   */
+  addActionsOnGoogle_(response) {
+    response.contextOut.forEach( (context) => {
+      this.addContext_(context);
+    });
+
+    this.agent.add(new PayloadResponse(
+      PLATFORMS.ACTIONS_ON_GOOGLE,
+      response.data.google)
+    );
   }
 }
 

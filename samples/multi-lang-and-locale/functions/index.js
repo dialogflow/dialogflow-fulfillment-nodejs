@@ -17,16 +17,16 @@
 'use strict';
 
 const functions = require('firebase-functions');
-const {WebhookClient} = require('dialogflow-fulfillment');
+const { WebhookClient } = require('dialogflow-fulfillment');
 
-process.env.DEBUG = 'dialogflow:debug';
+process.env.DEBUG = 'dialogflow:debug'; // enables lib debugging statements
 
-exports.dialogflowFulfillmentMultiLocale = functions.https.onRequest((request, response) => {
+exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, response) => {
   const agent = new WebhookClient({ request, response });
   console.log('Dialogflow Request headers: ' + JSON.stringify(request.headers));
   console.log('Dialogflow Request body: ' + JSON.stringify(request.body));
 
-  // English handler functions and action map
+  // English handler functions and intent map
   function welcome(agent) {
     agent.add(`Welcome to my agent!`);
   }
@@ -34,11 +34,11 @@ exports.dialogflowFulfillmentMultiLocale = functions.https.onRequest((request, r
     agent.add(`I didn't understand`);
     agent.add(`I'm sorry, can you try again?`);
   }
-  let enActionMap = new Map();
-  enActionMap.set('Default Welcome Intent', welcome);
-  enActionMap.set('Default Fallback Intent', fallback);
+  let enIntentMap = new Map(); // Map functions to English Dialogflow intent names
+  enIntentMap.set('Default Welcome Intent', welcome);
+  enIntentMap.set('Default Fallback Intent', fallback);
 
-  // French handler functions and action map
+  // French handler functions and intent map
   function bienvenue(agent) {
     agent.add(`Bienvenue à mon agent!`);
   }
@@ -46,15 +46,15 @@ exports.dialogflowFulfillmentMultiLocale = functions.https.onRequest((request, r
     agent.add(`Je n'ai pas compris`);
     agent.add(`Pouvez-vous essayer encore?`);
   }
-  let frActionMap = new Map();
-  frActionMap.set('Default Welcome Intent', bienvenue);
-  frActionMap.set('Default Fallback Intent', secours);
+  let frIntentMap = new Map(); // Map functions to French Dialogflow intent names
+  frIntentMap.set('Default Welcome Intent', bienvenue);
+  frIntentMap.set('Default Fallback Intent', secours);
 
-  // Chose which action map to use based on the language of the request
+  // Chose which intent map to use based on the language of the request
   console.log(`Request locale: ${agent.locale}`);
   if (agent.locale === 'en') {
-    agent.handleRequest(enActionMap);
+    agent.handleRequest(enIntentMap);
   } else if (agent.locale === 'fr') {
-    agent.handleRequest(frActionMap);
+    agent.handleRequest(frIntentMap);
   }
 });

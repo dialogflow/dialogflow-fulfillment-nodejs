@@ -22,7 +22,11 @@ debug.log = console.log.bind(console);
 const DEFAULT_CONTEXT_LIFESPAN = 5;
 
 // Response Builder classes
-const {V1_TO_V2_PLATFORM_NAME} = require('./response-builder');
+const {
+  V1_TO_V2_PLATFORM_NAME,
+  PLATFORMS,
+} = require('./rich-responses/rich-response');
+const PayloadResponse = require('./rich-responses/payload-response');
 
 /**
  * Class representing a v2 Dialogflow agent
@@ -189,10 +193,15 @@ class V2Agent {
   /**
    * Add an v2 outgoing context
    *
-   * @param {object} context an object representing a v1 outgoing context
+   * @param {object} context an object representing a v1 or v2 outgoing context
    * @private
    */
   addContext_(context) {
+    // Check and see if a v2 context object was added
+    if (context.name.match('/contexts/')) {
+      context = this.convertV2ContextToV1Context_(context);
+    }
+
     // v2 contexts require the use of the session name and a transformation
     // from a v1 context object to a v2 context object before adding
     let v2Context = {};
@@ -231,6 +240,23 @@ class V2Agent {
     }
 
     this.agent.followupEvent_ = event;
+  }
+
+  /**
+   * Add an v2 Actions on Google response
+   *
+   * @param {Object} response a Actions on Google Dialogflow v2 webhook response
+   * @private
+   */
+  addActionsOnGoogle_(response) {
+    response.outputContexts.forEach( (context) => {
+      this.addContext_(context);
+    });
+
+    this.agent.add(new PayloadResponse(
+      PLATFORMS.ACTIONS_ON_GOOGLE,
+      response.payload.google)
+    );
   }
 }
 

@@ -1,4 +1,4 @@
-# Getting Started Sample
+# Dialogflow Fulfillment Actions on Google Sample
 
 ## Setup: Dialogflow Inline Editor (option 1)
 
