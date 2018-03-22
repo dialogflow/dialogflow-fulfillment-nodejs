@@ -225,8 +225,6 @@ test('Test v2 incompatible platform', async (t) => {
   // Sending a response to Twitter (unsupported platform) will fail
   try {
     await agent.handleRequest((agent) => agent.add('this will never get sent'));
-    // TODO: FIX why the following line appears
-    console.log('You shouldn\'t see me right now');
   } catch (err) {
     t.is(
       err.message,

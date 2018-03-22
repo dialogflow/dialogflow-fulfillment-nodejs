@@ -44,6 +44,7 @@ test('Quick Replies Response test', async (t) => {
       {
         fulfillmentMessages: [
           {
+            platform: 'FACEBOOK',
             quickReplies: {quickReplies: ['Quick Reply', 'Suggestion']},
           },
         ],

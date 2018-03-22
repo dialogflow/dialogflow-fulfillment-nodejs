@@ -320,7 +320,9 @@ const mockSlackV2RequestWelcome = {
 };
 const mockSlackV2ResponseWelcome = {
   fulfillmentMessages: [
-    {text: {text: ['Welcome to my agent!']}},
+    {
+      platform: 'SLACK',
+      text: {text: ['Welcome to my agent!']}},
   ],
   outputContexts: [],
 };
@@ -376,7 +378,12 @@ const mockFacebookV2RequestWelcome = {
 };
 const mockFacebookV2ResponseWelcome = {
   fulfillmentMessages: [
-    {text: {text: ['Welcome to my agent!']}},
+    {
+      platform: 'FACEBOOK',
+      text: {
+        text: ['Welcome to my agent!'],
+      },
+    },
   ],
   outputContexts: [],
 };
@@ -542,8 +549,8 @@ const mockSlackV2RequestFallback = {
 };
 const mockSlackV2ResponseFallback = {
   fulfillmentMessages: [
-    {text: {text: ['I didn\'t understand']}},
-    {text: {text: ['I\'m sorry, can you try again?']}},
+    {platform: 'SLACK', text: {text: ['I didn\'t understand']}},
+    {platform: 'SLACK', text: {text: ['I\'m sorry, can you try again?']}},
   ],
   outputContexts: [],
 };
@@ -594,8 +601,8 @@ const mockFacebookV2RequestFallback = {
 };
 const mockFacebookV2ResponseFallback = {
   fulfillmentMessages: [
-    {text: {text: ['I didn\'t understand']}},
-    {text: {text: ['I\'m sorry, can you try again?']}},
+    {platform: 'FACEBOOK', text: {text: ['I didn\'t understand']}},
+    {platform: 'FACEBOOK', text: {text: ['I\'m sorry, can you try again?']}},
   ],
   outputContexts: [],
 };
