@@ -23,9 +23,9 @@ const {
  * Class representing a payload response
  * @extends RichResponse
  */
-class PayloadResponse extends RichResponse {
+class Payload extends RichResponse {
   /**
-   * Constructor for PayloadResponse object
+   * Constructor for Payload object
    *
    * @example
    * const googlePayloadJson = {
@@ -39,7 +39,7 @@ class PayloadResponse extends RichResponse {
    *     intent: 'actions.intent.OPTION',
    *   }
    * }
-   * const payloadResponse = new PayloadResponse(
+   * const payload = new Payload(
    *     'ACTIONS_ON_GOOGLE',
    *     googlePayloadJson
    * });
@@ -66,7 +66,7 @@ class PayloadResponse extends RichResponse {
   }
 
   /**
-   * Set the payload contents for a PayloadResponse
+   * Set the payload contents for a Payload
    *
    * @example
    * const googlePayloadJson = {
@@ -80,11 +80,11 @@ class PayloadResponse extends RichResponse {
    *     intent: 'actions.intent.OPTION',
    *   }
    * }
-   * let payloadResponse = new PayloadResponse(PLATFORMS.ACTIONS_ON_GOOGLE, {});
-   * payloadResponse.setPayload(googlePayloadJson);
+   * let payload = new Payload(PLATFORMS.ACTIONS_ON_GOOGLE, {});
+   * payload.setPayload(googlePayloadJson);
    *
    * @param {string} payload
-   * @return {PayloadResponse}
+   * @return {Payload}
    */
   setPayload(payload) {
     this.payload = payload;
@@ -130,4 +130,4 @@ class PayloadResponse extends RichResponse {
   }
 }
 
-module.exports = PayloadResponse;
+module.exports = Payload;

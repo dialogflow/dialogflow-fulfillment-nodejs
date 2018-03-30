@@ -257,6 +257,44 @@ test('Test v1 followup events', async (t) => {
   t.deepEqual(complexEventJson, agent.followupEvent_);
 });
 
+test('Test v1 original request', async (t) => {
+  let response = new ResponseMock();
+
+
+  let googleRequest = {body: mockGoogleV1Request};
+  let agent = new WebhookClient({
+    request: googleRequest,
+    response: response,
+  });
+
+  // Rename 'data' attr to 'payload' to be consistent with v2
+  let mockGoogleV1RequestOrigReq = Object.assign({}, mockGoogleV1Request.originalRequest);
+  Object.defineProperty(mockGoogleV1RequestOrigReq, 'payload',
+    Object.getOwnPropertyDescriptor(mockGoogleV1RequestOrigReq, 'data'));
+  delete mockGoogleV1RequestOrigReq['data'];
+
+  t.deepEqual(mockGoogleV1RequestOrigReq,
+    agent.originalRequest
+  );
+
+  let facebookRequest = {body: mockFacebookV1Request};
+  agent = new WebhookClient({
+    request: facebookRequest,
+    response: response,
+  });
+
+  // Rename 'data' attr to 'payload' to be consistent with v2
+  let mockFacebookV1RequestOrigReq = Object.assign({}, mockFacebookV1Request.originalRequest);
+  Object.defineProperty(mockFacebookV1RequestOrigReq, 'payload',
+    Object.getOwnPropertyDescriptor(mockFacebookV1RequestOrigReq, 'data'));
+  delete mockFacebookV1RequestOrigReq['data'];
+
+
+  t.deepEqual(mockFacebookV1RequestOrigReq,
+    agent.originalRequest
+  );
+});
+
 /**
  * utility function to setup webhook test
  * @param {Object} request express object

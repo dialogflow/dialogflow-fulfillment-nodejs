@@ -20,11 +20,11 @@ const debug = require('debug')('dialogflow:debug');
 debug.log = console.log.bind(console);
 
 // Response and agent classes
-const TextResponse = require('./rich-responses/text-response');
-const CardResponse = require('./rich-responses/card-response');
-const ImageResponse = require('./rich-responses/image-response');
-const SuggestionsResponse = require('./rich-responses/suggestions-response');
-const PayloadResponse = require('./rich-responses/payload-response');
+const Text = require('./rich-responses/text-response');
+const Card = require('./rich-responses/card-response');
+const Image = require('./rich-responses/image-response');
+const Suggestion = require('./rich-responses/suggestions-response');
+const Payload = require('./rich-responses/payload-response');
 const {
   RichResponse,
   PLATFORMS,
@@ -145,6 +145,14 @@ class WebhookClient {
     this.requestSource = null;
 
     /**
+     * Dialogflow original request object from detectIntent/query or platform integration
+     * (Google Assistant, Slack, etc.) in the request or null if no value
+     * https://dialogflow.com/docs/reference/agent/query#query_parameters_and_json_fields
+     * @type {object}
+     */
+    this.originalRequest = null;
+
+    /**
      * Original user query as indicated by Dialogflow or null if no value
      * @type {string}
      */
@@ -203,13 +211,13 @@ class WebhookClient {
    */
   add(response) {
     if (typeof response === 'string') {
-      response = new TextResponse(response);
+      response = new Text(response);
     }
     if (response instanceof DialogflowConversation) {
       this.client.addActionsOnGoogle_(response.serialize());
-    } else if (response instanceof SuggestionsResponse && this.existingSuggestion_(response.platform)) {
+    } else if (response instanceof Suggestion && this.existingSuggestion_(response.platform)) {
       this.existingSuggestion_(response.platform).addReply_(response.replies[0]);
-    } else if (response instanceof PayloadResponse && this.existingPayload_(response.platform)) {
+    } else if (response instanceof Payload && this.existingPayload_(response.platform)) {
       throw new Error(`Payload response for ${response.platform} already defined.`);
     } else if (response instanceof RichResponse) {
       this.responseMessages_.push(response);
@@ -406,10 +414,10 @@ class WebhookClient {
     // add a empty text response as the first item
     if (
       requestSource === PLATFORMS.ACTIONS_ON_GOOGLE && messages[0] &&
-      !(messages[0] instanceof TextResponse) &&
+      !(messages[0] instanceof Text) &&
       !this.existingPayload_(PLATFORMS.ACTIONS_ON_GOOGLE)
     ) {
-      this.responseMessages_ = [new TextResponse(' ')].concat(messages);
+      this.responseMessages_ = [new Text(' ')].concat(messages);
     }
 
     // if there is only text, send response
@@ -417,7 +425,7 @@ class WebhookClient {
     // if platform supports messages, send messages
     const payload = this.existingPayload_(requestSource);
     if (messages.length === 1 &&
-      messages[0] instanceof TextResponse) {
+      messages[0] instanceof Text) {
       this.client.sendTextResponse_();
     } else if (payload) {
       this.client.sendPayloadResponse_(payload, requestSource);
@@ -433,40 +441,40 @@ class WebhookClient {
    * Find a existing suggestion response message object for a specific platform
    *
    * @param {string} platform of incoming request
-   * @return {SuggestionsResponse|null} quick reply response of corresponding platform or null if no value
+   * @return {Suggestion|null} quick reply response of corresponding platform or null if no value
    * @private
    */
   existingSuggestion_(platform) {
-    let existingQuickReply;
+    let existingSuggestion;
     for (let response of this.responseMessages_) {
-      if (response instanceof SuggestionsResponse) {
+      if (response instanceof Suggestion) {
         if (
           (!response.platform || response.platform === PLATFORMS.UNSPECIFIED) &&
           (!platform || platform === PLATFORMS.UNSPECIFIED)
         ) {
-          existingQuickReply = response;
+          existingSuggestion = response;
           break;
         }
         if (platform === response.platform) {
-          existingQuickReply = response;
+          existingSuggestion = response;
           break;
         }
       }
     }
-    return existingQuickReply;
+    return existingSuggestion;
   }
 
   /**
    * Find a existing payload response message object for a specific platform
    *
    * @param {string} platform of incoming request
-   * @return {PayloadResponse|null} Payload response of corresponding platform or null if no value
+   * @return {Payload|null} Payload response of corresponding platform or null if no value
    * @private
    */
   existingPayload_(platform) {
     let existingPayload;
     for (let response of this.responseMessages_) {
-      if (response instanceof PayloadResponse) {
+      if (response instanceof Payload) {
         if (
           (!response.platform || response.platform === PLATFORMS.UNSPECIFIED) &&
           (!platform || platform === PLATFORMS.UNSPECIFIED)
@@ -484,9 +492,4 @@ class WebhookClient {
   }
 }
 
-module.exports.WebhookClient = WebhookClient;
-module.exports.Text = TextResponse;
-module.exports.Card = CardResponse;
-module.exports.Image = ImageResponse;
-module.exports.Suggestion = SuggestionsResponse;
-module.exports.Payload = PayloadResponse;
+module.exports = {WebhookClient, Text, Card, Image, Suggestion, Payload};

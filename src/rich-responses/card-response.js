@@ -29,16 +29,16 @@ const v1MessageObjectCard = 1;
  * Class representing a card response
  * @extends RichResponse
  */
-class CardResponse extends RichResponse {
+class Card extends RichResponse {
   /**
-   * Constructor for CardResponse object.
+   * Constructor for Card object.
    *
    * @example
-   * let cardResponse = new CardResponse('card title');
-   * cardResponse.setImage('https://developers.google.com/actions/images/badges/XPM_BADGING_GoogleAssistant_VER.png');
-   * cardResponse.setText('This is the body text of a card.  You can even use line\nbreaks and emoji! 💁');
-   * cardResponse.setButton({text: 'This is a button', url: 'https://assistant.google.com/'});
-   * const anotherCardResponse = new CardResponse({
+   * let card = new Card('card title');
+   * card.setImage('https://developers.google.com/actions/images/badges/XPM_BADGING_GoogleAssistant_VER.png');
+   * card.setText('This is the body text of a card.  You can even use line\nbreaks and emoji! 💁');
+   * card.setButton({text: 'This is a button', url: 'https://assistant.google.com/'});
+   * const anotherCard = new Card({
    *     title: 'card title',
    *     text: 'card text',
    *     imageUrl: https://developers.google.com/actions/images/badges/XPM_BADGING_GoogleAssistant_VER.png,
@@ -52,7 +52,7 @@ class CardResponse extends RichResponse {
   constructor(card) {
     super();
     if (card === undefined || (typeof card === 'object' && !card.title)) {
-      throw new Error('card title string required by CardResponse constructor');
+      throw new Error('title string required by Card constructor');
     }
     if (typeof card === 'string') {
       this.title = card;
@@ -82,14 +82,14 @@ class CardResponse extends RichResponse {
   }
 
   /**
-   * Set the title for a CardResponse
+   * Set the title for a Card
    *
    * @example
-   * let cardResponse = new CardResponse();
-   * cardResponse.setTitle('sample card title')
+   * let card = new Card();
+   * card.setTitle('sample card title')
    *
    * @param {string} title containing the title content
-   * @return {CardResponse}
+   * @return {Card}
    */
   setTitle(title) {
     if (typeof title !== 'string') {
@@ -100,14 +100,14 @@ class CardResponse extends RichResponse {
   }
 
   /**
-   * Set the text for a CardResponse
+   * Set the text for a Card
    *
    * @example
-   * let cardResponse = new CardResponse();
-   * cardResponse.setText('sample card body text')
+   * let card = new Card();
+   * card.setText('sample card body text')
    *
    * @param {string} text containing the card body text content
-   * @return {CardResponse}
+   * @return {Card}
    */
   setText(text) {
     if (typeof text !== 'string') {
@@ -118,14 +118,14 @@ class CardResponse extends RichResponse {
   }
 
   /**
-   * Set the image for a CardResponse
+   * Set the image for a Card
    *
    * @example
-   * let cardResponse = new CardResponse();
-   * cardResponse.setImage('https://assistant.google.com/static/images/molecule/Molecule-Formation-stop.png');
+   * let card = new Card();
+   * card.setImage('https://assistant.google.com/static/images/molecule/Molecule-Formation-stop.png');
    *
    * @param {string} imageUrl
-   * @return {CardResponse}
+   * @return {Card}
    */
   setImage(imageUrl) {
     if (typeof imageUrl !== 'string') {
@@ -136,11 +136,11 @@ class CardResponse extends RichResponse {
   }
 
   /**
-   * Set the button for a CardResponse
+   * Set the button for a Card
    *
    * @example
-   * let cardResponse = new CardResponse();
-   * cardResponse.setButton({
+   * let card = new Card();
+   * card.setButton({
    *     text: 'button text',
    *     url: 'https://assistant.google.com/'
    * });
@@ -148,7 +148,7 @@ class CardResponse extends RichResponse {
    * @param {Object} button JSON configuration
    * @param {Object} options.text button text
    * @param {Object} options.url button link URL
-   * @return {CardResponse}
+   * @return {Card}
    */
   setButton(button) {
     if ((!button.text && button.url) || (!button.url && button.text)) {
@@ -287,4 +287,4 @@ class CardResponse extends RichResponse {
   }
 }
 
-module.exports = CardResponse;
+module.exports = Card;

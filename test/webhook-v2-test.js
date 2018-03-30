@@ -374,6 +374,30 @@ test('Test v2 followup events', async (t) => {
   t.deepEqual(complexEvent, agent.followupEvent_);
 });
 
+test('Test v1 original request', async (t) => {
+  let response = new ResponseMock();
+
+  let googleRequest = {body: mockGoogleV2Request};
+  let agent = new WebhookClient({
+    request: googleRequest,
+    response: response,
+  });
+
+  t.deepEqual(mockGoogleV2Request.originalDetectIntentRequest,
+    agent.originalRequest
+  );
+
+  let facebookRequest = {body: mockFacebookV2Request};
+  agent = new WebhookClient({
+    request: facebookRequest,
+    response: response,
+  });
+
+  t.deepEqual(mockFacebookV2Request.originalDetectIntentRequest,
+    agent.originalRequest
+  );
+});
+
 /**
  * Class to mock a express response object for testing
  */

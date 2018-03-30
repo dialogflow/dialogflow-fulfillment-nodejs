@@ -85,12 +85,28 @@ class V1Agent {
      * https://dialogflow.com/docs/reference/agent/query#query_parameters_and_json_fields
      * @type {string}
      */
-    const originalRequest = this.agent.request_.body.originalRequest;
+    let originalRequest = this.agent.request_.body.originalRequest;
     if (originalRequest) {
       const v1RequestSource = originalRequest.source || originalRequest.data.source;
       this.agent.requestSource = V1_TO_V2_PLATFORM_NAME[v1RequestSource] || v1RequestSource;
     }
     debug(`Request source: ${JSON.stringify(this.agent.requestSource)}`);
+
+    /**
+     * Dialogflow original request object from detectIntent/query or platform integration
+     * (Google Assistant, Slack, etc.) in the request or null if no value
+     * https://dialogflow.com/docs/reference/agent/query#query_parameters_and_json_fields
+     * @type {object}
+     */
+    let originalRequestPayloadRenameRename = Object.assign({}, originalRequest);
+    if (originalRequest && originalRequest.data) {
+      // Rename 'data' attr to 'payload' to be consistent with v2
+      const data = Object.getOwnPropertyDescriptor(originalRequestPayloadRenameRename, 'data');
+      Object.defineProperty(originalRequestPayloadRenameRename, 'payload', data);
+      delete originalRequestPayloadRenameRename['data'];
+    }
+    this.agent.originalRequest = originalRequestPayloadRenameRename;
+    debug(`Original Request: ${JSON.stringify(this.agent.originalRequest)}`);
 
     /**
      * Original user query as indicated by Dialogflow or null if no value

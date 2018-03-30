@@ -60,7 +60,7 @@ test('Test creation of without required args/params', (t) => {
   }, Error);
   t.is(
     textNoArgsError.message,
-    'text response string required by TextResponse constructor'
+    'string required by Text constructor'
   );
 
   // text response with object with no text attr
@@ -69,7 +69,7 @@ test('Test creation of without required args/params', (t) => {
   }, Error);
   t.is(
     textNoAttrError.message,
-    'text response string required by TextResponse constructor'
+    'string required by Text constructor'
   );
 
   // card response with no args in constructor
@@ -78,7 +78,7 @@ test('Test creation of without required args/params', (t) => {
   }, Error);
   t.is(
     cardNoArgsError.message,
-    'card title string required by CardResponse constructor'
+    'title string required by Card constructor'
   );
 
   // card response with object with no title attr
@@ -87,7 +87,7 @@ test('Test creation of without required args/params', (t) => {
   }, Error);
   t.is(
     cardNoAttrError.message,
-    'card title string required by CardResponse constructor'
+    'title string required by Card constructor'
   );
 });
 
@@ -370,7 +370,7 @@ Molecule-Formation-stop.png`;
   }, Error);
   t.is(
     cardNoAttrError.message,
-    'image url string required by ImageResponse constructor'
+    'image url string required by Image constructor'
   );
 
   // ImageResponse no imageUrl in constructor args should throw error attr
@@ -379,7 +379,7 @@ Molecule-Formation-stop.png`;
   }, Error);
   t.is(
     cardNoUrlError.message,
-    'image url string required by ImageResponse constructor'
+    'image url string required by Image constructor'
   );
 
   let image = new ImageResponse('https://google.com');
@@ -398,7 +398,7 @@ test('QuickReplies (setReply and setPlatform)', async (t) => {
   }, Error);
   t.is(
     replyNoAttrError.message,
-    'QuickReply reply string required by QuickReplyResponse constructor'
+    'Reply string required by Suggestion constructor'
   );
 
   // SuggestionsResponse no reply in constructor args should throw error attr
@@ -407,7 +407,7 @@ test('QuickReplies (setReply and setPlatform)', async (t) => {
   }, Error);
   t.is(
     replyNoUrlError.message,
-    'QuickReply reply string required by QuickReplyResponse constructor'
+    'Reply string required by Suggestion constructor'
   );
 
   let quickReply = new SuggestionsResponse('quick reply');

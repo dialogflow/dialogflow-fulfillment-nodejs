@@ -29,13 +29,13 @@ const v1MessageObjectSuggestions = 2;
  * Class representing a suggestions response
  * @extends RichResponse
  */
-class SuggestionsResponse extends RichResponse {
+class Suggestion extends RichResponse {
   /**
-   * Constructor for SuggestionsResponse object
+   * Constructor for Suggestion object
    *
    * @example
-   * let suggestionsResponse = new SuggestionsResponse('suggestion');
-   * const anotherSuggestionsResponse = new SuggestionsResponse({
+   * let suggestion = new Suggestion('suggestion');
+   * const anotherSuggestion = new Suggestion({
    *     title: 'suggestion',
    *     platform: 'ACTIONS_ON_GOOGLE'
    * });
@@ -51,7 +51,7 @@ class SuggestionsResponse extends RichResponse {
       (typeof suggestion === 'object' && !suggestion.title)
     ) {
       throw new Error(
-        'QuickReply reply string required by QuickReplyResponse constructor'
+        'Reply string required by Suggestion constructor'
       );
     }
     if (typeof suggestion === 'string') {
@@ -72,14 +72,14 @@ class SuggestionsResponse extends RichResponse {
   }
 
   /**
-   * Set the reply for a SuggestionsResponse
+   * Set the reply for a Suggestion
    *
    * @example
-   * let suggestionsResponse = new SuggestionsResponse('reply to be overwritten');
-   * suggestionsResponse.setReply('reply overwritten');
+   * let suggestion = new Suggestion('reply to be overwritten');
+   * suggestion.setReply('reply overwritten');
    *
    * @param {string} reply
-   * @return {SuggestionsResponse}
+   * @return {Suggestion}
    */
   setReply(reply) {
     if (typeof reply !== 'string') {
@@ -87,7 +87,7 @@ class SuggestionsResponse extends RichResponse {
     }
     if (this.replies.length !== 1) {
       throw new Error(
-        `Expected one reply in SuggestionsResponse object but found ${
+        `Expected one reply in Suggestion object but found ${
           this.replies.length
         }`
       );
@@ -101,8 +101,8 @@ class SuggestionsResponse extends RichResponse {
    * Add another reply to an existing suggestion object
    *
    * @example
-   * let suggestionsResponse = new SuggestionsResponse('first reply');
-   * suggestionsResponse.addReply_('another reply');
+   * let suggestion = new Suggestion('first reply');
+   * suggestion.addReply_('another reply');
    *
    * @param {string} reply
    * @private
@@ -196,4 +196,4 @@ class SuggestionsResponse extends RichResponse {
   }
 }
 
-module.exports = SuggestionsResponse;
+module.exports = Suggestion;

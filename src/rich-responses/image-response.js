@@ -29,14 +29,14 @@ const v1MessageObjectImage = 3;
  * Class representing a image response.
  * @extends RichResponse
  */
-class ImageResponse extends RichResponse {
+class Image extends RichResponse {
   /**
-   * Constructor for ImageResponse object
+   * Constructor for Image object
    *
    * @example
    * const imageUrl = 'https://developers.google.com/actions/images/badges/XPM_BADGING_GoogleAssistant_VER.png'
-   * let imageResponse = new ImageResponse(imageUrl);
-   * const anotherImageResponse = new ImageResponse({
+   * let image = new Image(imageUrl);
+   * const anotherImage = new Image({
    *     imageUrl: imageUrl,
    *     platform: 'ACTIONS_ON_GOOGLE'
    * });
@@ -46,7 +46,7 @@ class ImageResponse extends RichResponse {
   constructor(image) {
     super();
     if (image === undefined || (typeof image === 'object' && !image.imageUrl)) {
-      throw new Error('image url string required by ImageResponse constructor');
+      throw new Error('image url string required by Image constructor');
     }
     if (typeof image === 'string') {
       this.imageUrl = image;
@@ -66,14 +66,14 @@ class ImageResponse extends RichResponse {
   }
 
   /**
-   * Set the image for a ImageResponse
+   * Set the image for a Image
    *
    * @example
-   * let imageResponse = new ImageResponse('https://example.com/placeholder.png');
-   * imageResponse.setImage('https://assistant.google.com/static/images/molecule/Molecule-Formation-stop.png');
+   * let image = new Image('https://example.com/placeholder.png');
+   * image.setImage('https://assistant.google.com/static/images/molecule/Molecule-Formation-stop.png');
    *
    * @param {string} imageUrl
-   * @return {ImageResponse}
+   * @return {Image}
    */
   setImage(imageUrl) {
     if (typeof imageUrl !== 'string') {
@@ -170,4 +170,4 @@ class ImageResponse extends RichResponse {
   }
 }
 
-module.exports = ImageResponse;
+module.exports = Image;

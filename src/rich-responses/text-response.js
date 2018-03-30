@@ -29,13 +29,13 @@ const v1MessageObjectText = 0;
  * Class representing a text response
  * @extends RichResponse
  */
-class TextResponse extends RichResponse {
+class Text extends RichResponse {
   /**
-   * Constructor for TextResponse object
+   * Constructor for Text object
    *
    * @example
-   * let textResponse = new TextResponse('response string');
-   * let anotherTextResponse = new TextResponse({
+   * let text = new Text('response string');
+   * let anotherText = new Text({
    *     text:'response string',
    *     platform: "ACTIONS_ON_GOOGLE"
    * });
@@ -46,7 +46,7 @@ class TextResponse extends RichResponse {
     super();
     if (text === undefined || (typeof text === 'object' && !text.text)) {
       throw new Error(
-        'text response string required by TextResponse constructor'
+        'string required by Text constructor'
       );
     }
     if (typeof text === 'string') {
@@ -68,14 +68,14 @@ class TextResponse extends RichResponse {
   }
 
   /**
-   * Set the text for a TextResponse
+   * Set the text for a Text
    *
    * @example
-   * let textResponse = new TextResponse();
-   * textResponse.setText('sample text response')
+   * let text = new Text();
+   * text.setText('sample text response')
    *
    * @param {string} text containing the text response content
-   * @return {TextResponse}
+   * @return {Text}
    */
   setText(text) {
     if (typeof text !== 'string') {
@@ -86,14 +86,14 @@ class TextResponse extends RichResponse {
   }
 
   /**
-   * Set the SSML for a TextResponse
+   * Set the SSML for a Text
    *
    * @example
-   * let textResponse = new TextResponse();
-   * textResponse.setSsml('<speak>This is <say-as interpret-as="characters">SSML</say-as>.</speak>')
+   * let text = new Text();
+   * text.setSsml('<speak>This is <say-as interpret-as="characters">SSML</say-as>.</speak>')
    *
    * @param {string} ssml containing the SSML response content
-   * @return {TextResponse}
+   * @return {Text}
    */
   setSsml(ssml) {
     if (typeof ssml !== 'string') {
@@ -191,4 +191,4 @@ class TextResponse extends RichResponse {
   }
 }
 
-module.exports = TextResponse;
+module.exports = Text;

@@ -111,6 +111,15 @@ class V2Agent {
     debug(`Request source: ${JSON.stringify(this.agent.requestSource)}`);
 
     /**
+     * Dialogflow original request object from detectIntent/query or platform integration
+     * (Google Assistant, Slack, etc.) in the request or null if no value
+     * https://dialogflow.com/docs/reference/agent/query#query_parameters_and_json_fields
+     * @type {object}
+     */
+    this.agent.originalRequest = this.agent.request_.body.originalDetectIntentRequest;
+    debug(`Original Request: ${JSON.stringify(this.agent.originalRequest)}`);
+
+    /**
      * Original user query as indicated by Dialogflow or null if no value
      * https://dialogflow.com/docs/reference/api-v2/rest/v2beta1/
      * projects.agent.sessions/detectIntent#QueryResult.FIELDS.query_text

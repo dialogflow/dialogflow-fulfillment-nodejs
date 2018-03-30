@@ -15,6 +15,7 @@ Dialogflow's simulator
     * [.parameters](#WebhookClient+parameters) : <code>Array.&lt;Object&gt;</code>
     * [.contexts](#WebhookClient+contexts) : <code>string</code>
     * [.requestSource](#WebhookClient+requestSource) : <code>string</code>
+    * [.originalRequest](#WebhookClient+originalRequest) : <code>object</code>
     * [.query](#WebhookClient+query) : <code>string</code>
     * [.locale](#WebhookClient+locale) : <code>string</code>
     * [.session](#WebhookClient+session) : <code>string</code>
@@ -25,6 +26,7 @@ Dialogflow's simulator
     * [.clearContext(context)](#WebhookClient+clearContext) ⇒ [<code>WebhookClient</code>](#WebhookClient)
     * [.getContext(contextName)](#WebhookClient+getContext) ⇒ <code>Object</code>
     * [.setFollowupEvent(event)](#WebhookClient+setFollowupEvent)
+    * [.conv()](#WebhookClient+conv) ⇒ <code>DialogflowConversation</code> \| <code>null</code>
 
 <a name="new_WebhookClient_new"></a>
 
@@ -76,6 +78,14 @@ https://dialogflow.com/docs/contexts
 
 ### webhookClient.requestSource : <code>string</code>
 Dialogflow source included in the request or null if no value
+https://dialogflow.com/docs/reference/agent/query#query_parameters_and_json_fields
+
+**Kind**: instance property of [<code>WebhookClient</code>](#WebhookClient)  
+<a name="WebhookClient+originalRequest"></a>
+
+### webhookClient.originalRequest : <code>object</code>
+Dialogflow original request object from detectIntent/query or platform integration
+(Google Assistant, Slack, etc.) in the request or null if no value
 https://dialogflow.com/docs/reference/agent/query#query_parameters_and_json_fields
 
 **Kind**: instance property of [<code>WebhookClient</code>](#WebhookClient)  
@@ -204,4 +214,19 @@ Set the followup event
 const { WebhookClient } = require('dialogflow-webhook');
 const agent = new WebhookClient({request: request, response: response});
 let event = agent.setFollowupEvent('sample event name');
+```
+<a name="WebhookClient+conv"></a>
+
+### webhookClient.conv() ⇒ <code>DialogflowConversation</code> \| <code>null</code>
+Get Actions on Google DialogflowConversation object
+
+**Kind**: instance method of [<code>WebhookClient</code>](#WebhookClient)  
+**Returns**: <code>DialogflowConversation</code> \| <code>null</code> - DialogflowConversation object or null  
+**Example**  
+```js
+const { WebhookClient } = require('dialogflow-webhook');
+const agent = new WebhookClient({request: request, response: response});
+let conv = agent.conv();
+conv.ask('Hi from the Actions on Google client library');
+agent.add(conv);
 ```
