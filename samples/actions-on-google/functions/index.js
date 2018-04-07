@@ -52,7 +52,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
           title: 'Google Home',
           description: 'Google Home is a powerful speaker and voice Assistant.',
           image: {
-            url: imageUrl2
+            url: imageUrl2,
             accessibilityText: 'Google Home',
           },
         },
