@@ -243,7 +243,7 @@ class WebhookClient {
 
     if (!(handler instanceof Map)) {
       return Promise.reject( new Error(
-        'handleRequest must contain a map of Dialogflow action names to function handlers'
+        'handleRequest must contain a map of Dialogflow intent names to function handlers'
       ));
     }
 
@@ -258,11 +258,11 @@ class WebhookClient {
       let promise = result instanceof Promise ? result : Promise.resolve();
       return promise.then(() => this.send_());
     } else {
-      debug('No handler for requested action');
+      debug('No handler for requested intent');
       this.response_
         .status(RESPONSE_CODE_BAD_REQUEST)
-        .status('No handler for requested action');
-      return Promise.reject(new Error('No handler for requested action'));
+        .status('No handler for requested intent');
+      return Promise.reject(new Error('No handler for requested intent'));
     }
   }
 

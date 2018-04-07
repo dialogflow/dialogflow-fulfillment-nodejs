@@ -78,6 +78,12 @@ test('v2 Integration test', async (t) => {
   webhookTest(facebookV2WebhookRequest, (responseJson) => {
     t.deepEqual(responseJson, mockFacebookV2ResponseWebhook);
   });
+
+  // v2 simulator webhook
+  let simulatorV2WebhookRequest = {body: mockSimulatorV2RequestOther};
+  webhookTest(simulatorV2WebhookRequest, (responseJson) => {
+    t.deepEqual(responseJson, mockSimulatorV2ResponseOther);
+  });
 });
 
 /**
@@ -177,6 +183,80 @@ class ResponseMock {
   }
 }
 
+const mockSimulatorV2RequestOther = {
+  'responseId': 'b131a1bb-513b-44d0-928b-47c49a2569f8',
+  'queryResult': {
+    'queryText': 'custom intent',
+    'parameters': {},
+    'allRequiredParamsPresent': true,
+    'fulfillmentMessages': [
+      {
+        'text': {
+          'text': [
+            '',
+          ],
+        },
+      },
+    ],
+    'outputContexts': [
+      {
+        'name': 'projects/agent52-3e1ea/agent/sessions/669d7da3-de6f-4b1d-8394-d79c6973e516/contexts/weather',
+        'parameters': {
+          'city': 'Rome',
+        },
+      },
+    ],
+    'intent': {
+      'name': 'projects/agent52-3e1ea/agent/intents/ee4efd90-1021-42ee-8ff5-78463d461d86',
+      'displayName': 'Custom Intent',
+    },
+    'intentDetectionConfidence': 1,
+    'diagnosticInfo': {},
+    'languageCode': 'en',
+  },
+  'originalDetectIntentRequest': {
+    'payload': {},
+  },
+  'session': 'projects/agent52-3e1ea/agent/sessions/669d7da3-de6f-4b1d-8394-d79c6973e516',
+};
+
+const mockSimulatorV2ResponseOther = {
+  fulfillmentMessages: [
+    {
+      text: {
+        text: [
+          'This message is from Dialogflow\'s Cloud Functions for Firebase editor!',
+        ],
+      },
+    },
+    {
+      card: {
+        title: 'Title: this is a card title',
+        subtitle:
+          'This is the body text of a card.  You can even use line\nbreaks and emoji! 💁',
+        imageUri:
+          'https://developers.google.com/actions/images/badges/XPM_BADGING_GoogleAssistant_VER.png',
+        buttons: [
+          {
+            text: 'This is a button',
+            postback: 'https://assistant.google.com/',
+          },
+        ],
+      },
+    },
+    {
+      quickReplies: {quickReplies: ['Quick Reply', 'Suggestion']},
+    },
+  ],
+  outputContexts: [
+    {
+      name:
+        'projects/agent52-3e1ea/agent/sessions/669d7da3-de6f-4b1d-8394-d79c6973e516/contexts/weather',
+      lifespanCount: 2,
+      parameters: {city: 'Rome'},
+    },
+  ],
+};
 // Mock webhook request and reponse from Dialogflow for sample v2
 // welcome
 const mockGoogleV2RequestWelcome = {

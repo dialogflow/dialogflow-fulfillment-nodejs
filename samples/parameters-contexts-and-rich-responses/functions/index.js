@@ -58,8 +58,8 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 
   function convertFahrenheitAndCelsius(agent) {
     // Get parameters from Dialogflow to convert
-    const temperature = agent.params.temperature;
-    const unit = agent.params.unit;
+    const temperature = agent.parameters.temperature;
+    const unit = agent.parameters.unit;
     console.log(`User requested to convert ${temperature}° ${unit}`);
 
     let convertedTemp, convertedUnit, temperatureHistory;
@@ -103,10 +103,10 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
   }
 
   function convertRankineAndKelvin(agent) {
-    const secondUnit = agent.params.absoluteTempUnit;
+    const secondUnit = agent.parameters.absoluteTempUnit;
     const tempContext = agent.getContext('temperature');
-    const originalTemp = tempContext.params.temperature;
-    const originalUnit = tempContext.params.unit;
+    const originalTemp = tempContext.parameters.temperature;
+    const originalUnit = tempContext.parameters.unit;
 
     // Convert temperature
     let convertedTemp, convertedUnit, temperatureHistoryText, temperatureHistoryImage;

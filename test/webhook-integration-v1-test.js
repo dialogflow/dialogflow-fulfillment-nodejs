@@ -78,6 +78,12 @@ test('v1 Integration test', async (t) => {
   webhookTest(facebookV1WebhookRequest, (responseJson) => {
     t.deepEqual(responseJson, mockFacebookV1ResponseWebhook);
   });
+
+  // v1 simulator Webhook
+  let simulatorV1WebhookRequest = {body: mockSimulatorV1RequestOther};
+  webhookTest(simulatorV1WebhookRequest, (responseJson) => {
+    t.deepEqual(responseJson, mockSimulatorV1ReponseWebhook);
+  });
 });
 
 /**
@@ -176,6 +182,66 @@ class ResponseMock {
     this.callback(message);
   }
 }
+
+const mockSimulatorV1RequestOther = {
+  'id': '9c43750a-f5e2-4f6f-8452-f22d13fc4cfe',
+  'timestamp': '2018-04-07T03:58:15.346Z',
+  'lang': 'en',
+  'result': {
+    'source': 'agent',
+    'resolvedQuery': 'google intent',
+    'speech': '',
+    'action': '',
+    'actionIncomplete': false,
+    'parameters': {},
+    'contexts': [],
+    'metadata': {
+      'intentId': '3ca26fa9-ee85-458b-98e0-c42452d9775c',
+      'webhookUsed': 'true',
+      'webhookForSlotFillingUsed': 'false',
+      'intentName': 'Google Intent',
+    },
+    'fulfillment': {
+      'speech': '',
+      'messages': [
+        {
+          'type': 0,
+          'speech': '',
+        },
+      ],
+    },
+    'score': 1,
+  },
+  'status': {
+    'code': 200,
+    'errorType': 'success',
+    'webhookTimedOut': false,
+  },
+  'sessionId': '669d7da3-de6f-4b1d-8394-d79c6973e516',
+};
+
+const mockSimulatorV1ReponseWebhook = {
+  messages: [
+    {
+      type: 0,
+      speech:
+        'This message is from Dialogflow\'s Cloud Functions for Firebase editor!',
+    },
+    {
+      type: 1,
+      title: 'Title: this is a card title',
+      subtitle:
+        'This is the body text of a card.  You can even use line\nbreaks and emoji! 💁',
+      imageUrl:
+        'https://developers.google.com/actions/images/badges/XPM_BADGING_GoogleAssistant_VER.png',
+      buttons: [
+        {text: 'This is a button', postback: 'https://assistant.google.com/'},
+      ],
+    },
+    {type: 2, replies: ['Quick Reply', 'Suggestion']},
+  ],
+  contextOut: [{name: 'weather', lifespan: 2, parameters: {city: 'Rome'}}],
+};
 
 // Mock webhook request and reponse from Dialogflow for sample v1
 // welcome
