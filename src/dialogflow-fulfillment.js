@@ -237,7 +237,7 @@ class WebhookClient {
   handleRequest(handler) {
     if (typeof handler === 'function') {
       let result = handler(this);
-      let promise = result instanceof Promise ? result : Promise.resolve();
+      let promise = Promise.resolve(result);
       return promise.then(() => this.send_());
     }
 
@@ -250,12 +250,12 @@ class WebhookClient {
     if (handler.get(this.intent)) {
       let result = handler.get(this.intent)(this);
       // If handler is a promise use it, otherwise create use default (empty) promise
-      let promise = result instanceof Promise ? result : Promise.resolve();
+      let promise = Promise.resolve(result);
       return promise.then(() => this.send_());
     } else if (handler.get(null)) {
       let result = handler.get(null)(this);
       // If handler is a promise use it, otherwise create use default (empty) promise
-      let promise = result instanceof Promise ? result : Promise.resolve();
+      let promise = Promise.resolve(result);
       return promise.then(() => this.send_());
     } else {
       debug('No handler for requested intent');
