@@ -1,16 +1,25 @@
-# Parameters, Contexts and Rich Responses Sample
+# Temperature Trivia
 
-## Setup: Dialogflow Inline Editor (option 1)
+## Setup
+Choose one of the three options listed below for setup.  You only need to complete one of the three options below to setup this sample.
 
+### Option 1: Deploy to Dialogflow (recommended)
+Click on the Deploy to Dialogflow button below and follow the prompts to create a new agent:
+
+<a href="https://console.dialogflow.com/api-client/oneclick?templateUrl=https%3A%2F%2Fstorage.googleapis.com%2Fdialogflow-oneclick%2Ftemperature-converter-agent.zip&agentName=TemperatureConverterSample" target="_blank">
+	<img src="https://storage.googleapis.com/dialogflow-oneclick/deploy.svg" alt="Dialogflow Temperature Trivia Sample" title="Dialogflow Temperature Trivia Sample">
+</a>
+
+### Option 2: Dialogflow Inline Editor
 1. [Sign up for or sign into Dialogflow](https://console.dialogflow.com/api-client/#/login)
 1. Create a Dialogflow agent
 1. [Enable the Cloud Function for Firebase inline editor](https://dialogflow.com/docs/fulfillment#cloud_functions_for_firebase)
 1. Change the name of the function in `functions/index.js` from `dialogflowFulfillmentLibAdvancedSample` to `dialogflowFirebaseFulfillment`
 1. Copy this code in `functions/index.js` the `index.js` file in the Dialogflow Cloud Function for Firebase inline editor.
-1. Add `"dialogflow-fulfillment": "0.3.0-beta.1"` to the `package.json` file's `dependencies` object in the Dialogflow Cloud Function for Firebase inline editor.
+1. Add `"dialogflow-fulfillment": "0.3.0-beta.3"` to the `package.json` file's `dependencies` object in the Dialogflow Cloud Function for Firebase inline editor.
 1. Click `Deploy`
 
-## Setup: Firebase CLI (option 2)
+### Setup: Firebase CLI (option 2)
 
 1. Create a Dialogflow agent
 1. Go to your agent's settings and [Restore from zip](https://dialogflow.com/docs/agents#export_and_import) using the `advancedAgent.zip` in this directory (Note: this will overwrite your existing agent)

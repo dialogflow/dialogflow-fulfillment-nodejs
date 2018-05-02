@@ -24,7 +24,7 @@ const { Carousel } = require('actions-on-google');
 process.env.DEBUG = 'dialogflow:debug'; // enables lib debugging statements
 
 const imageUrl = 'https://developers.google.com/actions/images/badges/XPM_BADGING_GoogleAssistant_VER.png';
-const imageUrl2 = 'https://lh3.googleusercontent.com/Nu3a6F80WfixUqf_ec_vgXy_c0-0r4VLJRXjVFF_X_CIilEu8B9fT35qyTEj_PEsKw',
+const imageUrl2 = 'https://lh3.googleusercontent.com/Nu3a6F80WfixUqf_ec_vgXy_c0-0r4VLJRXjVFF_X_CIilEu8B9fT35qyTEj_PEsKw';
 const linkUrl = 'https://assistant.google.com/';
 
 exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, response) => {
@@ -36,7 +36,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
     // Get Actions on Google library conv instance
     let conv = agent.conv();
     // Use Actions on Google library to add responses
-    conv.ask('Please choose an item:')
+    conv.ask('Please choose an item:');
     conv.ask(new Carousel({
       title: 'Google Assistant',
       items: {
@@ -52,12 +52,12 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
           title: 'Google Home',
           description: 'Google Home is a powerful speaker and voice Assistant.',
           image: {
-            url: imageUrl2
-            accessibilityText: 'Google Home',
+            url: imageUrl2,
+            accessibilityText: 'Google Home'
           },
         },
       },
-    }))
+    }));
     // Add Actions on Google library responses to your agent's response
     agent.add(conv);
   }
@@ -95,6 +95,5 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
   } else {
     intentMap.set(null, other);
   }
-
   agent.handleRequest(intentMap);
 });

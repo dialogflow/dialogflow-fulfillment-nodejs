@@ -12,7 +12,7 @@ Dialogflow fulfillment allows you to connect Dialogflow's natural language under
 1. Create a Dialogflow agent
 1. [Enable the Cloud Function for Firebase inline editor](https://dialogflow.com/docs/fulfillment#cloud_functions_for_firebase)
 1. Copy this code in `samples/quick-start/functions/index.js` the `index.js` file in the Dialogflow Cloud Function for Firebase inline editor.
-1. Add `"dialogflow-fulfillment": "0.3.0-beta.1"` to the `package.json` file's `dependencies` object in the Dialogflow Cloud Function for Firebase inline editor.
+1. Add `"dialogflow-fulfillment": "0.3.0-beta.3"` to the `package.json` file's `dependencies` object in the Dialogflow Cloud Function for Firebase inline editor.
 1. Click `Deploy`
 
 
