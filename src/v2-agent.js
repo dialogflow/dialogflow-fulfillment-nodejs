@@ -105,7 +105,7 @@ class V2Agent {
      */
     const detectIntentRequest = this.agent.request_.body.originalDetectIntentRequest;
     if (detectIntentRequest) {
-      const requestSource = detectIntentRequest.source || detectIntentRequest.payload.source || null;
+      const requestSource = detectIntentRequest.source || (detectIntentRequest.payload && detectIntentRequest.payload.source) || null;
       this.agent.requestSource = V1_TO_V2_PLATFORM_NAME[requestSource] || requestSource;
     }
     debug(`Request source: ${JSON.stringify(this.agent.requestSource)}`);
