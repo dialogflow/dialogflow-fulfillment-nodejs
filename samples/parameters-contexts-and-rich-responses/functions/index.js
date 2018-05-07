@@ -40,20 +40,19 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
   console.log('Dialogflow Request body: ' + JSON.stringify(request.body));
 
   function welcome(agent) {
-    agent.add(`Welcome to the temperature converter!`);
+    agent.add('Welcome to the temperature converter!');
     agent.add(new Card({
-        title: `Vibrating molecules`,
+        title: 'Vibrating molecules',
         imageUrl: wikipediaTemperatureImageUrl,
-        text: `Did you know that temperature is really just a measure of how fast molecules are vibrating around?! 😱`,
+        text: 'Did you know that temperature is really just a measure of how fast molecules are vibrating around?! 😱',
         buttonText: 'Temperature Wikipedia Page', 
         buttonUrl: wikipediaTemperatureUrl
       })
     );
-    agent.add(`I can convert Celsuis to Fahrenheit and Fahrenheit to Celsius!`);
-    agent.add(`What temperature would you like to convert?`);
-    agent.add(new Suggestion(`27° Celsius`));
-    agent.add(new Suggestion(`-40° Fahrenheit`));
-    agent.add(new Suggestion(`Cancel`));
+    agent.add('I can convert Celsius to Fahrenheit and Fahrenheit to Celsius! What temperature would you like to convert?');
+    agent.add(new Suggestion('27° Celsius'));
+    agent.add(new Suggestion('-40° Fahrenheit'));
+    agent.add(new Suggestion('Cancel'));
   }
 
   function convertFahrenheitAndCelsius(agent) {
@@ -63,23 +62,23 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
     console.log(`User requested to convert ${temperature}° ${unit}`);
 
     let convertedTemp, convertedUnit, temperatureHistory;
-    if (unit === `Celsius`) {
+    if (unit === 'Celsius') {
       convertedTemp = temperature*(9/5) + 32;
-      convertedUnit = `Fahrenheit`;
+      convertedUnit = 'Fahrenheit';
       temperatureHistory = new Card({
-        title: `Fahrenheit`,
+        title: 'Fahrenheit',
         imageUrl: wikipediaFahrenheitImageUrl,
-        text: `Daniel Gabriel Fahrenheit, invented the Fahrenheit scale (first widely used, standardized temperature scale) and the mercury thermometer.`,
+        text: 'Daniel Gabriel Fahrenheit, invented the Fahrenheit scale (first widely used, standardized temperature scale) and the mercury thermometer.',
         buttonText: 'Fahrenheit Wikipedia Page',
         buttonUrl: wikipediaFahrenheitUrl
       });
-    } else if (unit === `Fahrenheit`) {
+    } else if (unit === 'Fahrenheit') {
       convertedTemp = (temperature-32)*(5/9);
-      convertedUnit = `Celsius`;
+      convertedUnit = 'Celsius';
       temperatureHistory = new Card({
-        title: `Celsius`,
+        title: 'Celsius',
         imageUrl: wikipediaCelsiusImageUrl,
-        text: `The original Celsius thermometer had a reversed scale, where 100 is the freezing point of water and 0 is its boiling point.`,
+        text: 'The original Celsius thermometer had a reversed scale, where 100 is the freezing point of water and 0 is its boiling point.',
         buttonText: 'Celsius Wikipedia Page',
         buttonUrl: wikipediaCelsiusUrl
       });
@@ -96,10 +95,10 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
     // Compile and send response
     agent.add(`${temperature}° ${unit} is  ${convertedTemp}° ${convertedUnit}`);
     agent.add(temperatureHistory);
-    agent.add(`Would you like to know what this temperature is in Kelvin or Rankine?`);
-    agent.add(new Suggestion(`Kelvin`));
-    agent.add(new Suggestion(`Rankine`));
-    agent.add(new Suggestion(`Cancel`));
+    agent.add('Would you like to know what this temperature is in Kelvin or Rankine?');
+    agent.add(new Suggestion('Kelvin'));
+    agent.add(new Suggestion('Rankine'));
+    agent.add(new Suggestion('Cancel'));
   }
 
   function convertRankineAndKelvin(agent) {
@@ -110,15 +109,15 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 
     // Convert temperature
     let convertedTemp, convertedUnit, temperatureHistoryText, temperatureHistoryImage;
-    if (secondUnit === `Kelvin`) {
+    if (secondUnit === 'Kelvin') {
       convertedTemp = originalTemp === 'Celsius' ? originalTemp + 273.15 : (originalTemp-32)*(5/9) + 273.15;
-      convertedUnit = `Kelvin`;
-      temperatureHistoryText = new Text('Here is a picture of the namesake of the Rankine unit, William John Macquorn Rankine:');
+      convertedUnit = 'Kelvin';
+      temperatureHistoryText = 'Here is a picture of the namesake of the Rankine unit, William John Macquorn Rankine:';
       temperatureHistoryImage = new Image(wikipediaKelvinImageUrl);
-    } else if (secondUnit === `Rankine`) {
+    } else if (secondUnit === 'Rankine') {
       convertedTemp = originalTemp === 'Fahrenheit' ? originalTemp + 459.67 : originalTemp*(9/5) + 32 + 459.67; 
-      convertedUnit = `Rankine`;
-      temperatureHistoryText = new Text('Here is a picture of the namesake of the Kelvin unit, Lord Kelvin:');
+      convertedUnit = 'Rankine';
+      temperatureHistoryText = 'Here is a picture of the namesake of the Kelvin unit, Lord Kelvin:';
       temperatureHistoryImage = new Image(wikipediaRankineImageUrl);
     }
 
@@ -127,17 +126,16 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
     agent.setContext({name: 'temperature', lifespan: 0});
 
     // Compile and send response
-    agent.add(`${originalTemp}° ${originalUnit} is  ${convertedTemp}° ${convertedUnit}`);
-    agent.add(temperatureHistoryText);
+    agent.add(`${originalTemp}° ${originalUnit} is  ${convertedTemp}° ${convertedUnit}. ` + temperatureHistoryText);
     agent.add(new Image(temperatureHistoryImage));
-    agent.add(`Go ahead and say another temperature to get the conversion.`);
-    agent.add(new Suggestion(`27° Celsius`));
-    agent.add(new Suggestion(`-40° Fahrenheit`));
-    agent.add(new Suggestion(`Cancel`));
+    agent.add('Go ahead and say another temperature to get the conversion.');
+    agent.add(new Suggestion('27° Celsius'));
+    agent.add(new Suggestion('-40° Fahrenheit'));
+    agent.add(new Suggestion('Cancel'));
   }
 
   function fallback(agent) {
-    agent.add(`Woah! Its getting a little hot in here.`);
+    agent.add('Woah! Its getting a little hot in here.');
     agent.add(`I didn't get that, can you try again?`);
   }
 

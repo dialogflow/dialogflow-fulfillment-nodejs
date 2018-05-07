@@ -3,12 +3,10 @@
 ## Setup
 Choose one of the three options listed below for setup.  You only need to complete one of the three options below to setup this sample.
 
-### Option 1: Deploy to Dialogflow (recommended)
-Click on the Deploy to Dialogflow button below and follow the prompts to create a new agent:
+### Option 1: Add to Dialogflow (recommended)
+Click on the **Add to Dialogflow** button below and follow the prompts to create a new agent:
 
-<a href="hhttps://console.dialogflow.com/api-client/oneclick?templateUrl=https%3A%2F%2Fstorage.googleapis.com%2Fdialogflow-oneclick%2Fmultilocale-agent.zip&agentName=MultilocaleSample" target="_blank">
-	<img src="https://storage.googleapis.com/dialogflow-oneclick/deploy.svg" alt="Dialogflow Multi-locale Sample" title="Dialogflow Multi-locale Sample">
-</a>
+[![Multi-locale](https://storage.googleapis.com/dialogflow-oneclick/deploy.svg "Multi-locale")](https://console.dialogflow.com/api-client/oneclick?templateUrl=https%3A%2F%2Fstorage.googleapis.com%2Fdialogflow-oneclick%2Fmultilocale-agent.zip&agentName=MultilocaleSample)
 
 ### Option 2: Dialogflow Inline Editor
 1. [Sign up for or sign into Dialogflow](https://console.dialogflow.com/api-client/#/login)

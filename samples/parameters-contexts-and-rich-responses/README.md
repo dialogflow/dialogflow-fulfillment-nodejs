@@ -3,12 +3,10 @@
 ## Setup
 Choose one of the three options listed below for setup.  You only need to complete one of the three options below to setup this sample.
 
-### Option 1: Deploy to Dialogflow (recommended)
-Click on the Deploy to Dialogflow button below and follow the prompts to create a new agent:
+### Option 1: Add to Dialogflow (recommended)
+Click on the **Add to Dialogflow** button below and follow the prompts to create a new agent:
 
-<a href="https://console.dialogflow.com/api-client/oneclick?templateUrl=https%3A%2F%2Fstorage.googleapis.com%2Fdialogflow-oneclick%2Ftemperature-converter-agent.zip&agentName=TemperatureConverterSample" target="_blank">
-	<img src="https://storage.googleapis.com/dialogflow-oneclick/deploy.svg" alt="Dialogflow Temperature Trivia Sample" title="Dialogflow Temperature Trivia Sample">
-</a>
+[![Temperature Trivia](https://storage.googleapis.com/dialogflow-oneclick/deploy.svg "Temperature Trivia")](https://console.dialogflow.com/api-client/oneclick?templateUrl=https%3A%2F%2Fstorage.googleapis.com%2Fdialogflow-oneclick%2Ftemperature-converter-agent.zip&agentName=TemperatureConverterSample)
 
 ### Option 2: Dialogflow Inline Editor
 1. [Sign up for or sign into Dialogflow](https://console.dialogflow.com/api-client/#/login)

@@ -3,12 +3,10 @@
 ## Setup
 Choose one of the three options listed below for setup.  You only need to complete one of the three options below to setup this sample.
 
-### Option 1: Deploy to Dialogflow (recommended)
-Click on the Deploy to Dialogflow button below and follow the prompts to create a new agent:
+### Option 1: Add to Dialogflow (recommended)
+Click on the **Add to Dialogflow** button below and follow the prompts to create a new agent:
 
-<a href="https://console.dialogflow.com/api-client/oneclick?templateUrl=https%3A%2F%2Fstorage.googleapis.com%2Fdialogflow-oneclick%2Fquickstart-agent.zip&agentName=QuickStartSample" target="_blank">
-	<img src="https://storage.googleapis.com/dialogflow-oneclick/deploy.svg" alt="Dialogflow Quick Start" title="Dialogflow Quick Start">
-</a>
+[![Getting Started](https://storage.googleapis.com/dialogflow-oneclick/deploy.svg "Getting Started")](https://console.dialogflow.com/api-client/oneclick?templateUrl=https%3A%2F%2Fstorage.googleapis.com%2Fdialogflow-oneclick%2Fquickstart-agent.zip&agentName=QuickStartSample)
 
 ### Option 2: Dialogflow Inline Editor
 1. [Sign up for or sign into Dialogflow](https://console.dialogflow.com/api-client/#/login)
@@ -38,6 +36,11 @@ Click on the Deploy to Dialogflow button below and follow the prompts to create 
 Please read and follow the steps in the CONTRIBUTING.md.
 
 ## License
+See LICENSE.md.
+
+## Terms
+Your use of this sample is subject to, and by using or downloading the sample files you agree to comply with, the [Google APIs Terms of Service](https://developers.google.com/terms/).
+e
 See LICENSE.md.
 
 ## Terms
