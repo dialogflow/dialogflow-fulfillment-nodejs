@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const {DialogflowConversation} = require('actions-on-google');
 const debug = require('debug')('dialogflow:debug');
 
 // Configure logging for hosting platforms that only support console.log and console.error
@@ -34,6 +33,8 @@ const V1Agent = require('./v1-agent');
 const V2Agent = require('./v2-agent');
 
 const RESPONSE_CODE_BAD_REQUEST = 400;
+
+let DialogflowConversation = null;
 
 /**
  * This is the class that handles the communication with Dialogflow's webhook
@@ -213,7 +214,7 @@ class WebhookClient {
     if (typeof response === 'string') {
       response = new Text(response);
     }
-    if (response instanceof DialogflowConversation) {
+    if (DialogflowConversation && response instanceof DialogflowConversation) {
       this.client.addActionsOnGoogle_(response.serialize());
     } else if (response instanceof Suggestion && this.existingSuggestion_(response.platform)) {
       this.existingSuggestion_(response.platform).addReply_(response.replies[0]);
@@ -381,6 +382,7 @@ class WebhookClient {
    *
    * @example
    * const { WebhookClient } = require('dialogflow-webhook');
+   * WebhookClient.registerActionsOnGoogle(require('actions-on-google'));
    * const agent = new WebhookClient({request: request, response: response});
    * let conv = agent.conv();
    * conv.ask('Hi from the Actions on Google client library');
@@ -390,10 +392,33 @@ class WebhookClient {
    */
   conv() {
     if (this.requestSource === PLATFORMS.ACTIONS_ON_GOOGLE) {
-      return new DialogflowConversation(this.request_);
+      if (DialogflowConversation) {
+        return new DialogflowConversation(this.request_);
+      } else {
+        throw new Error('registerActionsOnGoogle method should be called before using this method');
+      }
     } else {
       return null;
     }
+  }
+
+  /**
+   * Registers the Actions on Google library instance.
+   * Must be called once before any calls to {@link WebhookClient#conv} method are made.
+   *
+   * @example
+   * const { WebhookClient } = require('dialogflow-webhook');
+   * WebhookClient.registerActionsOnGoogle(require('actions-on-google'));
+   * const agent = new WebhookClient({request: request, response: response});
+   * let conv = agent.conv();
+   * conv.ask('Hi from the Actions on Google client library');
+   * agent.add(conv);
+   *
+   * @param {Object} actionsOnGoogle
+   * @param {Object} actionsOnGoogle.DialogflowConversation
+   */
+  static registerActionsOnGoogle(actionsOnGoogle) {
+    DialogflowConversation = actionsOnGoogle.DialogflowConversation;
   }
 
   // ---------------------------------------------------------------------------
