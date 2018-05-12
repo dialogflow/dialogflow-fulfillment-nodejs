@@ -54,6 +54,13 @@ class Suggestion extends RichResponse {
         'Reply string required by Suggestion constructor'
       );
     }
+    if (
+        suggestion.length > 25 || suggestion.title > 25
+    ) {
+        throw new Error(
+            'Maximum suggestion length is 25 characters'
+        );
+    }
     if (typeof suggestion === 'string') {
       this.replies.push(suggestion);
     } else if (typeof suggestion === 'object') {

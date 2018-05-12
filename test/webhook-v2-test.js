@@ -77,6 +77,15 @@ test('Test v2 Google Assistant responses', async (t) => {
     }
   );
 
+  // Suggestion Max Length
+  const suggestionLengthError = t.throws(() => {
+    new Suggestion('This is a suggestion longer than 25 characters');
+  }, Error);
+  t.is(
+      suggestionLengthError.message,
+      'Maximum suggestion length is 25 characters'
+  );
+
   // Payload
   webhookTest(
     googleRequest,
