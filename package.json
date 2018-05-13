@@ -37,8 +37,7 @@
     "fulfillment"
   ],
   "dependencies": {
-    "debug": "^2.2.0",
-    "actions-on-google": "2.0.0-alpha.4"
+    "debug": "^2.2.0"
   },
   "devDependencies": {
     "ava": "^0.24.0",
@@ -46,6 +45,7 @@
     "eslint-config-google": "^0.9.1",
     "jsdoc-to-markdown": "^4.0.1",
     "jszip": "^3.1.5",
-    "commander": "^2.15.1"
+    "commander": "^2.15.1",
+    "actions-on-google": "2.0.0-alpha.4"
   }
 }

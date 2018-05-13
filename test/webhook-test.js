@@ -148,6 +148,8 @@ function actionsOnGoogleTest(request, callback) {
     response: response,
   });
 
+  WebhookClient.registerActionsOnGoogle(require('actions-on-google'));
+
   agent.handleRequest( (agent) => {
     let conv = agent.conv();
     conv.ask('Hi');

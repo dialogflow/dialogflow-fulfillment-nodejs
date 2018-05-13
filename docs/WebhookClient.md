@@ -9,24 +9,27 @@ Dialogflow's simulator
 
 * [WebhookClient](#WebhookClient)
     * [new WebhookClient(options)](#new_WebhookClient_new)
-    * [.agentVersion](#WebhookClient+agentVersion) : <code>number</code>
-    * [.intent](#WebhookClient+intent) : <code>string</code>
-    * [.action](#WebhookClient+action) : <code>string</code>
-    * [.parameters](#WebhookClient+parameters) : <code>Array.&lt;Object&gt;</code>
-    * [.contexts](#WebhookClient+contexts) : <code>string</code>
-    * [.requestSource](#WebhookClient+requestSource) : <code>string</code>
-    * [.originalRequest](#WebhookClient+originalRequest) : <code>object</code>
-    * [.query](#WebhookClient+query) : <code>string</code>
-    * [.locale](#WebhookClient+locale) : <code>string</code>
-    * [.session](#WebhookClient+session) : <code>string</code>
-    * [.add(response)](#WebhookClient+add)
-    * [.handleRequest(handler)](#WebhookClient+handleRequest) ⇒ <code>Promise</code>
-    * [.setContext(context)](#WebhookClient+setContext) ⇒ [<code>WebhookClient</code>](#WebhookClient)
-    * [.clearOutgoingContexts()](#WebhookClient+clearOutgoingContexts) ⇒ [<code>WebhookClient</code>](#WebhookClient)
-    * [.clearContext(context)](#WebhookClient+clearContext) ⇒ [<code>WebhookClient</code>](#WebhookClient)
-    * [.getContext(contextName)](#WebhookClient+getContext) ⇒ <code>Object</code>
-    * [.setFollowupEvent(event)](#WebhookClient+setFollowupEvent)
-    * [.conv()](#WebhookClient+conv) ⇒ <code>DialogflowConversation</code> \| <code>null</code>
+    * _instance_
+        * [.agentVersion](#WebhookClient+agentVersion) : <code>number</code>
+        * [.intent](#WebhookClient+intent) : <code>string</code>
+        * [.action](#WebhookClient+action) : <code>string</code>
+        * [.parameters](#WebhookClient+parameters) : <code>Array.&lt;Object&gt;</code>
+        * [.contexts](#WebhookClient+contexts) : <code>string</code>
+        * [.requestSource](#WebhookClient+requestSource) : <code>string</code>
+        * [.originalRequest](#WebhookClient+originalRequest) : <code>object</code>
+        * [.query](#WebhookClient+query) : <code>string</code>
+        * [.locale](#WebhookClient+locale) : <code>string</code>
+        * [.session](#WebhookClient+session) : <code>string</code>
+        * [.add(response)](#WebhookClient+add)
+        * [.handleRequest(handler)](#WebhookClient+handleRequest) ⇒ <code>Promise</code>
+        * [.setContext(context)](#WebhookClient+setContext) ⇒ [<code>WebhookClient</code>](#WebhookClient)
+        * [.clearOutgoingContexts()](#WebhookClient+clearOutgoingContexts) ⇒ [<code>WebhookClient</code>](#WebhookClient)
+        * [.clearContext(context)](#WebhookClient+clearContext) ⇒ [<code>WebhookClient</code>](#WebhookClient)
+        * [.getContext(contextName)](#WebhookClient+getContext) ⇒ <code>Object</code>
+        * [.setFollowupEvent(event)](#WebhookClient+setFollowupEvent)
+        * [.conv()](#WebhookClient+conv) ⇒ <code>DialogflowConversation</code> \| <code>null</code>
+    * _static_
+        * [.registerActionsOnGoogle(actionsOnGoogle)](#WebhookClient.registerActionsOnGoogle)
 
 <a name="new_WebhookClient_new"></a>
 
@@ -225,6 +228,29 @@ Get Actions on Google DialogflowConversation object
 **Example**  
 ```js
 const { WebhookClient } = require('dialogflow-webhook');
+WebhookClient.registerActionsOnGoogle(require('actions-on-google'));
+const agent = new WebhookClient({request: request, response: response});
+let conv = agent.conv();
+conv.ask('Hi from the Actions on Google client library');
+agent.add(conv);
+```
+<a name="WebhookClient.registerActionsOnGoogle"></a>
+
+### WebhookClient.registerActionsOnGoogle(actionsOnGoogle)
+Registers the Actions on Google library instance.
+Must be called once before any calls to [conv](#WebhookClient+conv) method are made.
+
+**Kind**: static method of [<code>WebhookClient</code>](#WebhookClient)
+
+| Param | Type |
+| --- | --- |
+| actionsOnGoogle | <code>Object</code> |
+| actionsOnGoogle.DialogflowConversation | <code>Object</code> |
+
+**Example**
+```js
+const { WebhookClient } = require('dialogflow-webhook');
+WebhookClient.registerActionsOnGoogle(require('actions-on-google'));
 const agent = new WebhookClient({request: request, response: response});
 let conv = agent.conv();
 conv.ask('Hi from the Actions on Google client library');
