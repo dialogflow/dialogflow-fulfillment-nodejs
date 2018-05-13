@@ -55,7 +55,7 @@ class Suggestion extends RichResponse {
       );
     }
     if (
-        suggestion.length > 25 || suggestion.title > 25
+        suggestion.length > 25 || (suggestion.title && suggestion.title.length > 25)
     ) {
         throw new Error(
             'Maximum suggestion length is 25 characters'
