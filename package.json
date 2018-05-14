@@ -13,8 +13,13 @@
   },
   "scripts": {
     "test": "npm run lint && ava",
-    "lint": "eslint --fix \"src/**/*.js\" \"test/*.js\" \"docs/*.js\"",
-    "docs": "node ./docs/generateDocs.js"
+    "lint": "eslint --fix \"src/**/*.js\" \"test/*.js\" \"script/*.js\"",
+    "docs": "node ./script/generateDocs.js",
+    "zip": "npm run zip:actions-on-google && npm run zip:multilocale && npm run zip:temperature-converter && npm run zip:quick-start",
+    "zip:actions-on-google": "node ./script/generateZip.js --indexjs ./samples/actions-on-google/functions/index.js --packagejson ./samples/actions-on-google/functions/package.json --agentzip ./samples/actions-on-google/actions-on-google-agent.zip",
+    "zip:multilocale": "node ./script/generateZip.js --indexjs ./samples/multi-lang-and-locale/functions/index.js --packagejson ./samples/multi-lang-and-locale/functions/package.json --agentzip ./samples/multi-lang-and-locale/multilocale-agent.zip",
+    "zip:temperature-converter": "node ./script/generateZip.js --indexjs ./samples/parameters-contexts-and-rich-responses/functions/index.js --packagejson ./samples/parameters-contexts-and-rich-responses/functions/package.json --agentzip ./samples/parameters-contexts-and-rich-responses/temperature-converter-agent.zip",
+    "zip:quick-start": "node ./script/generateZip.js --indexjs ./samples/quick-start/functions/index.js --packagejson ./samples/quick-start/functions/package.json --agentzip ./samples/quick-start/quickstart-agent.zip"
   },
   "repository": {
     "type": "git",
@@ -39,6 +44,8 @@
     "ava": "^0.24.0",
     "eslint": "^4.15.0",
     "eslint-config-google": "^0.9.1",
-    "jsdoc-to-markdown": "^4.0.1"
+    "jsdoc-to-markdown": "^4.0.1",
+    "jszip": "^3.1.5",
+    "commander": "^2.15.1"
   }
 }

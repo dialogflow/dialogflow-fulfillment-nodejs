@@ -1,16 +1,23 @@
 # Multi-language and Locale Sample
 
-## Setup: Dialogflow Inline Editor (option 1)
+## Setup
+Choose one of the three options listed below for setup.  You only need to complete one of the three options below to setup this sample.
 
+### Option 1: Add to Dialogflow (recommended)
+Click on the **Add to Dialogflow** button below and follow the prompts to create a new agent:
+
+[![Multi-locale](https://storage.googleapis.com/dialogflow-oneclick/deploy.svg "Multi-locale")](https://console.dialogflow.com/api-client/oneclick?templateUrl=https%3A%2F%2Fstorage.googleapis.com%2Fdialogflow-oneclick%2Fmultilocale-agent.zip&agentName=MultilocaleSample)
+
+### Option 2: Dialogflow Inline Editor
 1. [Sign up for or sign into Dialogflow](https://console.dialogflow.com/api-client/#/login)
 1. Create a Dialogflow agent
 1. [Enable the Cloud Function for Firebase inline editor](https://dialogflow.com/docs/fulfillment#cloud_functions_for_firebase)
 1. Change the name of the function in `functions/index.js` from `dialogflowFulfillmentMultiLocale` to `dialogflowFirebaseFulfillment`
 1. Copy this code in `functions/index.js` the `index.js` file in the Dialogflow Cloud Function for Firebase inline editor.
-1. Add `"dialogflow-fulfillment": "0.3.0-beta.1"` to the `package.json` file's `dependencies` object in the Dialogflow Cloud Function for Firebase inline editor.
+1. Add `"dialogflow-fulfillment": "0.3.0-beta.3"` to the `package.json` file's `dependencies` object in the Dialogflow Cloud Function for Firebase inline editor.
 1. Click `Deploy`
 
-## Setup: Firebase CLI (option 2)
+### Option 3: Firebase CLI
 1. Create a Dialogflow agent
 1. Go to your agent's settings and [Restore from zip](https://dialogflow.com/docs/agents#export_and_import) using the `multilocaleAgent.zip` in this directory (Note: this will overwrite your existing agent)
 1. `cd` to the `functions` directory
