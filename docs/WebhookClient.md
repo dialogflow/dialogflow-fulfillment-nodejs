@@ -20,6 +20,7 @@ Dialogflow's simulator
     * [.locale](#WebhookClient+locale) : <code>string</code>
     * [.session](#WebhookClient+session) : <code>string</code>
     * [.add(response)](#WebhookClient+add)
+    * [.enableAppendMode](#WebhookClient+enableAppendMode)
     * [.handleRequest(handler)](#WebhookClient+handleRequest) ⇒ <code>Promise</code>
     * [.setContext(context)](#WebhookClient+setContext) ⇒ [<code>WebhookClient</code>](#WebhookClient)
     * [.clearOutgoingContexts()](#WebhookClient+clearOutgoingContexts) ⇒ [<code>WebhookClient</code>](#WebhookClient)
@@ -119,6 +120,22 @@ Add a response to be sent to Dialogflow
 | Param | Type | Description |
 | --- | --- | --- |
 | response | [<code>RichResponse</code>](#RichResponse) \| <code>string</code> | an object or string representing the rich response to be added |
+
+<a name="WebhookClient+enableAppendMode"></a>
+
+### webhookClient.enableAppendMode(enable)
+Enables or disables the append mode.
+
+When enabled, the append mode adds fulfillmentMessages to the request ones.
+
+This is useful if you want to keep the DialogFlow original messages.
+
+**Kind**: instance method of [<code>WebhookClient</code>](#WebhookClient)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| enable | <code>boolean</code> | should the append mode be enabled
+
 
 <a name="WebhookClient+handleRequest"></a>
 

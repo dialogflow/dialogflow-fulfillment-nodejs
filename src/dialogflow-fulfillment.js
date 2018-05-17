@@ -173,6 +173,12 @@ class WebhookClient {
     this.session = null;
 
     /**
+     * Activation of the append mode that keeps the original fulfillmentMessages
+     * from the queryResult inputed through the request
+     */
+    this.appendModeEnabled_ = false;
+
+    /**
      * Platform contants, to define platforms, includes supported platforms and unspecified
      * @example
      * const { WebhookClient } = require('dialogflow-webhook');
@@ -204,6 +210,7 @@ class WebhookClient {
   // ---------------------------------------------------------------------------
   //                   Generic Methods
   // ---------------------------------------------------------------------------
+
   /**
    * Add a response to be sent to Dialogflow
    *
@@ -264,6 +271,15 @@ class WebhookClient {
         .status('No handler for requested intent');
       return Promise.reject(new Error('No handler for requested intent'));
     }
+  }
+
+/**
+ * Enables or disables the appendMode
+ * Disabled by default
+ * @param {boolean} enabled
+ */
+  enableAppendMode(enabled) {
+    this.appendModeEnabled_ = Boolean(enabled);
   }
 
   // --------------------------------------------------------------------------

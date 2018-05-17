@@ -167,7 +167,9 @@ class V2Agent {
    * @private
    */
   sendMessagesResponse_(requestSource) {
-    this.sendJson_({fulfillmentMessages: this.buildResponseMessages_(requestSource)});
+    this.sendJson_({
+      fulfillmentMessages: this.buildResponseMessages_(requestSource, this.agent.appendModeEnabled_),
+    });
   }
 
   /**
@@ -189,13 +191,21 @@ class V2Agent {
    * developer defined responses and the request source
    *
    * @param {string} requestSource string indicating the source of the initial request
+   * @param {boolean} append boolean indicating if the messages should be appended to the
+   *                          original queryResult messages or erase them
    * @return {Object[]} message objects
    * @private
    */
-  buildResponseMessages_(requestSource) {
+  buildResponseMessages_(requestSource, append) {
     const responseMessages = this.agent.responseMessages_
       .map((message) => message.getV2ResponseObject_(requestSource))
       .filter((arr) => arr);
+
+    if (append) {
+      const requestMessages = this.agent.request_.body.queryResult.fulfillmentMessages;
+      return [...requestMessages, ...responseMessages];
+    }
+
     return responseMessages;
   }
 
