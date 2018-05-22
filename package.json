@@ -37,8 +37,10 @@
     "fulfillment"
   ],
   "dependencies": {
-    "debug": "^2.2.0",
-    "actions-on-google": "2.0.0-alpha.4"
+    "debug": "^2.2.0"
+  },
+  "peerDependencies": {
+    "actions-on-google": "^2.0.1"
   },
   "devDependencies": {
     "ava": "^0.24.0",
