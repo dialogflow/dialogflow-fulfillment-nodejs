@@ -22,7 +22,7 @@
 const test = require('ava');
 
 const {WebhookClient} = require('../src/dialogflow-fulfillment');
-const {Card, Image, Suggestion, Payload} = require('../src/dialogflow-fulfillment');
+const {Text, Card, Image, Suggestion, Payload} = require('../src/dialogflow-fulfillment');
 
 const imageUrl = `https://assistant.google.com/static/images/molecule/\
 Molecule-Formation-stop.png`;
@@ -374,6 +374,23 @@ test('Test v2 followup events', async (t) => {
   t.deepEqual(complexEvent, agent.followupEvent_);
 });
 
+test('Test v2 append', async (t) => {
+  let request = {body: mockV2ResponseWithMessage};
+
+  webhookTest(
+    request,
+    (agent) => {
+      agent.enableAppendMode(true);
+      agent.add(new Text('Text message 1 added from the fulfillment'));
+      agent.add(new Text('Text message 2 added from the fulfillment'));
+    },
+    (responseJson) => {
+      t.is(responseJson.fulfillmentMessages.length, 3);
+      t.is(responseJson.fulfillmentMessages[2].text.text[0], 'Text message 2 added from the fulfillment');
+    }
+  );
+});
+
 test('Test v1 original request', async (t) => {
   let response = new ResponseMock();
 
@@ -487,6 +504,29 @@ function addCard(agent) {
     })
   );
 }
+
+const mockV2ResponseWithMessage = {
+  responseId: '07424698-0149-430a-9b9c-157402568343',
+  queryResult: {
+    queryText: 'webhook',
+    parameters: {},
+    allRequiredParamsPresent: true,
+    fulfillmentText: '',
+    fulfillmentMessages: [
+      {text: {text: ['text response']}},
+    ],
+    outputContexts: [],
+    intent: {
+      name: `projects/stagent-f2236/agent/intents/\
+29bcd7f8-f717-4261-a8fd-2d3e451b8af8`,
+      displayName: 'webhook',
+    },
+    intentDetectionConfidence: 1,
+    diagnosticInfo: {},
+    languageCode: 'en-us',
+  },
+  session: 'projects/stagent-f2236/agent/sessions/1515017715285',
+};
 
 const responseFacebookV2Payload = {
   payload: {
