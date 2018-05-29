@@ -4,3 +4,4 @@ npm-debug.log
 log
 coverage
 *.tgz
+package-lock.json

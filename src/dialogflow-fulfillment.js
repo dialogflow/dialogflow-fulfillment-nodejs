@@ -126,7 +126,7 @@ class WebhookClient {
     /**
      * Dialogflow parameters included in the request or null if no value
      * https://dialogflow.com/docs/actions-and-parameters
-     * @type {Object[]}
+     * @type {Object}
      */
     this.parameters = null;
 
@@ -173,10 +173,12 @@ class WebhookClient {
     this.session = null;
 
     /**
-     * Activation of the append mode that keeps the original fulfillmentMessages
-     * from the queryResult inputed through the request
+     * List of messages defined in Dialogflow's console for the matched intent
+     * https://dialogflow.com/docs/rich-messages
+     *
+     * @type {RichResponse[]}
      */
-    this.appendModeEnabled_ = false;
+    this.consoleMessages = [];
 
     /**
      * Platform contants, to define platforms, includes supported platforms and unspecified
@@ -212,11 +214,24 @@ class WebhookClient {
   // ---------------------------------------------------------------------------
 
   /**
+   * Add a response or list of responses to be sent to Dialogflow
+   *
+   * @param {RichResponse|string|RichResponse[]|string[]} responses (list) or single responses
+   */
+  add(responses) {
+    if (responses instanceof Array) {
+      responses.forEach( (singleResponse) => this.addResponse_(singleResponse) );
+    } else {
+      this.addResponse_(responses);
+    }
+  }
+
+  /**
    * Add a response to be sent to Dialogflow
    *
    * @param {RichResponse|string} response an object or string representing the rich response to be added
    */
-  add(response) {
+  addResponse_(response) {
     if (typeof response === 'string') {
       response = new Text(response);
     }
@@ -229,7 +244,7 @@ class WebhookClient {
     } else if (response instanceof RichResponse) {
       this.responseMessages_.push(response);
     } else {
-      throw new Error('unknown response type');
+      throw new Error(`Unknown response type: "${JSON.stringify(response)}"`);
     }
   }
 
@@ -271,15 +286,6 @@ class WebhookClient {
         .status('No handler for requested intent');
       return Promise.reject(new Error('No handler for requested intent'));
     }
-  }
-
-/**
- * Enables or disables the appendMode
- * Disabled by default
- * @param {boolean} enabled
- */
-  enableAppendMode(enabled) {
-    this.appendModeEnabled_ = Boolean(enabled);
   }
 
   // --------------------------------------------------------------------------

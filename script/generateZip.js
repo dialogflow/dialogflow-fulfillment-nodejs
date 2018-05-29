@@ -35,11 +35,11 @@ const zipData = fs.readFileSync(program.agentzip);
 const indexData = fs.readFileSync(program.indexjs);
 const packageData = fs.readFileSync(program.packagejson);
 
-JSZip.loadAsync(zipData).then(function (zip) {
+JSZip.loadAsync(zipData).then(function(zip) {
   let folder = zip.folder('functions');
   folder.file('functions_index.js', indexData);
   folder.file('functions_package.json', packageData);
-  return zip.generateAsync({ type: 'binarystring' }).then(function (blob) {
+  return zip.generateAsync({type: 'binarystring'}).then(function(blob) {
     fs.writeFileSync(program.agentzip, blob, 'binary');
   });
 });

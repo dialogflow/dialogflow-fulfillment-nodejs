@@ -22,7 +22,8 @@
 const test = require('ava');
 
 const {WebhookClient} = require('../src/dialogflow-fulfillment');
-const {Card, Image, Suggestion, Payload} = require('../src/dialogflow-fulfillment');
+const {Text, Card, Image, Suggestion, Payload} = require('../src/dialogflow-fulfillment');
+const {PLATFORMS} = require('../src/rich-responses/rich-response');
 
 const imageUrl =
   'https://assistant.google.com/static/images/molecule/Molecule-Formation-stop.png';
@@ -295,6 +296,20 @@ test('Test v1 original request', async (t) => {
   );
 });
 
+test('Test v1 no handler defined', async (t) => {
+  let response = new ResponseMock();
+  let agent = new WebhookClient({
+    request: {body: mockSlackV1Request},
+    response: response,
+  });
+
+  const noHandlerDefinedError = await t.throws(agent.handleRequest(new Map()));
+  t.is(
+    noHandlerDefinedError.message,
+    'No handler for requested intent'
+  );
+});
+
 /**
  * utility function to setup webhook test
  * @param {Object} request express object
@@ -309,6 +324,58 @@ function webhookTest(request, handler, callback) {
   });
   agent.handleRequest(handler);
 }
+
+test('Test v1 getResponseMessages', async (t) => {
+  let response = new ResponseMock();
+  let agent = new WebhookClient({
+    request: {body: mockV1MultipleConsoleMessagesRequest},
+    response: response,
+  });
+
+  const consoleMessages = agent.consoleMessages;
+
+  // Slack text messages
+  const slackTextMessage = consoleMessages[0];
+  t.true(slackTextMessage instanceof Text);
+  t.is(slackTextMessage.text, 'yo');
+  t.is(slackTextMessage.platform, PLATFORMS.SLACK);
+  // Slack cards
+  const slackCard = consoleMessages[1];
+  t.true(slackCard instanceof Card);
+  t.is(slackCard.title, 'card title');
+  // Facebook text
+  const facebookText = consoleMessages[2];
+  t.true(facebookText instanceof Text);
+  t.is(facebookText.text, 'hi');
+  t.is(facebookText.platform, PLATFORMS.FACEBOOK);
+  // Facebook image
+  const facebookImage = consoleMessages[3];
+  t.true(facebookImage instanceof Image);
+  t.is(facebookImage.imageUrl,
+    'https://developers.google.com/actions/images/badges/XPM_BADGING_GoogleAssistant_VER.png'
+  );
+  // Actions on Google text
+  const actionsOnGoogleText = consoleMessages[4];
+  t.true(actionsOnGoogleText instanceof Text);
+  t.is(actionsOnGoogleText.text, 'simple response');
+  t.is(actionsOnGoogleText.platform, PLATFORMS.ACTIONS_ON_GOOGLE);
+  // Actions on Google card
+  const actionsOnGoogleCard = consoleMessages[5];
+  t.true(actionsOnGoogleCard instanceof Text);
+  t.is(actionsOnGoogleCard.text, 'another simple response');
+  // Actions on Google text
+  const actionsOnGoogleBasicCard = consoleMessages[6];
+  t.true(actionsOnGoogleBasicCard instanceof Card);
+  t.is(actionsOnGoogleBasicCard.text, 'basic card');
+
+  const actionsOnGoogleSuggestion = consoleMessages[7];
+  t.true(actionsOnGoogleSuggestion instanceof Suggestion);
+  t.is(actionsOnGoogleSuggestion.replies[0], 'suggestion');
+  // Actions on Google text 2
+  const actionsOnGoogleSuggestion2 = consoleMessages[8];
+  t.true(actionsOnGoogleSuggestion2 instanceof Suggestion);
+  t.is(actionsOnGoogleSuggestion2.replies[0], 'another suggestion');
+});
 
 /**
  * handler to add text and card responses
@@ -949,4 +1016,102 @@ const mockTwitterV1Request = {
     'webhookTimedOut': false,
   },
   'timestamp': '2018-01-28T21:47:11.653Z',
+};
+
+const mockV1MultipleConsoleMessagesRequest = {
+  'id': '16a423d8-75d1-477a-8a2a-c52054473f77',
+  'timestamp': '2018-05-29T20:48:45.889Z',
+  'lang': 'en',
+  'result': {
+    'source': 'agent',
+    'resolvedQuery': 'every rich response',
+    'action': '',
+    'actionIncomplete': false,
+    'parameters': {},
+    'contexts': [],
+    'metadata': {
+      'intentId': '96f2305b-1cd0-4d73-97c0-3cfe669ec79b',
+      'webhookUsed': 'false',
+      'webhookForSlotFillingUsed': 'false',
+      'intentName': 'every rich response',
+    },
+    'fulfillment': {
+      'speech': '',
+      'messages': [
+        {
+          'type': 0,
+          'platform': 'slack',
+          'speech': 'yo',
+        },
+        {
+          'type': 1,
+          'platform': 'slack',
+          'title': 'card title',
+          'subtitle': 'subtitle',
+          'imageUrl': 'https://developers.google.com/actions/images/badges/XPM_BADGING_GoogleAssistant_VER.png',
+          'buttons': [
+            {
+              'text': 'button',
+              'postback': 'https://assistant.google.com/',
+            },
+          ],
+        },
+        {
+          'type': 0,
+          'platform': 'facebook',
+          'speech': 'hi',
+        },
+        {
+          'type': 3,
+          'platform': 'facebook',
+          'imageUrl': 'https://developers.google.com/actions/images/badges/XPM_BADGING_GoogleAssistant_VER.png',
+        },
+        {
+          'type': 2,
+          'platform': 'facebook',
+          'title': 'suggestions',
+          'replies': [],
+        },
+        {
+          'type': 'simple_response',
+          'platform': 'google',
+          'textToSpeech': 'simple response',
+        },
+        {
+          'type': 'simple_response',
+          'platform': 'google',
+          'textToSpeech': 'another simple response',
+        },
+        {
+          'type': 'basic_card',
+          'platform': 'google',
+          'title': 'basic card',
+          'formattedText': 'basic card',
+          'buttons': [],
+        },
+        {
+          'type': 'suggestion_chips',
+          'platform': 'google',
+          'suggestions': [
+            {
+              'title': 'suggestion',
+            },
+            {
+              'title': 'another suggestion',
+            },
+          ],
+        },
+        {
+          'type': 0,
+          'speech': '',
+        },
+      ],
+    },
+    'score': 1,
+  },
+  'status': {
+    'code': 200,
+    'errorType': 'success',
+  },
+  'sessionId': '411071be-50c9-4550-9f2d-a1dfe5cb9d57',
 };

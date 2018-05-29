@@ -23,6 +23,7 @@ const test = require('ava');
 
 const {WebhookClient} = require('../src/dialogflow-fulfillment');
 const {Text, Card, Image, Suggestion, Payload} = require('../src/dialogflow-fulfillment');
+const {PLATFORMS} = require('../src/rich-responses/rich-response');
 
 const imageUrl = `https://assistant.google.com/static/images/molecule/\
 Molecule-Formation-stop.png`;
@@ -374,21 +375,70 @@ test('Test v2 followup events', async (t) => {
   t.deepEqual(complexEvent, agent.followupEvent_);
 });
 
-test('Test v2 append', async (t) => {
+test('Test v2 consoleMessages', async (t) => {
   let request = {body: mockV2ResponseWithMessage};
 
   webhookTest(
     request,
     (agent) => {
-      agent.enableAppendMode(true);
-      agent.add(new Text('Text message 1 added from the fulfillment'));
-      agent.add(new Text('Text message 2 added from the fulfillment'));
+      agent.add(agent.consoleMessages);
+      agent.add('Text message 1 added from the fulfillment');
     },
     (responseJson) => {
-      t.is(responseJson.fulfillmentMessages.length, 3);
-      t.is(responseJson.fulfillmentMessages[2].text.text[0], 'Text message 2 added from the fulfillment');
+      t.is(responseJson.fulfillmentMessages.length, 2);
+      t.is(responseJson.fulfillmentMessages[0].text.text[0], 'text response');
     }
   );
+
+  let response = new ResponseMock();
+  let agent = new WebhookClient({
+    request: {body: mockV2MulipleConsoleMessages},
+    response: response,
+  });
+
+  const consoleMessages = agent.consoleMessages;
+
+  // Slack text messages
+  const slackTextMessage = consoleMessages[0];
+  t.true(slackTextMessage instanceof Text);
+  t.is(slackTextMessage.text, 'Slack text message');
+  t.is(slackTextMessage.platform, PLATFORMS.SLACK);
+  // Slack cards
+  const slackCard = consoleMessages[1];
+  t.true(slackCard instanceof Card);
+  t.is(slackCard.title, 'Slack card title');
+  // Facebook text
+  const facebookText = consoleMessages[2];
+  t.true(facebookText instanceof Text);
+  t.is(facebookText.text, 'Facebook Messenger text message');
+  t.is(facebookText.platform, PLATFORMS.FACEBOOK);
+  // Facebook image
+  const facebookImage = consoleMessages[3];
+  t.true(facebookImage instanceof Image);
+  t.is(facebookImage.imageUrl,
+    'https://developers.google.com/actions/images/badges/XPM_BADGING_GoogleAssistant_VER.png'
+  );
+  // Actions on Google text
+  const actionsOnGoogleText = consoleMessages[4];
+  t.true(actionsOnGoogleText instanceof Text);
+  t.is(actionsOnGoogleText.text, 'Actions on Google simple response');
+  t.is(actionsOnGoogleText.platform, PLATFORMS.ACTIONS_ON_GOOGLE);
+  // Actions on Google card
+  const actionsOnGoogleCard = consoleMessages[5];
+  t.true(actionsOnGoogleCard instanceof Card);
+  t.is(actionsOnGoogleCard.text, 'basic card');
+  // Actions on Google suggestion
+  const actionsOnGoogleSuggestion = consoleMessages[6];
+  t.true(actionsOnGoogleSuggestion instanceof Suggestion);
+  t.is(actionsOnGoogleSuggestion.replies[0], 'suggestion');
+  // Actions on Google suggestion 2
+  const actionsOnGoogleSuggestio2 = consoleMessages[7];
+  t.true(actionsOnGoogleSuggestio2 instanceof Suggestion);
+  t.is(actionsOnGoogleSuggestio2.replies[0], 'another suggestion');
+  // Actions on Google text 2
+  const actionsOnGoogleText2 = consoleMessages[8];
+  t.true(actionsOnGoogleText2 instanceof Text);
+  t.is(actionsOnGoogleText2.text, 'another Actions on Google simple response');
 });
 
 test('Test v1 original request', async (t) => {
@@ -412,6 +462,20 @@ test('Test v1 original request', async (t) => {
 
   t.deepEqual(mockFacebookV2Request.originalDetectIntentRequest,
     agent.originalRequest
+  );
+});
+
+test('Test v2 no handler defined', async (t) => {
+  let response = new ResponseMock();
+  let agent = new WebhookClient({
+    request: {body: mockGoogleV2Request},
+    response: response,
+  });
+
+  const noHandlerDefinedError = await t.throws(agent.handleRequest(new Map()));
+  t.is(
+    noHandlerDefinedError.message,
+    'No handler for requested intent'
   );
 });
 
@@ -1172,4 +1236,107 @@ const mockTwitterV2Request = {
   },
   'responseId': '5590c31b-f719-4ccd-9a02-81c2a1f8c84b',
   'session': 'projects/stagent-f2236/agent/sessions/63b45955-131a-41d6-9b10-590f1e78ddd5',
+};
+
+const mockV2MulipleConsoleMessages = {
+  'responseId': 'cc3ec71d-7526-43f7-9381-128f60a5f44f',
+  'queryResult': {
+    'queryText': 'every rich response',
+    'parameters': {},
+    'allRequiredParamsPresent': true,
+    'fulfillmentMessages': [
+      {
+        'text': {
+          'text': [
+            'Slack text message',
+          ],
+        },
+        'platform': 'SLACK',
+      },
+      {
+        'card': {
+          'title': 'Slack card title',
+          'subtitle': 'subtitle',
+          'imageUri': 'https://developers.google.com/actions/images/badges/XPM_BADGING_GoogleAssistant_VER.png',
+          'buttons': [
+            {
+              'text': 'button',
+              'postback': 'https://assistant.google.com/',
+            },
+          ],
+        },
+        'platform': 'SLACK',
+      },
+      {
+        'text': {
+          'text': [
+            'Facebook Messenger text message',
+          ],
+        },
+        'platform': 'FACEBOOK',
+      },
+      {
+        'image': {
+          'imageUri': 'https://developers.google.com/actions/images/badges/XPM_BADGING_GoogleAssistant_VER.png',
+        },
+        'platform': 'FACEBOOK',
+      },
+      {
+        'quickReplies': {
+          'title': 'Facebook Messenger Suggestion',
+        },
+        'platform': 'FACEBOOK',
+      },
+      {
+        'platform': 'ACTIONS_ON_GOOGLE',
+        'simpleResponses': {
+          'simpleResponses': [
+            {
+              'textToSpeech': 'Actions on Google simple response',
+            },
+          ],
+        },
+      },
+      {
+        'platform': 'ACTIONS_ON_GOOGLE',
+        'basicCard': {
+          'title': 'basic card',
+          'formattedText': 'basic card',
+          'image': {
+            'imageUri': 'yo',
+          },
+        },
+      },
+      {
+        'platform': 'ACTIONS_ON_GOOGLE',
+        'suggestions': {
+          'suggestions': [
+            {
+              'title': 'suggestion',
+            },
+            {
+              'title': 'another suggestion',
+            },
+          ],
+        },
+      },
+      {
+        'platform': 'ACTIONS_ON_GOOGLE',
+        'simpleResponses': {
+          'simpleResponses': [
+            {
+              'textToSpeech': 'another Actions on Google simple response',
+            },
+          ],
+        },
+      },
+    ],
+    'intent': {
+      'name': 'projects/anotheragent-c5ea8/agent/intents/96f2305b-1cd0-4d73-97c0-3cfe669ec79b',
+      'displayName': 'every rich response',
+    },
+    'intentDetectionConfidence': 1,
+    'diagnosticInfo': {},
+    'languageCode': 'en',
+  },
 };

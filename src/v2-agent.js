@@ -26,6 +26,10 @@ const {
   V1_TO_V2_PLATFORM_NAME,
   PLATFORMS,
 } = require('./rich-responses/rich-response');
+const Text = require('./rich-responses/text-response');
+const Card = require('./rich-responses/card-response');
+const Image = require('./rich-responses/image-response');
+const Suggestion = require('./rich-responses/suggestions-response');
 const PayloadResponse = require('./rich-responses/payload-response');
 
 /**
@@ -64,7 +68,7 @@ class V2Agent {
      */
     this.agent.action = this.agent.request_.body.queryResult.action
       ? this.agent.request_.body.queryResult.action
-      : 'default';
+      : null;
     debug(`Action: ${this.agent.action}`);
 
     /**
@@ -105,7 +109,10 @@ class V2Agent {
      */
     const detectIntentRequest = this.agent.request_.body.originalDetectIntentRequest;
     if (detectIntentRequest) {
-      const requestSource = detectIntentRequest.source || (detectIntentRequest.payload && detectIntentRequest.payload.source) || null;
+      const requestSource =
+        detectIntentRequest.source ||
+        (detectIntentRequest.payload && detectIntentRequest.payload.source) ||
+        null;
       this.agent.requestSource = V1_TO_V2_PLATFORM_NAME[requestSource] || requestSource;
     }
     debug(`Request source: ${JSON.stringify(this.agent.requestSource)}`);
@@ -133,6 +140,21 @@ class V2Agent {
      * @type {string} locale language code indicating the spoken/written language of the original request
      */
      this.agent.locale = this.agent.request_.body.queryResult.languageCode;
+     debug(`Request locale: ${JSON.stringify(this.agent.query)}`);
+
+    /**
+     * List of messages defined in Dialogflow's console for the matched intent
+     * https://dialogflow.com/docs/rich-messages
+     *
+     * @type {RichResponse[]}
+     */
+    if (this.agent.request_.body.queryResult.fulfillmentMessages) {
+      const consoleMessages = this.agent.request_.body.queryResult.fulfillmentMessages;
+      this.agent.consoleMessages = this.getConsoleMessages_(consoleMessages);
+    } else {
+      this.agent.consoleMessages = [];
+    }
+    debug(`Console messages: ${JSON.stringify(this.agent.consoleMessages)}`);
   }
 
   /**
@@ -168,7 +190,7 @@ class V2Agent {
    */
   sendMessagesResponse_(requestSource) {
     this.sendJson_({
-      fulfillmentMessages: this.buildResponseMessages_(requestSource, this.agent.appendModeEnabled_),
+      fulfillmentMessages: this.buildResponseMessages_(requestSource),
     });
   }
 
@@ -191,22 +213,13 @@ class V2Agent {
    * developer defined responses and the request source
    *
    * @param {string} requestSource string indicating the source of the initial request
-   * @param {boolean} append boolean indicating if the messages should be appended to the
-   *                          original queryResult messages or erase them
    * @return {Object[]} message objects
    * @private
    */
-  buildResponseMessages_(requestSource, append) {
-    const responseMessages = this.agent.responseMessages_
+  buildResponseMessages_(requestSource) {
+    return this.agent.responseMessages_
       .map((message) => message.getV2ResponseObject_(requestSource))
       .filter((arr) => arr);
-
-    if (append) {
-      const requestMessages = this.agent.request_.body.queryResult.fulfillmentMessages;
-      return [...requestMessages, ...responseMessages];
-    }
-
-    return responseMessages;
   }
 
   /**
@@ -276,6 +289,160 @@ class V2Agent {
       PLATFORMS.ACTIONS_ON_GOOGLE,
       response.payload.google)
     );
+  }
+
+  /**
+   * Get messages defined in Dialogflow's console for matched intent
+   *
+   * @param {Object[]} consoleMessageList is a list of v2 Dialogflow messages from Dialogflow's console
+   * @return {RichResponse[]} list of RichResponse objects
+   * @private
+   */
+  getConsoleMessages_(consoleMessageList) {
+    // Functions to transpose fulfillment messages from Dialogflow's console to fulfillment library classes
+    const richResponseMapping = {
+      text: this.convertTextJson_,
+      card: this.convertCardJson_,
+      image: this.convertImageJson_,
+      quickReplies: this.convertQuickRepliesJson_,
+      simpleResponses: this.convertSimpleResponsesJson_,
+      basicCard: this.convertBasicCardJson_,
+      suggestions: this.convertSuggestionsJson_,
+    };
+
+    let richConsoleMessages = []; // list of messages to be returned
+
+    // iterate through each message recived in the webhook request
+    consoleMessageList.forEach( (consoleMessageJson) => {
+      const richMessageType = Object.keys(consoleMessageJson).find((key) => key !== 'platform');
+      if (richResponseMapping[richMessageType]) {
+        const messagePlatform = consoleMessageJson.platform ? consoleMessageJson.platform : undefined;
+        // convert the JSON to fufillment classes
+        let richResponse = richResponseMapping[richMessageType](consoleMessageJson, messagePlatform);
+        richResponse ? richConsoleMessages = richConsoleMessages.concat(richResponse): null;
+      } else {
+        debug(`Unsupported console message type "${richMessageType}"`);
+      }
+    });
+    return richConsoleMessages;
+  };
+
+  /**
+   * Convert incoming text message object JSON into a Text rich response
+   *
+   * @param {Object} messageJson is a the JSON implementation of the message
+   * @param {string} platform is the platform of the message object
+   * @return {RichResponse} richResponse implementation of the message
+   * @private
+   */
+  convertTextJson_(messageJson, platform) {
+    if (!messageJson.text.text[0]) return null;
+    else return new Text({text: messageJson.text.text[0], platform: platform});
+  }
+
+  /**
+   * Convert incoming card message object JSON into a Text rich response
+   *
+   * @param {Object} messageJson is a the JSON implementation of the message
+   * @param {string} platform is the platform of the message object
+   * @return {RichResponse} richResponse implementation of the message
+   * @private
+   */
+  convertCardJson_(messageJson, platform) {
+   return new Card({
+          title: messageJson.card.title || ' ',
+          text: messageJson.card.subtitle,
+          imageUrl: messageJson.card.imageUri,
+          buttonText: messageJson.card.buttons ? messageJson.card.buttons[0].text: null,
+          buttonUrl: messageJson.card.buttons ? messageJson.card.buttons[0].postback: null,
+          platform: platform,
+        });
+  }
+
+  /**
+   * Convert incoming image message object JSON into a Text rich response
+   *
+   * @param {Object} messageJson is a the JSON implementation of the message
+   * @param {string} platform is the platform of the message object
+   * @return {RichResponse} richResponse implementation of the message
+   * @private
+   */
+  convertImageJson_(messageJson, platform) {
+   return new Image({
+     imageUrl: messageJson.image.imageUri,
+     platform: platform,
+   });
+  }
+  /**
+   * Convert incoming quick reply message object JSON into a Text rich response
+   *
+   * @param {Object} messageJson is a the JSON implementation of the message
+   * @param {string} platform is the platform of the message object
+   * @return {RichResponse} richResponse implementation of the message
+   * @private
+   */
+  convertQuickRepliesJson_(messageJson, platform) {
+    if (!messageJson.suggestions) return null;
+    let suggestions = [];
+    messageJson.suggestions.forEach( (consoleMessageJson, iterator) => {
+     suggestions.push(new Suggestion({
+       title: messageJson.quickReplies.quickReplies[iterator],
+       platform: platform,
+     }));
+    });
+    return suggestions;
+  }
+  /**
+   * Convert incoming simple response message object JSON into a Text rich response
+   *
+   * @param {Object} messageJson is a the JSON implementation of the message
+   * @param {string} platform is the platform of the message object
+   * @return {RichResponse} richResponse implementation of the message
+   * @private
+   */
+  convertSimpleResponsesJson_(messageJson, platform) {
+   return new Text({
+     text: messageJson.simpleResponses.simpleResponses[0].textToSpeech,
+     platform: platform,
+   });
+  }
+
+  /**
+   * Convert incoming basic card message object JSON into a Text rich response
+   *
+   * @param {Object} messageJson is a the JSON implementation of the message
+   * @param {string} platform is the platform of the message object
+   * @return {RichResponse} richResponse implementation of the message
+   * @private
+   */
+  convertBasicCardJson_(messageJson, platform) {
+   return new Card({
+          title: messageJson.basicCard.title || ' ',
+          text: messageJson.basicCard.formattedText,
+          imageUrl: messageJson.basicCard.image ? messageJson.basicCard.image.imageUri : null,
+          buttonText: messageJson.basicCard.buttons ? messageJson.basicCard.buttons[0].title : null,
+          buttonUrl: messageJson.basicCard.buttons ? messageJson.basicCard.buttons[0].openUriAction.uri : null,
+          platform: platform,
+        });
+  }
+  /**
+   * Convert incoming suggestions message object JSON into a Text rich response
+   *
+   * @param {Object} messageJson is a the JSON implementation of the message
+   * @param {string} platform is the platform of the message object
+   * @return {RichResponse} richResponse implementation of the message
+   * @private
+   */
+  convertSuggestionsJson_(messageJson, platform) {
+    if (!messageJson.suggestions) return null;
+    let suggestions = [];
+    messageJson.suggestions.suggestions.forEach( (consoleMessageJson, iterator) => {
+     suggestions.push(new Suggestion({
+       title: messageJson.suggestions.suggestions[iterator].title,
+       platform: platform,
+     }));
+    });
+    return suggestions;
   }
 }
 

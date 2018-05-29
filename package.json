@@ -1,8 +1,8 @@
 {
   "name": "dialogflow-fulfillment",
-  "description": "Dialogflow Fulfillment Library for Node.js Beta",
+  "description": "Dialogflow Fulfillment Library for Node.js",
   "main": "src/dialogflow-fulfillment.js",
-  "version": "0.3.0-beta.3",
+  "version": "0.4.0",
   "license": "Apache-2.0",
   "author": "Google Inc.",
   "directories": {
@@ -37,7 +37,8 @@
     "fulfillment"
   ],
   "dependencies": {
-    "debug": "^2.2.0"
+    "actions-on-google": "^2.1.2",
+    "debug": "^3.1.0"
   },
   "peerDependencies": {
     "actions-on-google": "^2.0.1"

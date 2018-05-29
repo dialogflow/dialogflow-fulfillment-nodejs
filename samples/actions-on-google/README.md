@@ -13,7 +13,7 @@ Click on the **Add to Dialogflow** button below and follow the prompts to create
 1. Create a Dialogflow agent
 1. [Enable the Cloud Function for Firebase inline editor](https://dialogflow.com/docs/fulfillment#cloud_functions_for_firebase)
 1. Copy this code in `functions/index.js` the `index.js` file in the Dialogflow Cloud Function for Firebase inline editor.
-1. Add `"dialogflow-fulfillment": "0.3.0-beta.3"` to the `package.json` file's `dependencies` object in the Dialogflow Cloud Function for Firebase inline editor.
+1. Add `"dialogflow-fulfillment": "^0.4.0"` and `"actions-on-google": "^2.1.2"` to the `package.json` file's `dependencies` object in the Dialogflow Cloud Function for Firebase inline editor.
 1. Click `Deploy`
 
 ### Option 3: Firebase CLI

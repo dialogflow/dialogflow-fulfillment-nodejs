@@ -12,7 +12,7 @@ Dialogflow's simulator
     * [.agentVersion](#WebhookClient+agentVersion) : <code>number</code>
     * [.intent](#WebhookClient+intent) : <code>string</code>
     * [.action](#WebhookClient+action) : <code>string</code>
-    * [.parameters](#WebhookClient+parameters) : <code>Array.&lt;Object&gt;</code>
+    * [.parameters](#WebhookClient+parameters) : <code>Object</code>
     * [.contexts](#WebhookClient+contexts) : <code>string</code>
     * [.requestSource](#WebhookClient+requestSource) : <code>string</code>
     * [.originalRequest](#WebhookClient+originalRequest) : <code>object</code>
@@ -20,8 +20,8 @@ Dialogflow's simulator
     * [.locale](#WebhookClient+locale) : <code>string</code>
     * [.session](#WebhookClient+session) : <code>string</code>
     * [.add(response)](#WebhookClient+add)
-    * [.enableAppendMode](#WebhookClient+enableAppendMode)
     * [.handleRequest(handler)](#WebhookClient+handleRequest) ⇒ <code>Promise</code>
+    * [.getConsoleMessages()](#WebhookClient+getConsoleMessages) ⇒ <code>Array.&lt;RichResponses&gt;</code>
     * [.setContext(context)](#WebhookClient+setContext) ⇒ [<code>WebhookClient</code>](#WebhookClient)
     * [.clearOutgoingContexts()](#WebhookClient+clearOutgoingContexts) ⇒ [<code>WebhookClient</code>](#WebhookClient)
     * [.clearContext(context)](#WebhookClient+clearContext) ⇒ [<code>WebhookClient</code>](#WebhookClient)
@@ -63,7 +63,7 @@ Dialogflow action or null if no value: https://dialogflow.com/docs/actions-and-p
 **Kind**: instance property of [<code>WebhookClient</code>](#WebhookClient)  
 <a name="WebhookClient+parameters"></a>
 
-### webhookClient.parameters : <code>Array.&lt;Object&gt;</code>
+### webhookClient.parameters : <code>Object</code>
 Dialogflow parameters included in the request or null if no value
 https://dialogflow.com/docs/actions-and-parameters
 
@@ -121,22 +121,6 @@ Add a response to be sent to Dialogflow
 | --- | --- | --- |
 | response | [<code>RichResponse</code>](#RichResponse) \| <code>string</code> | an object or string representing the rich response to be added |
 
-<a name="WebhookClient+enableAppendMode"></a>
-
-### webhookClient.enableAppendMode(enable)
-Enables or disables the append mode.
-
-When enabled, the append mode adds fulfillmentMessages to the request ones.
-
-This is useful if you want to keep the DialogFlow original messages.
-
-**Kind**: instance method of [<code>WebhookClient</code>](#WebhookClient)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| enable | <code>boolean</code> | should the append mode be enabled
-
-
 <a name="WebhookClient+handleRequest"></a>
 
 ### webhookClient.handleRequest(handler) ⇒ <code>Promise</code>
@@ -149,6 +133,14 @@ Each handler must be a function callback.
 | --- | --- | --- |
 | handler | <code>Map</code> \| <code>requestCallback</code> | map of Dialogflow action name to handler function or     function to handle all requests (regardless of Dialogflow action). |
 
+<a name="WebhookClient+getConsoleMessages"></a>
+
+### webhookClient.getConsoleMessages() ⇒ <code>Array.&lt;RichResponses&gt;</code>
+Get a list of responses defined in Dialogflow's console
+for the matched intent
+https://dialogflow.com/docs/rich-messages
+
+**Kind**: instance method of [<code>WebhookClient</code>](#WebhookClient)  
 <a name="WebhookClient+setContext"></a>
 
 ### webhookClient.setContext(context) ⇒ [<code>WebhookClient</code>](#WebhookClient)
