@@ -1,0 +1,28 @@
+{
+  "id": "8ea5901d-817c-4514-8d00-5f8619e4f26e",
+  "name": "Other Intent",
+  "auto": true,
+  "contexts": [],
+  "responses": [
+    {
+      "resetContexts": false,
+      "affectedContexts": [],
+      "parameters": [],
+      "messages": [
+        {
+          "type": 0,
+          "lang": "en",
+          "speech": []
+        }
+      ],
+      "defaultResponsePlatforms": {},
+      "speech": []
+    }
+  ],
+  "priority": 500000,
+  "webhookUsed": true,
+  "webhookForSlotFilling": false,
+  "lastUpdate": 1528132560,
+  "fallbackIntent": false,
+  "events": []
+}

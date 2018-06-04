@@ -9,15 +9,16 @@ Click on the **Add to Dialogflow** button below and follow the prompts to create
 [![Getting Started](https://storage.googleapis.com/dialogflow-oneclick/deploy.svg "Getting Started")](https://console.dialogflow.com/api-client/oneclick?templateUrl=https%3A%2F%2Fstorage.googleapis.com%2Fdialogflow-oneclick%2Fquickstart-agent.zip&agentName=QuickStartSample)
 
 ### Option 2: Dialogflow Inline Editor
-1. [Sign up for or sign into Dialogflow](https://console.dialogflow.com/api-client/#/login)
-1. Create a Dialogflow agent
+1. [Sign up for or sign into Dialogflow](https://console.dialogflow.com/api-client/#/login) and [create a agent](https://dialogflow.com/docs/agents#create_an_agent)
+1. Go to your agent's settings and [Restore from zip](https://dialogflow.com/docs/agents#export_and_import) using the `dialogflow-agent.zip` in this directory (Note: this will overwrite your existing agent)
 1. [Enable the Cloud Function for Firebase inline editor](https://dialogflow.com/docs/fulfillment#cloud_functions_for_firebase)
 1. Copy this code in `functions/index.js` the `index.js` file in the Dialogflow Cloud Function for Firebase inline editor.
 1. Add `"dialogflow-fulfillment": "^0.4.0"` to the `package.json` file's `dependencies` object in the Dialogflow Cloud Function for Firebase inline editor.
 1. Click `Deploy`
 
 ### Option 3: Firebase CLI
-1. Create a Dialogflow agent
+1. [Sign up for or sign into Dialogflow](https://console.dialogflow.com/api-client/#/login) and [create a agent](https://dialogflow.com/docs/agents#create_an_agent)
+1. Go to your agent's settings and [Restore from zip](https://dialogflow.com/docs/agents#export_and_import) using the `dialogflow-agent.zip` in this directory (Note: this will overwrite your existing agent)
 1. `cd` to the `functions` directory
 1. Run `npm install`
 1. Install the Firebase CLI by running `npm install -g firebase-tools`

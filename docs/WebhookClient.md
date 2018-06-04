@@ -19,9 +19,10 @@ Dialogflow's simulator
     * [.query](#WebhookClient+query) : <code>string</code>
     * [.locale](#WebhookClient+locale) : <code>string</code>
     * [.session](#WebhookClient+session) : <code>string</code>
-    * [.add(response)](#WebhookClient+add)
+    * [.consoleMessages](#WebhookClient+consoleMessages) : [<code>Array.&lt;RichResponse&gt;</code>](#RichResponse)
+    * [.add(responses)](#WebhookClient+add)
+    * [.addResponse_(response)](#WebhookClient+addResponse_)
     * [.handleRequest(handler)](#WebhookClient+handleRequest) ⇒ <code>Promise</code>
-    * [.getConsoleMessages()](#WebhookClient+getConsoleMessages) ⇒ <code>Array.&lt;RichResponses&gt;</code>
     * [.setContext(context)](#WebhookClient+setContext) ⇒ [<code>WebhookClient</code>](#WebhookClient)
     * [.clearOutgoingContexts()](#WebhookClient+clearOutgoingContexts) ⇒ [<code>WebhookClient</code>](#WebhookClient)
     * [.clearContext(context)](#WebhookClient+clearContext) ⇒ [<code>WebhookClient</code>](#WebhookClient)
@@ -110,9 +111,27 @@ Dialogflow v2 API only
 https://dialogflow.com/docs/reference/api-v2/rest/v2beta1/WebhookRequest#FIELDS.session
 
 **Kind**: instance property of [<code>WebhookClient</code>](#WebhookClient)  
+<a name="WebhookClient+consoleMessages"></a>
+
+### webhookClient.consoleMessages : [<code>Array.&lt;RichResponse&gt;</code>](#RichResponse)
+List of messages defined in Dialogflow's console for the matched intent
+https://dialogflow.com/docs/rich-messages
+
+**Kind**: instance property of [<code>WebhookClient</code>](#WebhookClient)  
 <a name="WebhookClient+add"></a>
 
-### webhookClient.add(response)
+### webhookClient.add(responses)
+Add a response or list of responses to be sent to Dialogflow
+
+**Kind**: instance method of [<code>WebhookClient</code>](#WebhookClient)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| responses | [<code>RichResponse</code>](#RichResponse) \| <code>string</code> \| [<code>Array.&lt;RichResponse&gt;</code>](#RichResponse) \| <code>Array.&lt;string&gt;</code> | (list) or single responses |
+
+<a name="WebhookClient+addResponse_"></a>
+
+### webhookClient.addResponse_(response)
 Add a response to be sent to Dialogflow
 
 **Kind**: instance method of [<code>WebhookClient</code>](#WebhookClient)  
@@ -133,14 +152,6 @@ Each handler must be a function callback.
 | --- | --- | --- |
 | handler | <code>Map</code> \| <code>requestCallback</code> | map of Dialogflow action name to handler function or     function to handle all requests (regardless of Dialogflow action). |
 
-<a name="WebhookClient+getConsoleMessages"></a>
-
-### webhookClient.getConsoleMessages() ⇒ <code>Array.&lt;RichResponses&gt;</code>
-Get a list of responses defined in Dialogflow's console
-for the matched intent
-https://dialogflow.com/docs/rich-messages
-
-**Kind**: instance method of [<code>WebhookClient</code>](#WebhookClient)  
 <a name="WebhookClient+setContext"></a>
 
 ### webhookClient.setContext(context) ⇒ [<code>WebhookClient</code>](#WebhookClient)

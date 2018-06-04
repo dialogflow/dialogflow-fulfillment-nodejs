@@ -1,0 +1,64 @@
+{
+  "id": "a7e72b1d-225b-47ec-95ff-8e7ca3a12138",
+  "name": "Convert Fahrenheit and Celsius",
+  "auto": true,
+  "contexts": [],
+  "responses": [
+    {
+      "resetContexts": false,
+      "action": "convert.common.temperature",
+      "affectedContexts": [
+        {
+          "name": "temperature",
+          "parameters": {},
+          "lifespan": 1
+        }
+      ],
+      "parameters": [
+        {
+          "id": "f0256fcd-8ef7-4de6-a027-060ff032d2f0",
+          "required": true,
+          "dataType": "@sys.number",
+          "name": "temperature",
+          "value": "$temperature",
+          "prompts": [
+            {
+              "lang": "en",
+              "value": "What temperature would you like to convert?"
+            }
+          ],
+          "isList": false
+        },
+        {
+          "id": "35303e91-1bb2-4bad-8b37-71dd34f7d54f",
+          "required": true,
+          "dataType": "@unit",
+          "name": "unit",
+          "value": "$unit",
+          "prompts": [
+            {
+              "lang": "en",
+              "value": "Fahrenheit or Celsius?"
+            }
+          ],
+          "isList": false
+        }
+      ],
+      "messages": [
+        {
+          "type": 0,
+          "lang": "en",
+          "speech": "Webhook Failed"
+        }
+      ],
+      "defaultResponsePlatforms": {},
+      "speech": []
+    }
+  ],
+  "priority": 500000,
+  "webhookUsed": true,
+  "webhookForSlotFilling": false,
+  "lastUpdate": 1517002171,
+  "fallbackIntent": false,
+  "events": []
+}

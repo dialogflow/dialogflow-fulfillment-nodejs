@@ -1,0 +1,38 @@
+[
+  {
+    "id": "090fe506-4c96-4330-9664-477b518d718c",
+    "data": [
+      {
+        "text": "Exit",
+        "userDefined": false
+      }
+    ],
+    "isTemplate": false,
+    "count": 0,
+    "updated": 1517002931
+  },
+  {
+    "id": "0bea9d01-7206-4389-9e9d-d7db36cb53c1",
+    "data": [
+      {
+        "text": "Quit",
+        "userDefined": false
+      }
+    ],
+    "isTemplate": false,
+    "count": 0,
+    "updated": 1517002931
+  },
+  {
+    "id": "b36b3d02-3569-489b-a254-63fd8a950c3f",
+    "data": [
+      {
+        "text": "Cancel",
+        "userDefined": false
+      }
+    ],
+    "isTemplate": false,
+    "count": 0,
+    "updated": 1517002931
+  }
+]

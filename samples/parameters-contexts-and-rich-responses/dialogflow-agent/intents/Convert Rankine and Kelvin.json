@@ -1,0 +1,46 @@
+{
+  "id": "78b4b898-d06d-461b-845b-1ee8dd5d6158",
+  "name": "Convert Rankine and Kelvin",
+  "auto": true,
+  "contexts": [
+    "temperature"
+  ],
+  "responses": [
+    {
+      "resetContexts": false,
+      "action": "convert.absolute.temperature",
+      "affectedContexts": [],
+      "parameters": [
+        {
+          "id": "be3f3214-fdcf-4e2b-b057-7b0ae133e01d",
+          "required": true,
+          "dataType": "@absoluteTempUnit",
+          "name": "absoluteTempUnit",
+          "value": "$absoluteTempUnit",
+          "prompts": [
+            {
+              "lang": "en",
+              "value": "Rankine or Kelvin?"
+            }
+          ],
+          "isList": false
+        }
+      ],
+      "messages": [
+        {
+          "type": 0,
+          "lang": "en",
+          "speech": "Webhook Failed"
+        }
+      ],
+      "defaultResponsePlatforms": {},
+      "speech": []
+    }
+  ],
+  "priority": 500000,
+  "webhookUsed": true,
+  "webhookForSlotFilling": false,
+  "lastUpdate": 1517002804,
+  "fallbackIntent": false,
+  "events": []
+}

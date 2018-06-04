@@ -1,0 +1,139 @@
+[
+  {
+    "id": "c103174e-530f-4bbc-8afc-08db0f438bee",
+    "data": [
+      {
+        "text": "27",
+        "alias": "temperature",
+        "meta": "@sys.number",
+        "userDefined": false
+      },
+      {
+        "text": "°",
+        "userDefined": false
+      }
+    ],
+    "isTemplate": false,
+    "count": 0
+  },
+  {
+    "id": "0ea802b7-5bcb-47b9-9c6e-c178ee32919f",
+    "data": [
+      {
+        "text": "30",
+        "alias": "temperature",
+        "meta": "@sys.number",
+        "userDefined": true
+      },
+      {
+        "text": " degrees",
+        "userDefined": false
+      }
+    ],
+    "isTemplate": false,
+    "count": 0
+  },
+  {
+    "id": "cc81c27c-c714-4d8d-9c00-42710b683b35",
+    "data": [
+      {
+        "text": "25",
+        "alias": "temperature",
+        "meta": "@sys.number",
+        "userDefined": false
+      }
+    ],
+    "isTemplate": false,
+    "count": 0
+  },
+  {
+    "id": "ad5f4fed-4f1f-479b-bf0e-e2eefed09d7c",
+    "data": [
+      {
+        "text": "How about ",
+        "userDefined": false
+      },
+      {
+        "text": "45",
+        "alias": "temperature",
+        "meta": "@sys.number",
+        "userDefined": true
+      },
+      {
+        "text": " degrees?",
+        "userDefined": false
+      }
+    ],
+    "isTemplate": false,
+    "count": 0
+  },
+  {
+    "id": "6354925c-bf9c-4a5a-93d5-a1599051c65e",
+    "data": [
+      {
+        "text": "27",
+        "alias": "temperature",
+        "meta": "@sys.number",
+        "userDefined": false
+      },
+      {
+        "text": "° ",
+        "userDefined": false
+      },
+      {
+        "text": "Celsius",
+        "alias": "unit",
+        "meta": "@unit",
+        "userDefined": true
+      }
+    ],
+    "isTemplate": false,
+    "count": 0
+  },
+  {
+    "id": "bd6fb6a7-bf35-409e-a2f3-dcc72b3bb696",
+    "data": [
+      {
+        "text": "-40",
+        "alias": "temperature",
+        "meta": "@sys.number",
+        "userDefined": true
+      },
+      {
+        "text": "° ",
+        "userDefined": false
+      },
+      {
+        "text": "Fahrenheit",
+        "alias": "unit",
+        "meta": "@unit",
+        "userDefined": true
+      }
+    ],
+    "isTemplate": false,
+    "count": 0
+  },
+  {
+    "id": "c76b7675-a35b-48bd-bb4a-227aa40a436b",
+    "data": [
+      {
+        "text": "45",
+        "alias": "temperature",
+        "meta": "@sys.number",
+        "userDefined": true
+      },
+      {
+        "text": " degrees ",
+        "userDefined": false
+      },
+      {
+        "text": "Celsius",
+        "alias": "unit",
+        "meta": "@unit",
+        "userDefined": true
+      }
+    ],
+    "isTemplate": false,
+    "count": 0
+  }
+]
