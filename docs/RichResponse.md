@@ -4,9 +4,10 @@
 Class representing a rich response
 
 These classes construct v1&v2 message objects for Dialogflow
-v1 Message object docs:
+
+* v1 Message object docs:
 https://dialogflow.com/docs/reference/agent/message-objects
-v2 Message object docs:
+* v2 Message object docs:
 https://dialogflow.com/docs/reference/api-v2/rest/v2beta1/projects.agent.intents#Message
 
 **Kind**: global class  
