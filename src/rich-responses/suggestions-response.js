@@ -188,14 +188,8 @@ class Suggestion extends RichResponse {
       this.replies.forEach((reply) => {
         response.suggestions.suggestions.push({title: reply});
       });
-    } else if (platform === PLATFORMS.FACEBOOK) {
-      response = {quickReplies: {
-        title: this.title,
-        quickReplies: this.replies,
-        platform: platform
-      }};
     } else {
-      response = {quickReplies: {quickReplies: this.replies}};
+      response = {quickReplies: {title: this.title, quickReplies: this.replies}};
       // Response is the same for generic responses without the platform attribute
       // If the platform is not undefined or the platform is not unspecified
       if (SUPPORTED_RICH_MESSAGE_PLATFORMS.indexOf(platform) > -1) {
