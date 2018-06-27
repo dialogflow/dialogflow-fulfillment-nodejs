@@ -1,0 +1,12 @@
+{
+  "name": "Test_Agent",
+  "version": "0.0.1",
+  "description": "Test Google Assistant Agent webhook",
+  "main": "server.js",
+  "author": "Abhinav Tyagi, New Delhi, India",
+  "dependencies": {
+    "dialogflow-fulfillment": "^0.4.1",
+    "body-parser": "^1.18.3",
+    "express": "^4.16.3"
+  }
+}
