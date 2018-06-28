@@ -28,6 +28,7 @@ const Payload = require('./rich-responses/payload-response');
 const {
   RichResponse,
   PLATFORMS,
+  SUPPORTED_PLATFORMS,
   SUPPORTED_RICH_MESSAGE_PLATFORMS,
 } = require('./rich-responses/rich-response');
 const V1Agent = require('./v1-agent');
@@ -443,20 +444,20 @@ class WebhookClient {
     }
 
     // if there is only text, send response
+    // if platform may support messages, send messages
     // if there is a payload, send the payload for the repsonse
-    // if platform supports messages, send messages
     const payload = this.existingPayload_(requestSource);
     if (messages.length === 1 &&
       messages[0] instanceof Text) {
-      this.client.sendTextResponse_();
-    } else if (payload) {
-      this.client.sendPayloadResponse_(payload, requestSource);
+      this.client.addTextResponse_();
     } else if (SUPPORTED_RICH_MESSAGE_PLATFORMS.indexOf(this.requestSource) > -1
-      || this.requestSource === null) {
-      this.client.sendMessagesResponse_(requestSource);
-    } else {
-      throw new Error(`No responses defined for platform: ${this.requestSource}`);
+      || SUPPORTED_PLATFORMS.indexOf(this.requestSource) < 0) {
+      this.client.addMessagesResponse_(requestSource);
     }
+    if (payload) {
+      this.client.addPayloadResponse_(payload, requestSource);
+    }
+    this.client.sendResponses_(requestSource);
   }
 
   /**

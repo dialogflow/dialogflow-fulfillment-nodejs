@@ -418,27 +418,39 @@ test('Test v2 consoleMessages', async (t) => {
   t.is(facebookImage.imageUrl,
     'https://developers.google.com/actions/images/badges/XPM_BADGING_GoogleAssistant_VER.png'
   );
+  // Facebook payload
+  const facebookPayload = consoleMessages[4];
+  t.true(facebookPayload instanceof Payload);
+  t.deepEqual(facebookPayload.payload,
+      {'key': 'Facebook Messenger Payload'}
+  );
   // Actions on Google text
-  const actionsOnGoogleText = consoleMessages[4];
+  const actionsOnGoogleText = consoleMessages[5];
   t.true(actionsOnGoogleText instanceof Text);
   t.is(actionsOnGoogleText.text, 'Actions on Google simple response');
   t.is(actionsOnGoogleText.platform, PLATFORMS.ACTIONS_ON_GOOGLE);
   // Actions on Google card
-  const actionsOnGoogleCard = consoleMessages[5];
+  const actionsOnGoogleCard = consoleMessages[6];
   t.true(actionsOnGoogleCard instanceof Card);
   t.is(actionsOnGoogleCard.text, 'basic card');
   // Actions on Google suggestion
-  const actionsOnGoogleSuggestion = consoleMessages[6];
+  const actionsOnGoogleSuggestion = consoleMessages[7];
   t.true(actionsOnGoogleSuggestion instanceof Suggestion);
   t.is(actionsOnGoogleSuggestion.replies[0], 'suggestion');
   // Actions on Google suggestion 2
-  const actionsOnGoogleSuggestio2 = consoleMessages[7];
+  const actionsOnGoogleSuggestio2 = consoleMessages[8];
   t.true(actionsOnGoogleSuggestio2 instanceof Suggestion);
   t.is(actionsOnGoogleSuggestio2.replies[0], 'another suggestion');
   // Actions on Google text 2
-  const actionsOnGoogleText2 = consoleMessages[8];
+  const actionsOnGoogleText2 = consoleMessages[9];
   t.true(actionsOnGoogleText2 instanceof Text);
   t.is(actionsOnGoogleText2.text, 'another Actions on Google simple response');
+  // Actions on Google payload
+  const actionsOnGooglePayload = consoleMessages[10];
+  t.true(actionsOnGooglePayload instanceof Payload);
+  t.deepEqual(actionsOnGooglePayload.payload,
+      {'google': 'payload'}
+  );
 });
 
 test('Test v1 original request', async (t) => {
@@ -1288,6 +1300,12 @@ const mockV2MulipleConsoleMessages = {
         'platform': 'FACEBOOK',
       },
       {
+        'payload': {
+          'key': 'Facebook Messenger Payload',
+        },
+        'platform': 'FACEBOOK',
+      },
+      {
         'platform': 'ACTIONS_ON_GOOGLE',
         'simpleResponses': {
           'simpleResponses': [
@@ -1328,6 +1346,12 @@ const mockV2MulipleConsoleMessages = {
               'textToSpeech': 'another Actions on Google simple response',
             },
           ],
+        },
+      },
+      {
+        'platform': 'ACTIONS_ON_GOOGLE',
+        'payload': {
+          'google': 'payload',
         },
       },
     ],

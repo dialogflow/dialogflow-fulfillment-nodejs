@@ -27,6 +27,9 @@ const PLATFORMS = {
   ACTIONS_ON_GOOGLE: 'ACTIONS_ON_GOOGLE',
 };
 
+// All platform values
+const SUPPORTED_PLATFORMS = Object.keys(PLATFORMS).map((key) => PLATFORMS[key]);
+
 // Platforms that support Rich messaging
 const SUPPORTED_RICH_MESSAGE_PLATFORMS = [
   PLATFORMS.FACEBOOK,
@@ -99,6 +102,7 @@ class RichResponse {
 module.exports = {
   RichResponse,
   PLATFORMS,
+  SUPPORTED_PLATFORMS,
   SUPPORTED_RICH_MESSAGE_PLATFORMS,
   V2_TO_V1_PLATFORM_NAME,
   V1_TO_V2_PLATFORM_NAME,

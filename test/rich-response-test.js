@@ -24,6 +24,7 @@ const test = require('ava');
 const TextResponse = require('../src/rich-responses/text-response');
 const CardResponse = require('../src/rich-responses/card-response');
 const ImageResponse = require('../src/rich-responses/image-response');
+const PayloadResponse = require('../src/rich-responses/payload-response');
 const SuggestionsResponse = require('../src/rich-responses/suggestions-response');
 const {
   PLATFORMS,
@@ -387,6 +388,39 @@ Molecule-Formation-stop.png`;
   image.setImage(imageUrl);
   t.deepEqual({type: 3, imageUrl: imageUrl}, image.getV1ResponseObject_());
   t.deepEqual({image: {imageUri: imageUrl}}, image.getV2ResponseObject_());
+});
+
+test('PayloadResponse', async (t) => {
+  let payload = {key: 'value'};
+
+  // Default don't include payload in messages
+  let payloadOnly = new PayloadResponse('ACTIONS_ON_GOOGLE', payload);
+  t.deepEqual(null, payloadOnly.getV1ResponseObject_());
+  t.deepEqual(null, payloadOnly.getV2ResponseObject_());
+
+
+  // Default nest payload under platform name
+  let payloadMessage = new PayloadResponse('ACTIONS_ON_GOOGLE', payload, {
+    sendAsMessage: true,
+  });
+  t.deepEqual(
+      {type: 'custom_payload', platform: 'google', payload: {google: payload}},
+      payloadMessage.getV1ResponseObject_());
+  t.deepEqual(
+      {platform: 'ACTIONS_ON_GOOGLE', payload: {google: payload}},
+      payloadMessage.getV2ResponseObject_());
+
+  // All non-default payload options
+  let rawPayloadMessage = new PayloadResponse('custom', payload, {
+    sendAsMessage: true,
+    rawPayload: true,
+  });
+  t.deepEqual(
+      {type: 4, platform: 'custom', payload: payload},
+      rawPayloadMessage.getV1ResponseObject_());
+  t.deepEqual(
+      {platform: 'custom', payload: payload},
+      rawPayloadMessage.getV2ResponseObject_());
 });
 
 test('QuickReplies (setReply and setPlatform)', async (t) => {
