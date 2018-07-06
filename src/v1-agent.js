@@ -232,6 +232,14 @@ class V1Agent {
   }
 
   /**
+   * Add a response or list of responses to be sent to Dialogflow and end the conversation
+   * Note: not support on v1
+   */
+  end_() {
+    throw new Error('"end" method is not supported on Dialogflow API V1.  Please migrate to Dialogflow API V2.');
+  }
+
+  /**
    * Add an v1 Actions on Google response
    *
    * @param {Object} response a Actions on Google Dialogflow v1 webhook response

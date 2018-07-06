@@ -441,7 +441,7 @@ test('Test v2 consoleMessages', async (t) => {
   t.is(actionsOnGoogleText2.text, 'another Actions on Google simple response');
 });
 
-test('Test v1 original request', async (t) => {
+test('Test v2 original request', async (t) => {
   let response = new ResponseMock();
 
   let googleRequest = {body: mockGoogleV2Request};
@@ -476,6 +476,34 @@ test('Test v2 no handler defined', async (t) => {
   t.is(
     noHandlerDefinedError.message,
     'No handler for requested intent'
+  );
+});
+
+test('Test v2 alternative query results', async (t) => {
+  // Request with Knowledge connector response
+  let request = {body: mockV2KnowledgeConnector};
+  let agent = new WebhookClient({
+    request: request,
+    response: new ResponseMock(),
+  });
+
+  t.deepEqual(mockV2KnowledgeConnector.alternativeQueryResults,
+    agent.alternativeQueryResults
+  );
+});
+
+test('Test v2 end conversation', async (t) => {
+  // Request with Knowledge connector response
+  let request = {body: mockV2KnowledgeConnector};
+
+  webhookTest(
+    request,
+    (agent) => {
+      agent.end('thanks for talking to me!');
+    },
+    (responseJson) => {
+      t.deepEqual(responseJson.triggerEndOfConversation, true);
+    }
   );
 });
 
@@ -1339,4 +1367,26 @@ const mockV2MulipleConsoleMessages = {
     'diagnosticInfo': {},
     'languageCode': 'en',
   },
+};
+
+const mockV2KnowledgeConnector = {
+  'responseId': 'cc3ec71d-7526-43f7-9381-128f60a5f44f',
+  'queryResult': {
+    'queryText': 'every rich response',
+    'parameters': {},
+    'allRequiredParamsPresent': true,
+    'fulfillmentMessages': [],
+    'intent': {
+      'name': 'projects/anotheragent-c5ea8/agent/intents/96f2305b-1cd0-4d73-97c0-3cfe669ec79b',
+      'displayName': 'every rich response',
+    },
+    'intentDetectionConfidence': 1,
+    'diagnosticInfo': {},
+    'languageCode': 'en',
+  },
+  'alternativeQueryResults': [
+    {
+      'queryText': 'knowledge connector text',
+    },
+  ],
 };

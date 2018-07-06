@@ -103,6 +103,15 @@ class WebhookClient {
      */
     this.followupEvent_ = null;
 
+
+    /**
+     * Boolean indicating whether the conversation should continue after the Dialogflow agent's response
+     *
+     * @private
+     * @type Boolean
+     */
+    this.endConversation_ = false;
+
     /**
      * List of outgoing contexts defined by the developer
      *
@@ -168,6 +177,7 @@ class WebhookClient {
      * Dialogflow input contexts included in the request or null if no value
      * Dialogflow v2 API only
      * https://dialogflow.com/docs/reference/api-v2/rest/v2beta1/WebhookRequest#FIELDS.session
+     *
      * @type {string}
      */
     this.session = null;
@@ -179,6 +189,16 @@ class WebhookClient {
      * @type {RichResponse[]}
      */
     this.consoleMessages = [];
+
+    /**
+     * List of alternative query results
+     * Query results can be from other Dialogflow intents or Knowledge Connectors
+     * https://cloud.google.com/dialogflow-enterprise/alpha/docs/knowledge-connectors
+     * Note:this feature only availbe in Dialogflow v2
+     *
+     * @type {object}
+     */
+    this.alternativeQueryResults = null;
 
     /**
      * Platform contants, to define platforms, includes supported platforms and unspecified
@@ -224,6 +244,16 @@ class WebhookClient {
     } else {
       this.addResponse_(responses);
     }
+  }
+
+  /**
+   * Add a response or list of responses to be sent to Dialogflow and end the conversation
+   * Note: Only supported on Dialogflow v2's telephony gateway, Google Assistant and Alexa integrations
+   *
+   * @param {RichResponse|string|RichResponse[]|string[]} responses (list) or single responses
+   */
+  end(responses) {
+    this.client.end_(responses);
   }
 
   /**

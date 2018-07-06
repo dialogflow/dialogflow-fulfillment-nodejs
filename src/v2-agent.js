@@ -155,6 +155,19 @@ class V2Agent {
       this.agent.consoleMessages = [];
     }
     debug(`Console messages: ${JSON.stringify(this.agent.consoleMessages)}`);
+
+    /**
+     * Alternative query results that have a high match score
+     * Query results can be from other Dialogflow intents or Knowledge Connectors
+     * https://cloud.google.com/dialogflow-enterprise/alpha/docs/knowledge-connectors
+     * Note:this feature is only available in Dialogflow API V2
+     *
+     * @type {object}
+     */
+    if (this.agent.request_.body.alternativeQueryResults) {
+      this.agent.alternativeQueryResults = this.agent.request_.body.alternativeQueryResults;
+    }
+    debug(`Alternative query result: ${JSON.stringify(this.agent.alternativeQueryResults)}`);
   }
 
   /**
@@ -202,7 +215,12 @@ class V2Agent {
    */
   sendJson_(responseJson) {
     responseJson.outputContexts = this.agent.outgoingContexts_;
-    this.agent.followupEvent_ ? responseJson.followupEventInput = this.agent.followupEvent_ : undefined;
+    if (this.agent.followupEvent_) {
+      responseJson.followupEventInput = this.agent.followupEvent_;
+    }
+    if (this.agent.endConversation_) {
+      responseJson.triggerEndOfConversation = this.agent.endConversation_;
+    }
 
     debug('Response to Dialogflow: ' + JSON.stringify(responseJson));
     this.agent.response_.json(responseJson);
@@ -272,6 +290,17 @@ class V2Agent {
     }
 
     this.agent.followupEvent_ = event;
+  }
+
+  /**
+   * Add a response or list of responses to be sent to Dialogflow and end the conversation
+   * Note: Only supported on Dialogflow v2's telephony gateway, Google Assistant and Alexa integrations
+   *
+   * @param {RichResponse|string|RichResponse[]|string[]} responses (list) or single responses
+   */
+  end_(responses) {
+    this.agent.endConversation_ = true;
+    this.agent.add(responses);
   }
 
   /**

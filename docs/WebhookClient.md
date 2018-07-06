@@ -20,7 +20,9 @@ Dialogflow's simulator
     * [.locale](#WebhookClient+locale) : <code>string</code>
     * [.session](#WebhookClient+session) : <code>string</code>
     * [.consoleMessages](#WebhookClient+consoleMessages) : [<code>Array.&lt;RichResponse&gt;</code>](#RichResponse)
+    * [.alternativeQueryResults](#WebhookClient+alternativeQueryResults) : <code>object</code>
     * [.add(responses)](#WebhookClient+add)
+    * [.end(responses)](#WebhookClient+end)
     * [.addResponse_(response)](#WebhookClient+addResponse_)
     * [.handleRequest(handler)](#WebhookClient+handleRequest) ⇒ <code>Promise</code>
     * [.setContext(context)](#WebhookClient+setContext) ⇒ [<code>WebhookClient</code>](#WebhookClient)
@@ -118,10 +120,31 @@ List of messages defined in Dialogflow's console for the matched intent
 https://dialogflow.com/docs/rich-messages
 
 **Kind**: instance property of [<code>WebhookClient</code>](#WebhookClient)  
+<a name="WebhookClient+alternativeQueryResults"></a>
+
+### webhookClient.alternativeQueryResults : <code>object</code>
+List of alternative query results
+Query results can be from other Dialogflow intents or Knowledge Connectors
+https://cloud.google.com/dialogflow-enterprise/alpha/docs/knowledge-connectors
+Note:this feature only availbe in Dialogflow v2
+
+**Kind**: instance property of [<code>WebhookClient</code>](#WebhookClient)  
 <a name="WebhookClient+add"></a>
 
 ### webhookClient.add(responses)
 Add a response or list of responses to be sent to Dialogflow
+
+**Kind**: instance method of [<code>WebhookClient</code>](#WebhookClient)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| responses | [<code>RichResponse</code>](#RichResponse) \| <code>string</code> \| [<code>Array.&lt;RichResponse&gt;</code>](#RichResponse) \| <code>Array.&lt;string&gt;</code> | (list) or single responses |
+
+<a name="WebhookClient+end"></a>
+
+### webhookClient.end(responses)
+Add a response or list of responses to be sent to Dialogflow and end the conversation
+Note: Only supported on Dialogflow v2's telephony gateway, Google Assistant and Alexa integrations
 
 **Kind**: instance method of [<code>WebhookClient</code>](#WebhookClient)  
 

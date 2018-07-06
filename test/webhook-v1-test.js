@@ -310,6 +310,23 @@ test('Test v1 no handler defined', async (t) => {
   );
 });
 
+test('Test v2 end conversation', async (t) => {
+  let response = new ResponseMock();
+  let agent = new WebhookClient({
+    request: {body: mockSlackV1Request},
+    response: response,
+  });
+
+  const noHandlerDefinedError = await t.throws(() => {
+    agent.end('this will never be sent');
+  });
+
+  t.is(
+    noHandlerDefinedError.message,
+    '"end" method is not supported on Dialogflow API V1.  Please migrate to Dialogflow API V2.'
+  );
+});
+
 /**
  * utility function to setup webhook test
  * @param {Object} request express object
