@@ -7,6 +7,7 @@
   "dependencies": {
     "dialogflow-fulfillment": "^0.4.1",
     "body-parser": "^1.18.3",
-    "express": "^4.16.3"
+    "express": "^4.16.3",
+    "actions-on-google": "^2.2.0"
   }
 }
