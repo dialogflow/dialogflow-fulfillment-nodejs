@@ -203,6 +203,7 @@ class V2Agent {
   sendJson_(responseJson) {
     responseJson.outputContexts = this.agent.outgoingContexts_;
     this.agent.followupEvent_ ? responseJson.followupEventInput = this.agent.followupEvent_ : undefined;
+    this.agent.fulfillmentText_ ? responseJson.fulfillmentText = this.agent.fulfillmentText_ : undefined;
 
     debug('Response to Dialogflow: ' + JSON.stringify(responseJson));
     this.agent.response_.json(responseJson);
@@ -258,6 +259,16 @@ class V2Agent {
     v1Context.lifespan = v2Context.lifespanCount;
     v1Context.parameters = v2Context.parameters;
     return v1Context;
+  }
+  
+  /**
+   * Add a v2 fulfillmentText
+   *
+   * @param {string} text a string representing the fulfillmentText
+   * @private
+   */
+  setFulfillmentText_(text) {
+    this.agent.fulfillmentText_ = text;
   }
 
   /**
