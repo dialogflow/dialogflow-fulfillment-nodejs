@@ -140,7 +140,7 @@ class V2Agent {
      * @type {string} locale language code indicating the spoken/written language of the original request
      */
      this.agent.locale = this.agent.request_.body.queryResult.languageCode;
-     debug(`Request locale: ${JSON.stringify(this.agent.query)}`);
+     debug(`Request locale: ${JSON.stringify(this.agent.locale)}`);
 
     /**
      * List of messages defined in Dialogflow's console for the matched intent
