@@ -42,6 +42,25 @@ const { WebhookClient } = require('dialogflow-fulfillment');
 const agent = new WebhookClient({request: request, response: response});
 ```
 
+## Samples
+
+
+| Name                                 | Language                         |
+| ------------------------------------ |:---------------------------------|
+| [Fulfillment Webhook JSON](https://github.com/dialogflow/fulfillment-webhook-json)| JSON |
+| [Dialogflow Console Template](https://github.com/dialogflow/fulfillment-webhook-nodejs)| Node.js
+| [Bike Shop-Google Calendar API](https://github.com/dialogflow/fulfillment-bike-shop-nodejs)| Node.js|
+| [WWO Weather API](https://github.com/dialogflow/fulfillment-weather-nodejs)| Node.js |
+| [Alexa Importer](https://github.com/dialogflow/fulfillment-importer-nodejs) | Node.js |
+| [Temperature Trivia](https://github.com/dialogflow/fulfillment-temperature-converter-nodejs) | Node.js |
+| [Human-Agent](https://github.com/dialogflow/agent-human-handoff-nodejs) | Node.js |
+| [Google Translation API](https://github.com/dialogflow/fulfillment-translate-python) | Python |
+| [WWO Weather API](https://github.com/dialogflow/fulfillment-weather-python) | Python |
+
+
+
+
+
 ## References & Issues
 + For bugs, please report an issue on [Github](https://github.com/dialogflow/dialogflow-fulfillment-nodejs/issues).
 + Questions? Try [StackOverflow](https://stackoverflow.com/questions/tagged/dialogflow).
@@ -49,9 +68,8 @@ const agent = new WebhookClient({request: request, response: response});
 + Dialogflow [Classes Reference Doc](https://github.com/dialogflow/dialogflow-fulfillment-nodejs/tree/master/docs).
 + For more info on [Actions on Google NPM module](https://github.com/actions-on-google/actions-on-google-nodejs)
 
-## Limitations with Fulfillment:
-+  No verification for platforms-specific incompatible response combinations (i.e. multiple cards are not supported in a single Actions on Google response).
-
+## Limitations
+No verification for platforms-specific incompatible response combinations (i.e. multiple cards are not supported in a single Actions on Google response).
 
 ## How To Make Contributions
 Please read and follow the steps in the CONTRIBUTING.md.

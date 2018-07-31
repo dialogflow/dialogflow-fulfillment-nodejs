@@ -258,6 +258,7 @@ class WebhookClient {
 
   /**
    * Add a response to be sent to Dialogflow
+   * Private method to add a response to be sent to Dialogflow
    *
    * @param {RichResponse|string} response an object or string representing the rich response to be added
    */

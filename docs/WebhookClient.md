@@ -155,7 +155,7 @@ Note: Only supported on Dialogflow v2's telephony gateway, Google Assistant and 
 <a name="WebhookClient+addResponse_"></a>
 
 ### webhookClient.addResponse_(response)
-Add a response to be sent to Dialogflow
+Private method to add a response to be sent to Dialogflow
 
 **Kind**: instance method of [<code>WebhookClient</code>](#WebhookClient)  
 
