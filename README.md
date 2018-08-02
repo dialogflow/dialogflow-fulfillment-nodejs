@@ -47,26 +47,21 @@ const agent = new WebhookClient({request: request, response: response});
 
 | Name                                 | Language                         |
 | ------------------------------------ |:---------------------------------|
-| [Fulfillment Webhook JSON](https://github.com/dialogflow/fulfillment-webhook-json)| JSON |
-| [Dialogflow Console Template](https://github.com/dialogflow/fulfillment-webhook-nodejs)| Node.js
+|[Dialogflow Fulfillment and Actions on Google](https://github.com/dialogflow/fulfillment-actions-library-nodejs) | Node.js |
+| [Dialogflow's Console Template](https://github.com/dialogflow/fulfillment-webhook-nodejs)| Node.js
+| [Dialogflow and Firebase's Firestore DB](https://github.com/dialogflow/fulfillment-firestore-nodejs) | Node.js
 | [Bike Shop-Google Calendar API](https://github.com/dialogflow/fulfillment-bike-shop-nodejs)| Node.js|
-| [WWO Weather API](https://github.com/dialogflow/fulfillment-weather-nodejs)| Node.js |
-| [Alexa Importer](https://github.com/dialogflow/fulfillment-importer-nodejs) | Node.js |
 | [Temperature Trivia](https://github.com/dialogflow/fulfillment-temperature-converter-nodejs) | Node.js |
-| [Human-Agent](https://github.com/dialogflow/agent-human-handoff-nodejs) | Node.js |
-| [Google Translation API](https://github.com/dialogflow/fulfillment-translate-python) | Python |
-| [WWO Weather API](https://github.com/dialogflow/fulfillment-weather-python) | Python |
-
-
-
+|[Multi-language/locale](https://github.com/dialogflow/fulfillment-multi-locale-nodejs)| Node.js |
 
 
 ## References & Issues
 + For bugs, please report an issue on [Github](https://github.com/dialogflow/dialogflow-fulfillment-nodejs/issues).
-+ Questions? Try [StackOverflow](https://stackoverflow.com/questions/tagged/dialogflow).
++ Questions? Try [StackOverflow](https://stackoverflow.com/questions/tagged/dialogflow) or [Dialogflow Developer Community](https://plus.google.com/communities/103318168784860581977).
 + Dialogflow [Documentation](https://docs.dialogflow.com).
 + Dialogflow [Classes Reference Doc](https://github.com/dialogflow/dialogflow-fulfillment-nodejs/tree/master/docs).
 + For more info on [Actions on Google NPM module](https://github.com/actions-on-google/actions-on-google-nodejs)
++ For more info on [Building Actions on Google with Dialogflow Agents Documentation](https://developers.google.com/actions/dialogflow/)
 
 ## Limitations
 No verification for platforms-specific incompatible response combinations (i.e. multiple cards are not supported in a single Actions on Google response).
