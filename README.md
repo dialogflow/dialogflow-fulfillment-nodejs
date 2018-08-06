@@ -1,6 +1,6 @@
 # Dialogflow Fulfillment Library
 
-The Dialogflow [Fulfillment Library]((https://dialogflow.com/docs/fulfillment) allows you to connect Dialogflow's natural language understanding and processing to your own systems, APIs, and databases. Using Fulfillment, you can surface commands and information from your services to your users through a natural conversational interface.
+The [Dialogflow Fulfillment Library](https://dialogflow.com/docs/fulfillment) allows you to connect natural language understanding and processing to your own systems, APIs, and databases. Using Fulfillment, you can surface commands and information from your services to your users through a natural conversational interface.
 
 Dialogflow Fulfillment makes creating fulfillment for Dialogflow v1 and v2 agents for 8 chat and voice platforms on Node.js easy and simple.
 
@@ -11,7 +11,7 @@ Dialogflow Fulfillment makes creating fulfillment for Dialogflow v1 and v2 agent
 + Text
 + Cards
 + Images
-+ Suggestion Chips (i.e. Quick Replies)
++ Suggestion Chips (Quick Replies)
 + Payloads (Platform-specific responses)
 
 This library is intended to help build Node.js Dialogflow Fulfillment for multiple [integrations](https://dialogflow.com/docs/integrations/) including Google Assistant, Slack, Facebook, Telegram, Kik, Skype, Line, and Viber.
@@ -23,22 +23,18 @@ If only building Dialogflow Fulfillment for the [Google Assistant](https://dialo
 
 1. [Sign-up/Log-in to Dialogflow](https://console.dialogflow.com/api-client/#/login)
 2. Create a Dialogflow agent
-3. Go to **Fulfillment** > **Enable Dialogflow Inline Editor**<sup> A.</sup> > **`package.json`** tab to add `"dialogflow-fulfillment": "^0.5.0"` to the `dependencies` object.
-4. Select `Deploy`.
+3. Go to **Fulfillment** > **Enable Dialogflow Inline Editor**<sup> A.</sup> > **package.json** tab to add `"dialogflow-fulfillment": "^0.5.0"` to the `dependencies` object.
+4. Select **Deploy**.
 
   <sup>A.</sup> Powered by Cloud Functions for Firebase
 
 ## Setup Instructions
 
- 1. Import the appropriate class:
-
  ```javascript
+ //Import the appropriate class
 const { WebhookClient } = require('dialogflow-fulfillment');
-```
 
- 2. Create an instance:
-
- ```javascript
+ //Create an instance
 const agent = new WebhookClient({request: request, response: response});
 ```
 
@@ -47,17 +43,17 @@ const agent = new WebhookClient({request: request, response: response});
 
 | Name                                 | Language                         |
 | ------------------------------------ |:---------------------------------|
-|[Dialogflow Fulfillment and Actions on Google](https://github.com/dialogflow/fulfillment-actions-library-nodejs) | Node.js |
-| [Dialogflow's Console Template](https://github.com/dialogflow/fulfillment-webhook-nodejs)| Node.js
-| [Dialogflow and Firebase's Firestore DB](https://github.com/dialogflow/fulfillment-firestore-nodejs) | Node.js
+|[Dialogflow Fulfillment & Actions on Google](https://github.com/dialogflow/fulfillment-actions-library-nodejs) | Node.js |
+| [Dialogflow & Firebase's Firestore DB](https://github.com/dialogflow/fulfillment-firestore-nodejs) | Node.js |
 | [Bike Shop-Google Calendar API](https://github.com/dialogflow/fulfillment-bike-shop-nodejs)| Node.js|
 | [Temperature Trivia](https://github.com/dialogflow/fulfillment-temperature-converter-nodejs) | Node.js |
 |[Multi-language/locale](https://github.com/dialogflow/fulfillment-multi-locale-nodejs)| Node.js |
+| [Dialogflow's Inline Editor Template](https://github.com/dialogflow/fulfillment-webhook-nodejs)| Node.js |
 
 
 ## References & Issues
-+ For bugs, please report an issue on [Github](https://github.com/dialogflow/dialogflow-fulfillment-nodejs/issues).
 + Questions? Try [StackOverflow](https://stackoverflow.com/questions/tagged/dialogflow) or [Dialogflow Developer Community](https://plus.google.com/communities/103318168784860581977).
++ For bugs, please report an issue on [Github](https://github.com/dialogflow/dialogflow-fulfillment-nodejs/issues).
 + Dialogflow [Documentation](https://docs.dialogflow.com).
 + Dialogflow [Classes Reference Doc](https://github.com/dialogflow/dialogflow-fulfillment-nodejs/tree/master/docs).
 + For more info on [Actions on Google NPM module](https://github.com/actions-on-google/actions-on-google-nodejs)
