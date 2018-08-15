@@ -1,6 +1,6 @@
 # Dialogflow Fulfillment Library
 
-The Dialogflow [Fulfillment Library]((https://dialogflow.com/docs/fulfillment) allows you to connect Dialogflow's natural language understanding and processing to your own systems, APIs, and databases. Using Fulfillment, you can surface commands and information from your services to your users through a natural conversational interface.
+The Dialogflow [Fulfillment Library](https://dialogflow.com/docs/fulfillment) allows you to connect Dialogflow's natural language understanding and processing to your own systems, APIs, and databases. Using Fulfillment, you can surface commands and information from your services to your users through a natural conversational interface.
 
 Dialogflow Fulfillment makes creating fulfillment for Dialogflow v1 and v2 agents for 8 chat and voice platforms on Node.js easy and simple.
 
