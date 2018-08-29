@@ -171,49 +171,68 @@ class V2Agent {
   }
 
   /**
-   * Send v2 text response to Dialogflow fulfillment webhook request based on
+   * Add v2 text response to Dialogflow fulfillment webhook request based on
    * single, developer defined text response
    *
    * @private
    */
-  sendTextResponse_() {
+  addTextResponse_() {
     const message = this.agent.responseMessages_[0];
     const fulfillmentText = message.ssml || message.text;
-    this.sendJson_({fulfillmentText: fulfillmentText});
+    this.addJson_({fulfillmentText: fulfillmentText});
   }
 
   /**
-   * Send v2 payload response to Dialogflow fulfillment webhook request based
+   * Add v2 payload response to Dialogflow fulfillment webhook request based
    * on developer defined payload response
    *
    * @param {Object} payload to back to requestSource (i.e. Google, Slack, etc.)
    * @param {string} requestSource string indicating the source of the initial request
    * @private
    */
-  sendPayloadResponse_(payload, requestSource) {
-    this.sendJson_({payload: payload.getPayload_(requestSource)});
+  addPayloadResponse_(payload, requestSource) {
+    this.addJson_({payload: payload.getPayload_(requestSource)});
   }
 
   /**
-   * Send v2 response to Dialogflow fulfillment webhook request based on developer
+   * Add v2 response to Dialogflow fulfillment webhook request based on developer
    * defined response messages and original request source
    *
    * @param {string} requestSource string indicating the source of the initial request
    * @private
    */
-  sendMessagesResponse_(requestSource) {
-    this.sendJson_({
-      fulfillmentMessages: this.buildResponseMessages_(requestSource),
-    });
+  addMessagesResponse_(requestSource) {
+    let messages = this.buildResponseMessages_(requestSource);
+    if (messages.length > 0) {
+      this.addJson_({fulfillmentMessages: messages});
+    }
+  }
+
+  /**
+   * Add v2 response to Dialogflow fulfillment webhook request
+   *
+   * @param {Object} responseJson JSON to send to Dialogflow
+   * @private
+   */
+  addJson_(responseJson) {
+    if (!this.responseJson_) {
+      this.responseJson_ = {};
+    }
+    Object.assign(this.responseJson_, responseJson);
   }
 
   /**
    * Send v2 response to Dialogflow fulfillment webhook request
    *
-   * @param {Object} responseJson JSON to send to Dialogflow
+   * @param {string} requestSource string indicating the source of the initial request
    * @private
    */
-  sendJson_(responseJson) {
+  sendResponses_(requestSource) {
+    let responseJson = this.responseJson_;
+    if (!responseJson) {
+      throw new Error(`No responses defined for platform: ${requestSource}`);
+    }
+
     responseJson.outputContexts = this.agent.outgoingContexts_;
     if (this.agent.followupEvent_) {
       responseJson.followupEventInput = this.agent.followupEvent_;
@@ -333,6 +352,7 @@ class V2Agent {
       text: this.convertTextJson_,
       card: this.convertCardJson_,
       image: this.convertImageJson_,
+      payload: this.convertPayloadJson_,
       quickReplies: this.convertQuickRepliesJson_,
       simpleResponses: this.convertSimpleResponsesJson_,
       basicCard: this.convertBasicCardJson_,
@@ -402,6 +422,22 @@ class V2Agent {
      platform: platform,
    });
   }
+
+  /**
+   * Convert incoming payload message object JSON into a Payload rich response
+   *
+   * @param {Object} messageJson is a the JSON implementation of the message
+   * @param {string} platform is the platform of the message object
+   * @return {RichResponse} richResponse implementation of the message
+   * @private
+   */
+  convertPayloadJson_(messageJson, platform) {
+    return new PayloadResponse(platform, messageJson.payload, {
+      rawPayload: true,
+      sendAsMessage: true,
+    });
+  }
+
   /**
    * Convert incoming quick reply message object JSON into a Text rich response
    *
@@ -421,6 +457,7 @@ class V2Agent {
     });
     return suggestions;
   }
+
   /**
    * Convert incoming simple response message object JSON into a Text rich response
    *
@@ -454,6 +491,7 @@ class V2Agent {
           platform: platform,
         });
   }
+
   /**
    * Convert incoming suggestions message object JSON into a Text rich response
    *

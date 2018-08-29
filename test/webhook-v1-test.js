@@ -371,27 +371,35 @@ test('Test v1 getResponseMessages', async (t) => {
   t.is(facebookImage.imageUrl,
     'https://developers.google.com/actions/images/badges/XPM_BADGING_GoogleAssistant_VER.png'
   );
+  // Facebook payload
+  const facebookPayload = consoleMessages[4];
+  t.true(facebookPayload instanceof Payload);
+  t.deepEqual(facebookPayload.payload, {key: 'value'});
   // Actions on Google text
-  const actionsOnGoogleText = consoleMessages[4];
+  const actionsOnGoogleText = consoleMessages[5];
   t.true(actionsOnGoogleText instanceof Text);
   t.is(actionsOnGoogleText.text, 'simple response');
   t.is(actionsOnGoogleText.platform, PLATFORMS.ACTIONS_ON_GOOGLE);
   // Actions on Google card
-  const actionsOnGoogleCard = consoleMessages[5];
+  const actionsOnGoogleCard = consoleMessages[6];
   t.true(actionsOnGoogleCard instanceof Text);
   t.is(actionsOnGoogleCard.text, 'another simple response');
   // Actions on Google text
-  const actionsOnGoogleBasicCard = consoleMessages[6];
+  const actionsOnGoogleBasicCard = consoleMessages[7];
   t.true(actionsOnGoogleBasicCard instanceof Card);
   t.is(actionsOnGoogleBasicCard.text, 'basic card');
-
-  const actionsOnGoogleSuggestion = consoleMessages[7];
+  // Actions on Google suggestions
+  const actionsOnGoogleSuggestion = consoleMessages[8];
   t.true(actionsOnGoogleSuggestion instanceof Suggestion);
   t.is(actionsOnGoogleSuggestion.replies[0], 'suggestion');
   // Actions on Google text 2
-  const actionsOnGoogleSuggestion2 = consoleMessages[8];
+  const actionsOnGoogleSuggestion2 = consoleMessages[9];
   t.true(actionsOnGoogleSuggestion2 instanceof Suggestion);
   t.is(actionsOnGoogleSuggestion2.replies[0], 'another suggestion');
+  // Actions on Google payload
+  const actionsOnGooglePayload = consoleMessages[10];
+  t.true(actionsOnGooglePayload instanceof Payload);
+  t.deepEqual(actionsOnGooglePayload.payload, {google: 'value'});
 });
 
 /**
@@ -1090,6 +1098,11 @@ const mockV1MultipleConsoleMessagesRequest = {
           'replies': [],
         },
         {
+          'type': 4,
+          'platform': 'facebook',
+          'payload': {'key': 'value'},
+        },
+        {
           'type': 'simple_response',
           'platform': 'google',
           'textToSpeech': 'simple response',
@@ -1117,6 +1130,11 @@ const mockV1MultipleConsoleMessagesRequest = {
               'title': 'another suggestion',
             },
           ],
+        },
+        {
+          'type': 'custom_payload',
+          'platform': 'google',
+          'payload': {'google': 'value'},
         },
         {
           'type': 0,
