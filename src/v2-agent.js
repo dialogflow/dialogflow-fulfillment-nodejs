@@ -275,7 +275,7 @@ class V2Agent {
     // from a v1 context object to a v2 context object before adding
     let v2Context = {};
     v2Context.name = this.agent.session + '/contexts/' + context.name;
-    v2Context.lifespanCount = context.lifespan || DEFAULT_CONTEXT_LIFESPAN;
+    v2Context.lifespanCount = context.lifespan === undefined ? DEFAULT_CONTEXT_LIFESPAN: context.lifespan;
     v2Context.parameters = context.parameters;
 
     this.agent.outgoingContexts_.push(v2Context);
