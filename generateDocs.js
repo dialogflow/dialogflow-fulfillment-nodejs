@@ -23,16 +23,28 @@ const jsdoc2md = require('jsdoc-to-markdown');
 const inputFiles = ['./src/*.js', './src/rich-responses/*.js'];
 const outputDir = './docs/';
 
-const templateData = jsdoc2md.getTemplateDataSync({files: inputFiles});
-const classNames = templateData.reduce((classNames, identifier) => {
-  if (identifier.kind === 'class') {
-classNames.push(identifier.name);
-};
-  return classNames;
-}, []);
+const webhookFilename = 'webhook-client.md';
+const webhookClientClassNames = ['WebhookClient', 'V2Agent', 'V1Agent'];
+const richResponseFilename = 'rich-responses.md'
+const richRepsonseClassNames = [ 'RichResponse', 'Card', 'Suggestion', 'Image', 'Payload', 'Text'];
 
-for (const className of classNames) {
+const templateData = jsdoc2md.getTemplateDataSync({files: inputFiles});
+
+let output = ''
+for (const className of webhookClientClassNames) {
   const template = `{{#class name="${className}"}}{{>docs}}{{/class}}`;
-  const output = jsdoc2md.renderSync({data: templateData, template: template});
-  fs.writeFileSync(path.resolve(outputDir, `${className}.md`), output);
+  output += jsdoc2md.renderSync({data: templateData, template: template});
+  fs.writeFileSync(webhookFilename, output);
 }
+
+output = ''
+for (const className of richRepsonseClassNames) {
+  const template = `{{#class name="${className}"}}{{>docs}}{{/class}}`;
+  output += jsdoc2md.renderSync({data: templateData, template: template});
+  fs.writeFileSync(richResponseFilename, output);
+}
+
+exports.rewriteAnchor = function (anchor) {
+  if (typeof anchor !== 'string') return null;
+  return anchor.toLowerCase().replace('+', '_');
+};

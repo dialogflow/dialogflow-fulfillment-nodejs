@@ -14,7 +14,7 @@
   "scripts": {
     "test": "npm run lint && ava",
     "lint": "eslint --fix \"src/**/*.js\" \"test/*.js\" \"script/*.js\"",
-    "docs": "node ./script/generateDocs.js",
+    "docs": "node ./generateDocs.js",
     "zip": "npm run zip:actions-on-google && npm run zip:multilocale && npm run zip:temperature-converter && npm run zip:quick-start",
     "zip:actions-on-google": "node ./script/generateZip.js --indexjs ./samples/actions-on-google/functions/index.js --packagejson ./samples/actions-on-google/functions/package.json --agentzip ./samples/actions-on-google/actions-on-google-agent.zip",
     "zip:multilocale": "node ./script/generateZip.js --indexjs ./samples/multi-lang-and-locale/functions/index.js --packagejson ./samples/multi-lang-and-locale/functions/package.json --agentzip ./samples/multi-lang-and-locale/multilocale-agent.zip",
