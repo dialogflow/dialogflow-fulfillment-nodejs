@@ -19,8 +19,6 @@ const debug = require('debug')('dialogflow:debug');
 // Configure logging for hosting platforms agent only support console.log and console.error
 debug.log = console.log.bind(console);
 
-const DEFAULT_CONTEXT_LIFESPAN = 5;
-
 // Response Builder classes
 const {
   V1_TO_V2_PLATFORM_NAME,
@@ -31,6 +29,9 @@ const Card = require('./rich-responses/card-response');
 const Image = require('./rich-responses/image-response');
 const Suggestion = require('./rich-responses/suggestions-response');
 const PayloadResponse = require('./rich-responses/payload-response');
+
+// Contexts class
+const Contexts = require('./contexts');
 
 /**
  * Class representing a v2 Dialogflow agent
@@ -101,6 +102,15 @@ class V2Agent {
       this.agent.contexts = [];
     }
     debug(`Request contexts: ${JSON.stringify(this.agent.contexts)}`);
+
+    /**
+     * Instance of Dialogflow contexts class to provide an API to set/get/delete contexts
+     *
+     * @type {Contexts}
+     */
+    this.agent.context = new Contexts(
+      this.agent.request_.body.queryResult.outputContexts,
+      this.agent.session);
 
     /**
      * Dialogflow source included in the request or null if no value
@@ -233,7 +243,7 @@ class V2Agent {
       throw new Error(`No responses defined for platform: ${requestSource}`);
     }
 
-    responseJson.outputContexts = this.agent.outgoingContexts_;
+    responseJson.outputContexts = this.agent.context.getV2OutputContextsArray();
     if (this.agent.followupEvent_) {
       responseJson.followupEventInput = this.agent.followupEvent_;
     }
@@ -270,15 +280,7 @@ class V2Agent {
     if (context.name.match('/contexts/')) {
       context = this.convertV2ContextToV1Context_(context);
     }
-
-    // v2 contexts require the use of the session name and a transformation
-    // from a v1 context object to a v2 context object before adding
-    let v2Context = {};
-    v2Context.name = this.agent.session + '/contexts/' + context.name;
-    v2Context.lifespanCount = context.lifespan === undefined ? DEFAULT_CONTEXT_LIFESPAN: context.lifespan;
-    v2Context.parameters = context.parameters;
-
-    this.agent.outgoingContexts_.push(v2Context);
+    this.agent.context.set(context);
   }
 
   /**

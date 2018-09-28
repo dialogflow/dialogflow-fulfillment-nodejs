@@ -144,8 +144,16 @@ class WebhookClient {
      * Dialogflow contexts included in the request or null if no value
      * https://dialogflow.com/docs/contexts
      * @type {string}
+     * @deprecated
      */
     this.contexts = null;
+
+    /**
+     * Instance of Dialogflow contexts class to provide an API to set/get/delete contexts
+     *
+     * @type {Contexts}
+     */
+    this.context = null;
 
     /**
      * Dialogflow source included in the request or null if no value
@@ -321,7 +329,7 @@ class WebhookClient {
   }
 
   // --------------------------------------------------------------------------
-  //          Context and follow-up event methods
+  //          Deprecated Context methods
   // --------------------------------------------------------------------------
   /**
    * Set a new Dialogflow outgoing context: https://dialogflow.com/docs/contexts
@@ -335,18 +343,15 @@ class WebhookClient {
    *
    * @param {string|Object} context name of context or an object representing a context
    * @return {WebhookClient}
+   * @deprecated
    */
   setContext(context) {
-    // If developer provides a string, transform to context object, using string as the name
+    console.warn('setContext is deprecated, migrate to `contexts.set`');
     if (typeof context === 'string') {
-      context = {name: context};
+      this.context.set(context);
+    } else {
+      this.context.set(context.name, context.lifespan, context.parameters);
     }
-    if (context && !context.name) {
-      throw new Error('context must be provided and must have a name');
-    }
-
-    this.client.addContext_(context);
-
     return this;
   }
 
@@ -359,9 +364,13 @@ class WebhookClient {
    * agent.clearOutgoingContexts();
    *
    * @return {WebhookClient}
+   * @deprecated
    */
   clearOutgoingContexts() {
-    this.outgoingContexts_ = [];
+    console.warn('clearOutgoingContexts is deprecated, migrate to `contexts.delete` or `contexts.set`');
+    for (const ctx of this.context) {
+      this.context._removeOutgoingContext(ctx.name);
+    }
     return this;
   }
 
@@ -375,20 +384,11 @@ class WebhookClient {
    *
    * @param {string} context name of an existing outgoing context
    * @return {WebhookClient}
+   * @deprecated
    */
   clearContext(context) {
-    if (this.agentVersion === 1) {
-      this.outgoingContexts_ = this.outgoingContexts_.filter(
-        (ctx) => ctx.name !== context
-      );
-    } else if (this.agentVersion === 2) {
-      // Take all existing outgoing contexts and filter out the context that needs to be cleared
-      this.outgoingContexts_ = this.outgoingContexts_.filter(
-        (ctx) => ctx.name.slice(-context.length) !== context
-      );
-    } else {
-      debug('Couldn\'t find context');
-    }
+    console.warn('clearContext is deprecated, migrate to `contexts.delete` or `contexts.set`');
+    this.context._removeOutgoingContext(context);
     return this;
   }
 
@@ -402,11 +402,25 @@ class WebhookClient {
    *
    * @param {string} contextName name of an context present in the Dialogflow webhook request
    * @return {Object} context context object with the context name
+   * @deprecated
    */
   getContext(contextName) {
-    return this.contexts.filter( (context) => context.name === contextName )[0] || null;
+    console.warn('getContext is deprecated, migrate to `contexts.get`');
+    const context = this.context.get(contextName);
+    if (context) {
+      return {
+        name: contextName,
+        lifespan: context.lifespan,
+        parameters: context.parameters,
+      };
+    } else {
+      return null;
+    }
   }
 
+  // --------------------------------------------------------------------------
+  //          Follow-up event method
+  // --------------------------------------------------------------------------
   /**
    * Set the followup event
    *

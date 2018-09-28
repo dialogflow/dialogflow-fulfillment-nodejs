@@ -30,6 +30,9 @@ const Image = require('./rich-responses/image-response');
 const Suggestion = require('./rich-responses/suggestions-response');
 const PayloadResponse = require('./rich-responses/payload-response');
 
+// Contexts class
+const Contexts = require('./contexts');
+
 /**
  * Class representing a v1 Dialogflow agent
  */
@@ -83,6 +86,13 @@ class V1Agent {
      */
     this.agent.contexts = this.agent.request_.body.result.contexts;
     debug(`Input contexts: ${JSON.stringify(this.agent.contexts)}`);
+
+    /**
+     * Instance of Dialogflow contexts class to provide an API to set/get/delete contexts
+     *
+     * @type {Contexts}
+     */
+    this.agent.context = new Contexts(this.agent.request_.body.result.contexts);
 
     /**
      * Dialogflow source included in the request or null if no value
@@ -203,7 +213,7 @@ class V1Agent {
       throw new Error(`No responses defined for platform: ${requestSource}`);
     }
 
-    responseJson.contextOut = this.agent.outgoingContexts_;
+    responseJson.contextOut = this.agent.context.getV1OutputContextsArray();
     this.agent.followupEvent_ ? responseJson.followupEvent = this.agent.followupEvent_ : undefined;
 
     debug('Response to Dialogflow: ' + JSON.stringify(responseJson));
@@ -234,7 +244,7 @@ class V1Agent {
    */
   addContext_(context) {
     // v1 contexts have the same structure as used by the library
-    this.agent.outgoingContexts_.push(context);
+    this.agent.context.set(context);
   }
 
   /**
@@ -247,8 +257,9 @@ class V1Agent {
     let eventJson = {
       name: event.name,
     };
-    event.parameters ? eventJson.data = event.parameters : undefined;
-
+    if (event.parameters) {
+      eventJson.data = event.parameters;
+    }
     this.agent.followupEvent_ = eventJson;
   }
 

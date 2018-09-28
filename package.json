@@ -37,7 +37,8 @@
     "fulfillment"
   ],
   "dependencies": {
-    "debug": "^3.1.0"
+    "debug": "^3.1.0",
+    "lodash": "^4.17.11"
   },
   "peerDependencies": {
     "actions-on-google": "^2.1.3"

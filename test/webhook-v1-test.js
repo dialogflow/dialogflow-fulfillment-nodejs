@@ -197,17 +197,21 @@ test('Test v1 contexts', async (t) => {
   });
   // setContext
   agent.setContext(sampleContextName);
-  t.deepEqual({name: sampleContextName}, agent.outgoingContexts_[0]);
+  t.deepEqual({name: sampleContextName}, agent.context.get(sampleContextName));
   agent.setContext(secondContextName);
-  t.deepEqual({name: secondContextName}, agent.outgoingContexts_[1]);
+  t.deepEqual({name: secondContextName}, agent.context.get(secondContextName));
   agent.setContext(complexContext);
-  t.deepEqual(complexContext, agent.outgoingContexts_[2]);
+  t.deepEqual({name: complexContext.name,
+    lifespan: 2, parameters: {city: 'Rome'}},
+    agent.context.get(complexContext.name)
+  );
   // clearContext
   agent.clearContext(sampleContextName);
-  t.deepEqual({name: secondContextName}, agent.outgoingContexts_[0]);
+  t.deepEqual(undefined, agent.context.get(sampleContextName));
   // clearAllContext
   agent.clearOutgoingContexts();
-  t.deepEqual([], agent.outgoingContexts_);
+  t.deepEqual([], agent.context.getV1OutputContextsArray());
+  t.deepEqual([], agent.context.getV2OutputContextsArray());
 });
 
 test('Test v1 getContext', async (t) => {

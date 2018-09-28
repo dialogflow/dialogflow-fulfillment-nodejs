@@ -258,21 +258,10 @@ test('Test v2 Twitter payload response', async (t) => {
 test('Test v2 contexts', async (t) => {
   const v2Request = mockGoogleV2Request;
   const sampleContextName = 'sample context name';
-  const sampleV2ContextName =
-    v2Request.session + '/contexts/' + sampleContextName;
   const secondContextName = 'second context name';
-  const secondV2ContextName =
-    v2Request.session + '/contexts/' + secondContextName;
   const complexContext = {
     name: 'weather',
     lifespan: 2,
-    parameters: {city: 'Rome'},
-  };
-  const complexV2ContextName =
-    v2Request.session + '/contexts/' + complexContext.name;
-  const complexV2Context = {
-    name: complexV2ContextName,
-    lifespanCount: 2,
     parameters: {city: 'Rome'},
   };
 
@@ -285,21 +274,24 @@ test('Test v2 contexts', async (t) => {
   // setContext
   agent.setContext(sampleContextName);
   t.deepEqual(
-    {name: sampleV2ContextName, lifespanCount: 5, parameters: undefined},
-    agent.outgoingContexts_[0]
+    {name: sampleContextName},
+    agent.context.get(sampleContextName)
   );
   agent.setContext(secondContextName);
   t.deepEqual(
-    {name: secondV2ContextName, lifespanCount: 5, parameters: undefined},
-    agent.outgoingContexts_[1]
+    {name: secondContextName},
+    agent.context.get(secondContextName)
   );
   agent.setContext(complexContext);
-  t.deepEqual(complexV2Context, agent.outgoingContexts_[2]);
+  t.deepEqual(
+    {name: complexContext.name, lifespan: 2, parameters: {city: 'Rome'}},
+    agent.context.get(complexContext.name)
+  );
   // clearContext
   agent.clearContext(sampleContextName);
   t.deepEqual(
-    {name: secondV2ContextName, lifespanCount: 5, parameters: undefined},
-    agent.outgoingContexts_[0]
+    undefined,
+    agent.context.get(sampleContextName)
   );
   // clearAllContext
   agent.clearOutgoingContexts();

@@ -24,7 +24,7 @@ const inputFiles = ['./src/*.js', './src/rich-responses/*.js'];
 const outputDir = './docs/';
 
 const webhookFilename = 'webhook-client.md';
-const webhookClientClassNames = ['WebhookClient', 'V2Agent', 'V1Agent'];
+const webhookClientClassNames = ['WebhookClient', 'V2Agent', 'V1Agent', 'Context'];
 const richResponseFilename = 'rich-responses.md'
 const richRepsonseClassNames = [ 'RichResponse', 'Card', 'Suggestion', 'Image', 'Payload', 'Text'];
 
