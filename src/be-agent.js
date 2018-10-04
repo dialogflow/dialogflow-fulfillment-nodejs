@@ -1,4 +1,5 @@
 const V2Agent = require('./v2-agent');
+const debug = require('debug')('dialogflow:debug');
 
 class BEAgent extends V2Agent {
     sendResponses_(requestSource) {
@@ -19,3 +20,5 @@ class BEAgent extends V2Agent {
         return responseJson;
     }
 }
+
+module.exports = BEAgent;
