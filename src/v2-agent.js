@@ -331,9 +331,11 @@ class V2Agent {
    * @private
    */
   addActionsOnGoogle_(response) {
-    response.outputContexts.forEach( (context) => {
-      this.addContext_(context);
-    });
+    if (response.outputContexts) {
+      response.outputContexts.forEach( (context) => {
+        this.addContext_(context);
+      });
+    }
 
     this.agent.add(new PayloadResponse(
       PLATFORMS.ACTIONS_ON_GOOGLE,

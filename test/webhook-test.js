@@ -80,13 +80,7 @@ test('Actions on Google lib integration test', async (t) => {
   const googleV1Request = {body: mockGoogleV1Request}; // mockV1SimulatorRequest
   actionsOnGoogleTest(googleV1Request, (responseJson) => {
     t.deepEqual(responseJson, {
-      'contextOut': [{
-        lifespan: 99,
-        name: '_actions_on_google',
-        parameters: {
-          data: '{}',
-        },
-      }],
+      'contextOut': [],
       'data': {
         'google': {
           'expectUserResponse': true,
@@ -99,7 +93,6 @@ test('Actions on Google lib integration test', async (t) => {
               },
             ],
           },
-          'userStorage': '{"data":{}}',
         },
       },
     });
@@ -109,13 +102,7 @@ test('Actions on Google lib integration test', async (t) => {
   const googleV2Request = {body: mockGoogleV2Request}; // mockV1SimulatorRequest
   actionsOnGoogleTest(googleV2Request, (responseJson) => {
     t.deepEqual(responseJson, {
-      'outputContexts': [{
-        lifespanCount: 99,
-        name: 'projects/stagent-f2236/agent/sessions/1515017715285/contexts/_actions_on_google',
-        parameters: {
-          data: '{}',
-        },
-      }],
+      'outputContexts': [],
       'payload': {
         'google': {
           'expectUserResponse': true,
@@ -128,7 +115,6 @@ test('Actions on Google lib integration test', async (t) => {
               },
             ],
           },
-          'userStorage': '{"data":{}}',
         },
       },
     });
