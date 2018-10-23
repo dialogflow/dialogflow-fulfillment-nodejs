@@ -292,8 +292,9 @@ class WebhookClient {
    * Handles the incoming Dialogflow request using a handler or Map of handlers
    * Each handler must be a function callback.
    *
-   * @param {Map|requestCallback} handler map of Dialogflow action name to handler function or
+   * @param {Map|requestCallback} handler map of Dialogflow intent name to handler function or
    *     function to handle all requests (regardless of Dialogflow action).
+   *     In an intent map, a null can map to a default handler.
    * @return {Promise}
    */
   handleRequest(handler) {
