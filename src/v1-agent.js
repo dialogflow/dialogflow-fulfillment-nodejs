@@ -278,9 +278,11 @@ class V1Agent {
    * @private
    */
   addActionsOnGoogle_(response) {
-    response.contextOut.forEach( (context) => {
-      this.addContext_(context);
-    });
+    if (response.contextOut) {
+      response.contextOut.forEach( (context) => {
+        this.addContext_(context);
+      });
+    }
 
     this.agent.add(new PayloadResponse(
       PLATFORMS.ACTIONS_ON_GOOGLE,

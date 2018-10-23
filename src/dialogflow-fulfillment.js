@@ -336,7 +336,7 @@ class WebhookClient {
    * @deprecated
    */
   setContext(context) {
-    console.warn('setContext is deprecated, migrate to `contexts.set`');
+    console.warn('setContext is deprecated, migrate to `context.set`');
     if (typeof context === 'string') {
       this.context.set(context);
     } else {
@@ -357,7 +357,7 @@ class WebhookClient {
    * @deprecated
    */
   clearOutgoingContexts() {
-    console.warn('clearOutgoingContexts is deprecated, migrate to `contexts.delete` or `contexts.set`');
+    console.warn('clearOutgoingContexts is deprecated, migrate to `context.delete` or `context.set`');
     for (const ctx of this.context) {
       this.context._removeOutgoingContext(ctx.name);
     }
@@ -377,7 +377,7 @@ class WebhookClient {
    * @deprecated
    */
   clearContext(context) {
-    console.warn('clearContext is deprecated, migrate to `contexts.delete` or `contexts.set`');
+    console.warn('clearContext is deprecated, migrate to `context.delete` or `context.set`');
     this.context._removeOutgoingContext(context);
     return this;
   }
@@ -395,7 +395,7 @@ class WebhookClient {
    * @deprecated
    */
   getContext(contextName) {
-    console.warn('getContext is deprecated, migrate to `contexts.get`');
+    console.warn('getContext is deprecated, migrate to `context.get`');
     const context = this.context.get(contextName);
     if (context) {
       return {

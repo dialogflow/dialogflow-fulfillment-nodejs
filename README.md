@@ -19,7 +19,7 @@ If only building Dialogflow Fulfillment for the [Google Assistant](https://dialo
 ## Quick Start
 1. [Sign-up/Log-in to Dialogflow](https://console.dialogflow.com/api-client/#/login)
 2. Create a Dialogflow agent
-3. Go to **Fulfillment** > **Enable Dialogflow Inline Editor**<sup> A.</sup> > **package.json** tab to add `"dialogflow-fulfillment": "^0.5.0"` to the `dependencies` object.
+3. Go to **Fulfillment** > **Enable Dialogflow Inline Editor**<sup> A.</sup > **package.json** tab to add `"dialogflow-fulfillment": "^0.5.0"` to the `dependencies` object.
 4. Select **Deploy**.
   <sup>A.</sup> Powered by Cloud Functions for Firebase
 
