@@ -83,6 +83,24 @@ class Image extends RichResponse {
     this.imageUrl = imageUrl;
     return this;
   }
+  
+  /**
+   * Set the accessibility text for a Image
+   *
+   * @example
+   * let image = new Image('https://example.com/placeholder.png');
+   * image.setAccessibilityText('A placeholder image.');
+   *
+   * @param {string} accessibilityText
+   * @return {Image}
+   */
+  setAccessibilityText(accessibilityText) {
+    if (typeof accessibilityText !== 'string') {
+      throw new Error('accessibilityText requires a string of the alt text to use for accessibility');
+    }
+    this.accessibilityText = accessibilityText;
+    return this;
+  }
 
   /**
    * Get the v1 response object for the rich response
