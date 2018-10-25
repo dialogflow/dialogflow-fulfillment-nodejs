@@ -52,6 +52,7 @@ class Image extends RichResponse {
       this.imageUrl = image;
     } else if (typeof image === 'object') {
       this.imageUrl = image.imageUrl;
+      this.accessibilityText = image.accessibilityText || 'accessibility text';
       if (
         typeof image.platform !== 'undefined' &&
         image.platform !== PLATFORMS.UNSPECIFIED
@@ -112,7 +113,7 @@ class Image extends RichResponse {
       if (this.imageUrl) {
         response.image = {};
         response.image.url = this.imageUrl;
-        response.image.accessibilityText = 'accessibility text';
+        response.image.accessibilityText = this.accessibilityText;
       }
     } else {
       response = {type: v1MessageObjectImage};
@@ -153,7 +154,7 @@ class Image extends RichResponse {
       if (this.imageUrl) {
         response.basicCard.image = {};
         response.basicCard.image.imageUri = this.imageUrl;
-        response.basicCard.image.accessibilityText = 'accessibility text';
+        response.basicCard.image.accessibilityText = this.accessibilityText;
       }
     } else {
       response = {image: {}};
