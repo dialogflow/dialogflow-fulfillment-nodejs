@@ -94,6 +94,16 @@ test('v2 Integration test', async (t) => {
 function webhookTest(request, callback) {
   let response = new ResponseMock(callback);
   const agent = new WebhookClient({request: request, response: response});
+
+  agent.middleware((agent) => {
+    if (agent.intent === 'Custom Intent') {
+      agent.setContext({
+        name: 'other',
+        lifespan: 2,
+        parameters: {city: 'Toronto'},
+      });
+    }
+  });
   /**
    * Handler function to welcome
    * @param {Object} agent
@@ -254,6 +264,12 @@ const mockSimulatorV2ResponseOther = {
         'projects/agent52-3e1ea/agent/sessions/669d7da3-de6f-4b1d-8394-d79c6973e516/contexts/weather',
       lifespanCount: 2,
       parameters: {city: 'Rome'},
+    },
+    {
+      name:
+        'projects/agent52-3e1ea/agent/sessions/669d7da3-de6f-4b1d-8394-d79c6973e516/contexts/other',
+      lifespanCount: 2,
+      parameters: {city: 'Toronto'},
     },
   ],
 };
