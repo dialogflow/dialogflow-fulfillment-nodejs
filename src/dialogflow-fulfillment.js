@@ -499,7 +499,7 @@ class WebhookClient {
       || SUPPORTED_PLATFORMS.indexOf(this.requestSource) < 0) {
       this.client.addMessagesResponse_(requestSource);
     }
-    if (payload) {
+    if (payload && !payload.sendAsMessage) {
       this.client.addPayloadResponse_(payload, requestSource);
     }
     this.client.sendResponses_(requestSource);
