@@ -133,7 +133,7 @@ class V1Agent {
      * Original request language code (i.e. "en")
      * @type {string} locale language code indicating the spoken/written language of the original request
      */
-     this.agent.locale = this.agent.request_.body.lang;
+    this.agent.locale = this.agent.request_.body.lang;
 
     /**
      * List of messages defined in Dialogflow's console for the matched intent
@@ -209,12 +209,17 @@ class V1Agent {
    */
   sendResponses_(requestSource) {
     let responseJson = this.responseJson_;
+
+    if (this.agent.followupEvent_) {
+      responseJson = responseJson || {};
+      responseJson.followupEvent = this.agent.followupEvent_;
+    }
+
     if (!responseJson) {
       throw new Error(`No responses defined for platform: ${requestSource}`);
     }
 
     responseJson.contextOut = this.agent.context.getV1OutputContextsArray();
-    this.agent.followupEvent_ ? responseJson.followupEvent = this.agent.followupEvent_ : undefined;
 
     debug('Response to Dialogflow: ' + JSON.stringify(responseJson));
     this.agent.response_.json(responseJson);
@@ -230,9 +235,8 @@ class V1Agent {
    */
   buildResponseMessages_(requestSource) {
     // Get all the messages and filter out null/undefined objects
-    const responseMessages = this.agent.responseMessages_
-      .map((message) => message.getV1ResponseObject_(requestSource))
-      .filter((arr) => arr);
+    const responseMessages = this.agent.responseMessages_.map((message) => message.getV1ResponseObject_(requestSource)).
+      filter((arr) => arr);
     return responseMessages;
   }
 
@@ -279,14 +283,14 @@ class V1Agent {
    */
   addActionsOnGoogle_(response) {
     if (response.contextOut) {
-      response.contextOut.forEach( (context) => {
+      response.contextOut.forEach((context) => {
         this.addContext_(context);
       });
     }
 
     this.agent.add(new PayloadResponse(
       PLATFORMS.ACTIONS_ON_GOOGLE,
-      response.data.google)
+      response.data.google),
     );
   }
 
@@ -314,14 +318,14 @@ class V1Agent {
     let richConsoleMessages = []; // list of messages to be returned
 
     // iterate through each message recived in the webhook request
-    consoleMessageList.forEach( (consoleMessageJson) => {
+    consoleMessageList.forEach((consoleMessageJson) => {
       if (richResponseMapping[consoleMessageJson.type]) {
         // convert the JSON to fufillment classes
         let richResponse = richResponseMapping[consoleMessageJson.type](
           consoleMessageJson,
-          V1_TO_V2_PLATFORM_NAME[consoleMessageJson.platform]
+          V1_TO_V2_PLATFORM_NAME[consoleMessageJson.platform],
         );
-        richResponse ? richConsoleMessages = richConsoleMessages.concat(richResponse): null;
+        richResponse ? richConsoleMessages = richConsoleMessages.concat(richResponse) : null;
       } else {
         debug(`Unsupported console message type "${richMessageType}"`);
       }
@@ -338,8 +342,11 @@ class V1Agent {
    * @private
    */
   convertTextJson_(messageJson, platform) {
-    if (!messageJson.speech) return null;
-    else return new Text({text: messageJson.speech, platform: platform});
+    if (!messageJson.speech) {
+      return null;
+    } else {
+      return new Text({text: messageJson.speech, platform: platform});
+    }
   }
 
   /**
@@ -351,14 +358,14 @@ class V1Agent {
    * @private
    */
   convertCardJson_(messageJson, platform) {
-   return new Card({
-          title: messageJson.title || ' ',
-          text: messageJson.subtitle,
-          imageUrl: messageJson.imageUrl,
-          buttonText: messageJson.buttons ? messageJson.buttons[0].text: null,
-          buttonUrl: messageJson.buttons ? messageJson.buttons[0].postback: null,
-          platform: platform,
-        });
+    return new Card({
+      title: messageJson.title || ' ',
+      text: messageJson.subtitle,
+      imageUrl: messageJson.imageUrl,
+      buttonText: messageJson.buttons ? messageJson.buttons[0].text : null,
+      buttonUrl: messageJson.buttons ? messageJson.buttons[0].postback : null,
+      platform: platform,
+    });
   }
 
   /**
@@ -372,11 +379,11 @@ class V1Agent {
   convertQuickRepliesJson_(messageJson, platform) {
     if (!messageJson.suggestions) return null;
     let suggestions = [];
-    messageJson.suggestions.forEach( (consoleMessageJson, iterator) => {
+    messageJson.suggestions.forEach((consoleMessageJson, iterator) => {
       suggestions.push(new Suggestion({
-         title: messageJson.replies[iterator],
-         platform: platform,
-       }));
+        title: messageJson.replies[iterator],
+        platform: platform,
+      }));
     });
     return suggestions;
   }
@@ -436,13 +443,13 @@ class V1Agent {
    */
   convertBasicCardJson_(messageJson, platform) {
     return new Card({
-           title: messageJson.title || ' ',
-           text: messageJson.formattedText,
-           imageUrl: messageJson.image ? messageJson.image.url : null,
-           buttonText: messageJson.buttons.length != 0 ? messageJson.buttons[0].title : null,
-           buttonUrl: messageJson.buttons.length != 0 ? messageJson.buttons[0].openUrlAction.url : null,
-           platform: platform,
-         });
+      title: messageJson.title || ' ',
+      text: messageJson.formattedText,
+      imageUrl: messageJson.image ? messageJson.image.url : null,
+      buttonText: messageJson.buttons.length != 0 ? messageJson.buttons[0].title : null,
+      buttonUrl: messageJson.buttons.length != 0 ? messageJson.buttons[0].openUrlAction.url : null,
+      platform: platform,
+    });
   }
 
   /**
@@ -456,11 +463,11 @@ class V1Agent {
   convertSuggestionsJson_(messageJson, platform) {
     if (!messageJson.suggestions) return null;
     let suggestions = [];
-    messageJson.suggestions.forEach( (consoleMessageJson, iterator) => {
-     suggestions.push(new Suggestion({
-       title: messageJson.suggestions[iterator].title,
-       platform: platform,
-     }));
+    messageJson.suggestions.forEach((consoleMessageJson, iterator) => {
+      suggestions.push(new Suggestion({
+        title: messageJson.suggestions[iterator].title,
+        platform: platform,
+      }));
     });
     return suggestions;
   }

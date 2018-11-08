@@ -262,6 +262,30 @@ test('Test v1 followup events', async (t) => {
   t.deepEqual(complexEventJson, agent.followupEvent_);
 });
 
+test('Test v1 followupEvent only response', async (t) => {
+  // Request with Knowledge connector response
+  let request = {body: mockGoogleV1Request};
+  const complexEvent = {
+    name: 'weather',
+    parameters: {city: 'Rome'},
+    languageCode: 'en',
+  };
+  const complexEventJson = {
+    name: 'weather',
+    data: {city: 'Rome'},
+  };
+
+  webhookTest(
+    request,
+    (agent) => {
+      agent.setFollowupEvent(complexEvent);
+    },
+    (responseJson) => {
+      t.deepEqual(responseJson.followupEvent, complexEventJson);
+    },
+  );
+});
+
 test('Test v1 original request', async (t) => {
   let response = new ResponseMock();
 
