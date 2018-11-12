@@ -96,8 +96,8 @@ class V2Agent {
      * @type {string}
      */
     if (this.agent.request_.body.queryResult.outputContexts) {
-      this.agent.contexts = this.agent.request_.body.queryResult.outputContexts
-        .map((context) => this.convertV2ContextToV1Context_(context));
+      this.agent.contexts = this.agent.request_.body.queryResult.outputContexts.map(
+        (context) => this.convertV2ContextToV1Context_(context));
     } else {
       this.agent.contexts = [];
     }
@@ -239,14 +239,17 @@ class V2Agent {
    */
   sendResponses_(requestSource) {
     let responseJson = this.responseJson_;
+
+    if (this.agent.followupEvent_) {
+      responseJson = responseJson || {};
+      responseJson.followupEventInput = this.agent.followupEvent_;
+    }
+
     if (!responseJson) {
       throw new Error(`No responses defined for platform: ${requestSource}`);
     }
 
     responseJson.outputContexts = this.agent.context.getV2OutputContextsArray();
-    if (this.agent.followupEvent_) {
-      responseJson.followupEventInput = this.agent.followupEvent_;
-    }
     if (this.agent.endConversation_) {
       responseJson.triggerEndOfConversation = this.agent.endConversation_;
     }
@@ -264,9 +267,8 @@ class V2Agent {
    * @private
    */
   buildResponseMessages_(requestSource) {
-    return this.agent.responseMessages_
-      .map((message) => message.getV2ResponseObject_(requestSource))
-      .filter((arr) => arr);
+    return this.agent.responseMessages_.map((message) => message.getV2ResponseObject_(requestSource)).
+      filter((arr) => arr);
   }
 
   /**
@@ -332,14 +334,14 @@ class V2Agent {
    */
   addActionsOnGoogle_(response) {
     if (response.outputContexts) {
-      response.outputContexts.forEach( (context) => {
+      response.outputContexts.forEach((context) => {
         this.addContext_(context);
       });
     }
 
     this.agent.add(new PayloadResponse(
       PLATFORMS.ACTIONS_ON_GOOGLE,
-      response.payload.google)
+      response.payload.google),
     );
   }
 
@@ -366,13 +368,13 @@ class V2Agent {
     let richConsoleMessages = []; // list of messages to be returned
 
     // iterate through each message recived in the webhook request
-    consoleMessageList.forEach( (consoleMessageJson) => {
+    consoleMessageList.forEach((consoleMessageJson) => {
       const richMessageType = Object.keys(consoleMessageJson).find((key) => key !== 'platform');
       if (richResponseMapping[richMessageType]) {
         const messagePlatform = consoleMessageJson.platform ? consoleMessageJson.platform : undefined;
         // convert the JSON to fufillment classes
         let richResponse = richResponseMapping[richMessageType](consoleMessageJson, messagePlatform);
-        richResponse ? richConsoleMessages = richConsoleMessages.concat(richResponse): null;
+        richResponse ? richConsoleMessages = richConsoleMessages.concat(richResponse) : null;
       } else {
         debug(`Unsupported console message type "${richMessageType}"`);
       }
@@ -389,8 +391,11 @@ class V2Agent {
    * @private
    */
   convertTextJson_(messageJson, platform) {
-    if (!messageJson.text.text[0]) return null;
-    else return new Text({text: messageJson.text.text[0], platform: platform});
+    if (!messageJson.text.text[0]) {
+      return null;
+    } else {
+      return new Text({text: messageJson.text.text[0], platform: platform});
+    }
   }
 
   /**
@@ -402,14 +407,14 @@ class V2Agent {
    * @private
    */
   convertCardJson_(messageJson, platform) {
-   return new Card({
-          title: messageJson.card.title || ' ',
-          text: messageJson.card.subtitle,
-          imageUrl: messageJson.card.imageUri,
-          buttonText: messageJson.card.buttons ? messageJson.card.buttons[0].text: null,
-          buttonUrl: messageJson.card.buttons ? messageJson.card.buttons[0].postback: null,
-          platform: platform,
-        });
+    return new Card({
+      title: messageJson.card.title || ' ',
+      text: messageJson.card.subtitle,
+      imageUrl: messageJson.card.imageUri,
+      buttonText: messageJson.card.buttons ? messageJson.card.buttons[0].text : null,
+      buttonUrl: messageJson.card.buttons ? messageJson.card.buttons[0].postback : null,
+      platform: platform,
+    });
   }
 
   /**
@@ -421,10 +426,10 @@ class V2Agent {
    * @private
    */
   convertImageJson_(messageJson, platform) {
-   return new Image({
-     imageUrl: messageJson.image.imageUri,
-     platform: platform,
-   });
+    return new Image({
+      imageUrl: messageJson.image.imageUri,
+      platform: platform,
+    });
   }
 
   /**
@@ -453,11 +458,11 @@ class V2Agent {
   convertQuickRepliesJson_(messageJson, platform) {
     if (!messageJson.suggestions) return null;
     let suggestions = [];
-    messageJson.suggestions.forEach( (consoleMessageJson, iterator) => {
-     suggestions.push(new Suggestion({
-       title: messageJson.quickReplies.quickReplies[iterator],
-       platform: platform,
-     }));
+    messageJson.suggestions.forEach((consoleMessageJson, iterator) => {
+      suggestions.push(new Suggestion({
+        title: messageJson.quickReplies.quickReplies[iterator],
+        platform: platform,
+      }));
     });
     return suggestions;
   }
@@ -471,10 +476,10 @@ class V2Agent {
    * @private
    */
   convertSimpleResponsesJson_(messageJson, platform) {
-   return new Text({
-     text: messageJson.simpleResponses.simpleResponses[0].textToSpeech,
-     platform: platform,
-   });
+    return new Text({
+      text: messageJson.simpleResponses.simpleResponses[0].textToSpeech,
+      platform: platform,
+    });
   }
 
   /**
@@ -486,14 +491,14 @@ class V2Agent {
    * @private
    */
   convertBasicCardJson_(messageJson, platform) {
-   return new Card({
-          title: messageJson.basicCard.title || ' ',
-          text: messageJson.basicCard.formattedText,
-          imageUrl: messageJson.basicCard.image ? messageJson.basicCard.image.imageUri : null,
-          buttonText: messageJson.basicCard.buttons ? messageJson.basicCard.buttons[0].title : null,
-          buttonUrl: messageJson.basicCard.buttons ? messageJson.basicCard.buttons[0].openUriAction.uri : null,
-          platform: platform,
-        });
+    return new Card({
+      title: messageJson.basicCard.title || ' ',
+      text: messageJson.basicCard.formattedText,
+      imageUrl: messageJson.basicCard.image ? messageJson.basicCard.image.imageUri : null,
+      buttonText: messageJson.basicCard.buttons ? messageJson.basicCard.buttons[0].title : null,
+      buttonUrl: messageJson.basicCard.buttons ? messageJson.basicCard.buttons[0].openUriAction.uri : null,
+      platform: platform,
+    });
   }
 
   /**
@@ -507,11 +512,11 @@ class V2Agent {
   convertSuggestionsJson_(messageJson, platform) {
     if (!messageJson.suggestions) return null;
     let suggestions = [];
-    messageJson.suggestions.suggestions.forEach( (consoleMessageJson, iterator) => {
-     suggestions.push(new Suggestion({
-       title: messageJson.suggestions.suggestions[iterator].title,
-       platform: platform,
-     }));
+    messageJson.suggestions.suggestions.forEach((consoleMessageJson, iterator) => {
+      suggestions.push(new Suggestion({
+        title: messageJson.suggestions.suggestions[iterator].title,
+        platform: platform,
+      }));
     });
     return suggestions;
   }
