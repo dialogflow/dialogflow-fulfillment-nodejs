@@ -34,11 +34,11 @@ const agent = new WebhookClient({request: request, response: response});
 ## Samples
 | Name                                 | Language                         |
 | ------------------------------------ |:---------------------------------|
-|[Dialogflow Fulfillment & Actions on Google](https://github.com/dialogflow/fulfillment-actions-library-nodejs) | Node.js |
+| [Dialogflow Fulfillment & Actions on Google](https://github.com/dialogflow/fulfillment-actions-library-nodejs) | Node.js |
 | [Dialogflow & Firebase's Firestore DB](https://github.com/dialogflow/fulfillment-firestore-nodejs) | Node.js |
 | [Bike Shop-Google Calendar API](https://github.com/dialogflow/fulfillment-bike-shop-nodejs)| Node.js|
 | [Temperature Trivia](https://github.com/dialogflow/fulfillment-temperature-converter-nodejs) | Node.js |
-|[Multi-language/locale](https://github.com/dialogflow/fulfillment-multi-locale-nodejs)| Node.js |
+| [Multi-language/locale](https://github.com/dialogflow/fulfillment-multi-locale-nodejs)| Node.js |
 | [Dialogflow's Inline Editor Template](https://github.com/dialogflow/fulfillment-webhook-nodejs)| Node.js |
 
 ## References & Issues
@@ -46,7 +46,7 @@ const agent = new WebhookClient({request: request, response: response});
 + For bugs, please report an issue on [Github](https://github.com/dialogflow/dialogflow-fulfillment-nodejs/issues).
 + Dialogflow [Documentation](https://docs.dialogflow.com).
 + [Dialogflow WebhookClient class reference doc](https://dialogflow.com/docs/reference/fulfillment-library/webhook-client).
-+ [Dialogflow rich response classes reference doc](https://dialogflow.com/docs/reference/fulfillment-library/webhook-client).
++ [Dialogflow rich response classes reference doc](https://dialogflow.com/docs/reference/fulfillment-library/rich-responses).
 + For more info on [Actions on Google NPM module](https://github.com/actions-on-google/actions-on-google-nodejs)
 + For more info on [Building Actions on Google with Dialogflow Agents Documentation](https://developers.google.com/actions/dialogflow/)
 
