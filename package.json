@@ -9,7 +9,7 @@
     "test": "test"
   },
   "engines": {
-    "node": "6"
+    "node": ">=6.0.0"
   },
   "scripts": {
     "test": "npm run lint && ava",
