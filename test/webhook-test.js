@@ -80,7 +80,13 @@ test('Actions on Google lib integration test', async (t) => {
   const googleV1Request = {body: mockGoogleV1Request}; // mockV1SimulatorRequest
   actionsOnGoogleTest(googleV1Request, (responseJson) => {
     t.deepEqual(responseJson, {
-      'contextOut': [],
+      'contextOut': [{
+        lifespan: 99,
+        name: '_actions_on_google',
+        parameters: {
+          data: '{}',
+        },
+      }],
       'data': {
         'google': {
           'expectUserResponse': true,
@@ -93,16 +99,23 @@ test('Actions on Google lib integration test', async (t) => {
               },
             ],
           },
+          'userStorage': '{"data":{}}',
         },
       },
     });
   });
 
   // v2 Actions on Google library integration
-  const googleV2Request = {body: mockGoogleV2Request}; // mockV1SimulatorRequest
+  const googleV2Request = {body: mockGoogleV2Request};
   actionsOnGoogleTest(googleV2Request, (responseJson) => {
     t.deepEqual(responseJson, {
-      'outputContexts': [],
+      'outputContexts': [{
+        lifespanCount: 99,
+        name: 'projects/stagent-f2236/agent/sessions/1515017715285/contexts/_actions_on_google',
+        parameters: {
+          data: '{}',
+        },
+      }],
       'payload': {
         'google': {
           'expectUserResponse': true,
@@ -115,11 +128,51 @@ test('Actions on Google lib integration test', async (t) => {
               },
             ],
           },
+          'userStorage': '{"data":{}}',
         },
       },
     });
   });
 });
+
+test('500 response for missing messages', async (t) => {
+  let simulatorRequestV1 = {body: mockSimulatorV1Request};
+  noResponsesTest(simulatorRequestV1, (responseJson) => {
+    t.deepEqual(
+      'No responses defined for platform: null',
+      responseJson
+    );
+  });
+
+  let facebookV2Request = {body: mockFacebookV2RequestWebhook};
+  noResponsesTest(facebookV2Request, (responseJson) => {
+    t.deepEqual(
+      'No responses defined for platform: FACEBOOK',
+      responseJson
+    );
+  });
+});
+
+/**
+ * Adds suggestions to response
+ * @param {Object} request express object
+ * @param {function} callback
+ */
+function noResponsesTest(request, callback) {
+  // v1 simulator webhook request
+  let response = new ResponseMock(callback);
+  let agent = new WebhookClient({
+    request: request,
+    response: response,
+  });
+  /**
+   * Handler function to other
+   * @param {Object} agent
+   */
+  function handler(agent) {}
+
+  agent.handleRequest(handler);
+}
 
 /**
  * Adds suggestions to response

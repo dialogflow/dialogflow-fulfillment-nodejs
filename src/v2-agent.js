@@ -33,6 +33,9 @@ const PayloadResponse = require('./rich-responses/payload-response');
 // Contexts class
 const Contexts = require('./contexts');
 
+// Failed response constants
+const ERROR_HTTP_STATUS_CODE = 500;
+
 /**
  * Class representing a v2 Dialogflow agent
  */
@@ -246,16 +249,16 @@ class V2Agent {
     }
 
     if (!responseJson) {
-      throw new Error(`No responses defined for platform: ${requestSource}`);
+      console.error(`No responses defined for platform: ${requestSource}`);
+      this.agent.response_.status(ERROR_HTTP_STATUS_CODE).send(`No responses defined for platform: ${requestSource}`);
+    } else {
+      responseJson.outputContexts = this.agent.context.getV2OutputContextsArray();
+      if (this.agent.endConversation_) {
+        responseJson.triggerEndOfConversation = this.agent.endConversation_;
+      }
+      debug('Response to Dialogflow: ' + JSON.stringify(responseJson));
+      this.agent.response_.json(responseJson);
     }
-
-    responseJson.outputContexts = this.agent.context.getV2OutputContextsArray();
-    if (this.agent.endConversation_) {
-      responseJson.triggerEndOfConversation = this.agent.endConversation_;
-    }
-
-    debug('Response to Dialogflow: ' + JSON.stringify(responseJson));
-    this.agent.response_.json(responseJson);
   }
 
   /**
@@ -476,8 +479,10 @@ class V2Agent {
    * @private
    */
   convertSimpleResponsesJson_(messageJson, platform) {
+    const message = messageJson.simpleResponses.simpleResponses[0];
     return new Text({
-      text: messageJson.simpleResponses.simpleResponses[0].textToSpeech,
+      text: message.textToSpeech || message.displayText,
+      ssml: message.ssml,
       platform: platform,
     });
   }

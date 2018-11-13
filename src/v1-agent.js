@@ -33,6 +33,9 @@ const PayloadResponse = require('./rich-responses/payload-response');
 // Contexts class
 const Contexts = require('./contexts');
 
+// Failed response constants
+const ERROR_HTTP_STATUS_CODE = 500;
+
 /**
  * Class representing a v1 Dialogflow agent
  */
@@ -216,13 +219,13 @@ class V1Agent {
     }
 
     if (!responseJson) {
-      throw new Error(`No responses defined for platform: ${requestSource}`);
+      console.error(`No responses defined for platform: ${requestSource}`);
+      this.agent.response_.status(ERROR_HTTP_STATUS_CODE).send(`No responses defined for platform: ${requestSource}`);
+    } else {
+      responseJson.contextOut = this.agent.context.getV1OutputContextsArray();
+      debug('Response to Dialogflow: ' + JSON.stringify(responseJson));
+      this.agent.response_.json(responseJson);
     }
-
-    responseJson.contextOut = this.agent.context.getV1OutputContextsArray();
-
-    debug('Response to Dialogflow: ' + JSON.stringify(responseJson));
-    this.agent.response_.json(responseJson);
   }
 
   /**
@@ -429,6 +432,7 @@ class V1Agent {
   convertSimpleResponsesJson_(messageJson, platform) {
     return new Text({
       text: messageJson.textToSpeech,
+      ssml: messageJson.ssml,
       platform: platform,
     });
   }

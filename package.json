@@ -2,7 +2,7 @@
   "name": "dialogflow-fulfillment",
   "description": "Dialogflow Fulfillment Library for Node.js",
   "main": "src/dialogflow-fulfillment.js",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "license": "Apache-2.0",
   "author": "Google Inc.",
   "directories": {
@@ -13,6 +13,7 @@
   },
   "scripts": {
     "test": "npm run lint && ava",
+    "test:ci": "ava",
     "lint": "eslint --fix \"src/**/*.js\" \"test/*.js\" \"script/*.js\"",
     "docs": "node ./generateDocs.js",
     "zip": "npm run zip:actions-on-google && npm run zip:multilocale && npm run zip:temperature-converter && npm run zip:quick-start",

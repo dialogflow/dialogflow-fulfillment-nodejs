@@ -443,6 +443,7 @@ test('Test v2 consoleMessages', async (t) => {
   const actionsOnGoogleText = consoleMessages[5];
   t.true(actionsOnGoogleText instanceof Text);
   t.is(actionsOnGoogleText.text, 'Actions on Google simple response');
+  t.is(actionsOnGoogleText.ssml, '<speak>simple repsonse ssml</speak>');
   t.is(actionsOnGoogleText.platform, PLATFORMS.ACTIONS_ON_GOOGLE);
   // Actions on Google card
   const actionsOnGoogleCard = consoleMessages[6];
@@ -1357,7 +1358,8 @@ const mockV2MulipleConsoleMessages = {
         'simpleResponses': {
           'simpleResponses': [
             {
-              'textToSpeech': 'Actions on Google simple response',
+              'displayText': 'Actions on Google simple response',
+              'ssml': '<speak>simple repsonse ssml</speak>',
             },
           ],
         },
