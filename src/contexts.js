@@ -14,14 +14,8 @@
  * limitations under the License.
  */
 
-const debug = require('debug')('dialogflow:debug');
 const _ = require('lodash');
-
-// Configure logging for hosting platforms that only support console.log and console.error
-debug.log = console.log.bind(console);
-
 const DELETED_LIFESPAN_COUNT = 0; // Lifespan of a deleted context
-
 
 /**
  * This is the class that handles Dialogflow's contexts for the WebhookClient class

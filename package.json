@@ -42,7 +42,7 @@
     "lodash": "^4.17.11"
   },
   "peerDependencies": {
-    "actions-on-google": "^2.4.1"
+    "actions-on-google": "^2.5.0"
   },
   "devDependencies": {
     "ava": "^0.24.0",

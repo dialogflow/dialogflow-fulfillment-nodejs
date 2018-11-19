@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-const debug = require('debug')('dialogflow:debug');
+const {debug, error} = require('./common');
 
-// Configure logging for hosting platforms agent only support console.log and console.error
+// Configure logging for hosting platforms agent only support console.log and error
 debug.log = console.log.bind(console);
 
 // Response Builder classes
@@ -219,7 +219,7 @@ class V1Agent {
     }
 
     if (!responseJson) {
-      console.error(`No responses defined for platform: ${requestSource}`);
+      error(`No responses defined for platform: ${requestSource}`);
       this.agent.response_.status(ERROR_HTTP_STATUS_CODE).send(`No responses defined for platform: ${requestSource}`);
     } else {
       responseJson.contextOut = this.agent.context.getV1OutputContextsArray();

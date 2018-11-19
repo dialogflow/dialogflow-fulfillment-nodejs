@@ -13,12 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const {DialogflowConversation} = require('actions-on-google');
-const debug = require('debug')('dialogflow:debug');
-
-// Configure logging for hosting platforms that only support console.log and console.error
-debug.log = console.log.bind(console);
-
+const {debug, error, DialogflowConversation} = require('./common');
 // Response and agent classes
 const Text = require('./rich-responses/text-response');
 const Card = require('./rich-responses/card-response');
@@ -305,8 +300,12 @@ class WebhookClient {
     }
 
     if (!(handler instanceof Map)) {
+      error('handleRequest argument must be a function or map of intent names to functions');
+      this.response_
+        .status(RESPONSE_CODE_BAD_REQUEST)
+        .status('handleRequest argument must be a function or map of intent names to functions');
       return Promise.reject( new Error(
-        'handleRequest must contain a map of Dialogflow intent names to function handlers'
+        'handleRequest argument must be a function or map of intent names to functions'
       ));
     }
 
@@ -321,7 +320,7 @@ class WebhookClient {
       let promise = Promise.resolve(result);
       return promise.then(() => this.send_());
     } else {
-      debug('No handler for requested intent');
+      error('No handler for requested intent');
       this.response_
         .status(RESPONSE_CODE_BAD_REQUEST)
         .status('No handler for requested intent');
