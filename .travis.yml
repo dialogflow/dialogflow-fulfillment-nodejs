@@ -3,5 +3,5 @@ node_js:
   - "8"
   - "6"
 before_install:
-  - npm i -g action-on-google@^2.5.0
+  - npm i -g actions-on-google@^2.5.0
 script: npm run test:ci
