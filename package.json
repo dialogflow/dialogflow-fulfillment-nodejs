@@ -13,7 +13,7 @@
   },
   "scripts": {
     "test": "npm run lint && ava",
-    "test:ci": "ava",
+    "test:ci": "npm i actions-on-google@^2.5.0 && ava",
     "lint": "eslint --fix \"src/**/*.js\" \"test/*.js\" \"script/*.js\"",
     "docs": "node ./generateDocs.js",
     "zip": "npm run zip:actions-on-google && npm run zip:multilocale && npm run zip:temperature-converter && npm run zip:quick-start",
