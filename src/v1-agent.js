@@ -293,7 +293,7 @@ class V1Agent {
 
     this.agent.add(new PayloadResponse(
       PLATFORMS.ACTIONS_ON_GOOGLE,
-      response.data.google),
+      response.data.google)
     );
   }
 
@@ -326,7 +326,7 @@ class V1Agent {
         // convert the JSON to fufillment classes
         let richResponse = richResponseMapping[consoleMessageJson.type](
           consoleMessageJson,
-          V1_TO_V2_PLATFORM_NAME[consoleMessageJson.platform],
+          V1_TO_V2_PLATFORM_NAME[consoleMessageJson.platform]
         );
         richResponse ? richConsoleMessages = richConsoleMessages.concat(richResponse) : null;
       } else {

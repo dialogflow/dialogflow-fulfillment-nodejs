@@ -341,7 +341,7 @@ class V2Agent {
 
     this.agent.add(new PayloadResponse(
       PLATFORMS.ACTIONS_ON_GOOGLE,
-      response.payload.google),
+      response.payload.google)
     );
   }
 
