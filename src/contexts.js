@@ -196,17 +196,17 @@ class Context {
    * @private
    */
   _processV2InputContexts(v2InputContexts) {
-      let contexts = {};
-      for (let index = 0; index<v2InputContexts.length; index++) {
-          let context = v2InputContexts[index];
-          const splittedName = context['name'].split('/');
-          const name = splittedName[splittedName.indexOf('contexts') + 1];
-          contexts[name] = {
-              name: name,
-              lifespan: context['lifespanCount'],
-              parameters: context['parameters']};
-      }
-      return contexts;
+    let contexts = {};
+    for (let index = 0; index<v2InputContexts.length; index++) {
+      let context = v2InputContexts[index];
+      const splittedName = context['name'].split('/');
+      const name = splittedName[splittedName.indexOf('contexts') + 1];
+      contexts[name] = {
+        name: name,
+        lifespan: context['lifespanCount'],
+        parameters: context['parameters']};
+    }
+    return contexts;
   }
   /**
    * Get array of context objects formatted for v1 webhook response
