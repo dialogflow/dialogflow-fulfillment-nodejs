@@ -530,7 +530,7 @@ test('Test v2 end conversation', async (t) => {
       agent.end('thanks for talking to me!');
     },
     (responseJson) => {
-      t.deepEqual(responseJson.triggerEndOfConversation, true);
+      t.deepEqual(responseJson.end_interaction, true);
     },
   );
 });
