@@ -323,7 +323,7 @@ class WebhookClient {
       error('No handler for requested intent');
       this.response_
         .status(RESPONSE_CODE_BAD_REQUEST)
-        .status('No handler for requested intent');
+        .send('No handler for requested intent');
       return Promise.reject(new Error('No handler for requested intent'));
     }
   }
