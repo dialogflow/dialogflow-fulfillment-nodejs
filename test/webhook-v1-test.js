@@ -325,7 +325,12 @@ test('Test v1 original request', async (t) => {
 });
 
 test('Test v1 no handler defined', async (t) => {
-  let response = new ResponseMock();
+  let response = new ResponseMock((response) => {
+    t.is(
+      response,
+      'No handler for requested intent',
+    );
+  });
   let agent = new WebhookClient({
     request: {body: mockSlackV1Request},
     response: response,
