@@ -49,7 +49,7 @@ class V2Agent {
   }
 
   /**
-   * Process a v2 Dialogflow webhook request to set class varibles
+   * Process a v2 Dialogflow webhook request to set class variables
    * for action, parameters, contexts, request source and orignal user query
    *
    * @private
