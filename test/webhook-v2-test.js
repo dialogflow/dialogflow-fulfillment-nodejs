@@ -531,6 +531,7 @@ test('Test v2 end conversation', async (t) => {
     },
     (responseJson) => {
       t.deepEqual(responseJson.triggerEndOfConversation, true);
+      t.deepEqual(responseJson.end_interaction, true);
     },
   );
 });
