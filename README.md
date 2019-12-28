@@ -14,7 +14,7 @@ Dialogflow Fulfillment makes creating fulfillment for Dialogflow v1 and v2 agent
 
 This library is intended to help build Node.js Dialogflow Fulfillment for multiple [integrations](https://dialogflow.com/docs/integrations/) including Google Assistant, Slack, Facebook, Telegram, Kik, Skype, Line, and Viber. See the reference documentation for more: https://dialogflow.com/docs/reference/fulfillment-library/webhook-client
 
-If only building Dialogflow Fulfillment for the [Google Assistant](https://dialogflow.com/docs/integrations/google-assistant) and no other integrations, use the Actions of Google NPM module ([actions-on-google](https://www.npmjs.com/package/actions-on-google)) which supports all Actions on Google features.
+If only building Dialogflow Fulfillment for the [Google Assistant](https://dialogflow.com/docs/integrations/google-assistant) and no other integrations, use the Actions on Google NPM module ([actions-on-google](https://www.npmjs.com/package/actions-on-google)) which supports all Actions on Google features.
 
 ## Quick Start
 1. [Sign-up/Log-in to Dialogflow](https://console.dialogflow.com/api-client/#/login)
