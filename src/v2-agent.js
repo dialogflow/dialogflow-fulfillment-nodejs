@@ -371,7 +371,7 @@ class V2Agent {
     consoleMessageList.forEach((consoleMessageJson) => {
       const richMessageType = Object.keys(consoleMessageJson).find((key) => key !== 'platform');
       if (richResponseMapping[richMessageType]) {
-        const messagePlatform = consoleMessageJson.platform ? consoleMessageJson.platform : undefined;
+        const messagePlatform = consoleMessageJson.platform ? consoleMessageJson.platform : PLATFORMS.UNSPECIFIED;
         // convert the JSON to fufillment classes
         let richResponse = richResponseMapping[richMessageType](consoleMessageJson, messagePlatform);
         richResponse ? richConsoleMessages = richConsoleMessages.concat(richResponse) : null;
