@@ -205,6 +205,14 @@ class WebhookClient {
     this.alternativeQueryResults = null;
 
     /**
+     * List of middlewares defined by the developer
+     *
+     * @private
+     * @type {Object[]}
+     */
+    this.middlewares_ = [];
+
+    /**
      * Platform contants, to define platforms, includes supported platforms and unspecified
      * @example
      * const { WebhookClient } = require('dialogflow-webhook');
@@ -309,6 +317,10 @@ class WebhookClient {
       ));
     }
 
+    for (const middleware of this.middlewares_) {
+      middleware(this);
+    }
+
     if (handler.get(this.intent)) {
       let result = handler.get(this.intent)(this);
       // If handler is a promise use it, otherwise create use default (empty) promise
@@ -328,6 +340,32 @@ class WebhookClient {
     }
   }
 
+  /**
+   * Add a middleware function
+   *
+   * * @example
+   * const { WebhookClient } = require('dialogflow-webhook');
+   * const agent = new WebhookClient({request: request, response: response});
+   * class Helper {
+   *   constructor(agent) {
+   *     this.agent = agent;
+   *   }
+   *
+   *   func1() {
+   *     this.agent.add(`What's up?`);
+   *   }
+   * }
+   * agent.middleware(a => {
+   *       a.helper = new Helper(a);
+   * });
+   *
+   * @param {requestCallback} handler
+   */
+  middleware(handler) {
+    if (typeof handler === 'function') {
+      this.middlewares_.push(handler);
+    }
+  }
   // --------------------------------------------------------------------------
   //          Deprecated Context methods
   // --------------------------------------------------------------------------
