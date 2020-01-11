@@ -17,10 +17,7 @@
 const {debug, error} = require('./common');
 
 // Response Builder classes
-const {
-  V1_TO_V2_PLATFORM_NAME,
-  PLATFORMS,
-} = require('./rich-responses/rich-response');
+const {V1_TO_V2_PLATFORM_NAME, PLATFORMS} = require('./rich-responses/rich-response');
 const Text = require('./rich-responses/text-response');
 const Card = require('./rich-responses/card-response');
 const Image = require('./rich-responses/image-response');
@@ -85,8 +82,7 @@ class V2Agent {
      * https://dialogflow.com/docs/actions-and-parameters
      * @type {Object[]}
      */
-    this.agent.parameters =
-      this.agent.request_.body.queryResult.parameters || {}; // https://dialogflow.com/docs/actions-and-parameters
+    this.agent.parameters = this.agent.request_.body.queryResult.parameters || {}; // https://dialogflow.com/docs/actions-and-parameters
     debug(`Parameters: ${JSON.stringify(this.agent.parameters)}`);
 
     /**
@@ -96,8 +92,9 @@ class V2Agent {
      * @type {string}
      */
     if (this.agent.request_.body.queryResult.outputContexts) {
-      this.agent.contexts = this.agent.request_.body.queryResult.outputContexts.map(
-        (context) => this.convertV2ContextToV1Context_(context));
+      this.agent.contexts = this.agent.request_.body.queryResult.outputContexts.map((context) =>
+        this.convertV2ContextToV1Context_(context)
+      );
     } else {
       this.agent.contexts = [];
     }
@@ -108,9 +105,7 @@ class V2Agent {
      *
      * @type {Contexts}
      */
-    this.agent.context = new Contexts(
-      this.agent.request_.body.queryResult.outputContexts,
-      this.agent.session);
+    this.agent.context = new Contexts(this.agent.request_.body.queryResult.outputContexts, this.agent.session);
 
     /**
      * Dialogflow source included in the request or null if no value
@@ -120,9 +115,7 @@ class V2Agent {
     const detectIntentRequest = this.agent.request_.body.originalDetectIntentRequest;
     if (detectIntentRequest) {
       const requestSource =
-        detectIntentRequest.source ||
-        (detectIntentRequest.payload && detectIntentRequest.payload.source) ||
-        null;
+        detectIntentRequest.source || (detectIntentRequest.payload && detectIntentRequest.payload.source) || null;
       this.agent.requestSource = V1_TO_V2_PLATFORM_NAME[requestSource] || requestSource;
     }
     debug(`Request source: ${JSON.stringify(this.agent.requestSource)}`);
@@ -149,8 +142,8 @@ class V2Agent {
      * Original request language code (i.e. "en")
      * @type {string} locale language code indicating the spoken/written language of the original request
      */
-     this.agent.locale = this.agent.request_.body.queryResult.languageCode;
-     debug(`Request locale: ${JSON.stringify(this.agent.locale)}`);
+    this.agent.locale = this.agent.request_.body.queryResult.languageCode;
+    debug(`Request locale: ${JSON.stringify(this.agent.locale)}`);
 
     /**
      * List of messages defined in Dialogflow's console for the matched intent
@@ -254,7 +247,11 @@ class V2Agent {
         responseJson.triggerEndOfConversation = this.agent.endConversation_;
       }
       debug('Response to Dialogflow: ' + JSON.stringify(responseJson));
-      this.agent.response_.json(responseJson);
+      if (typeof this.agent.response_.json !== 'undefined') {
+        this.agent.response_.json(responseJson);
+      } else {
+        this.agent.response_.send(responseJson);
+      }
     }
   }
 
@@ -267,8 +264,9 @@ class V2Agent {
    * @private
    */
   buildResponseMessages_(requestSource) {
-    return this.agent.responseMessages_.map((message) => message.getV2ResponseObject_(requestSource)).
-      filter((arr) => arr);
+    return this.agent.responseMessages_
+      .map((message) => message.getV2ResponseObject_(requestSource))
+      .filter((arr) => arr);
   }
 
   /**
@@ -339,10 +337,7 @@ class V2Agent {
       });
     }
 
-    this.agent.add(new PayloadResponse(
-      PLATFORMS.ACTIONS_ON_GOOGLE,
-      response.payload.google)
-    );
+    this.agent.add(new PayloadResponse(PLATFORMS.ACTIONS_ON_GOOGLE, response.payload.google));
   }
 
   /**
@@ -374,13 +369,13 @@ class V2Agent {
         const messagePlatform = consoleMessageJson.platform ? consoleMessageJson.platform : undefined;
         // convert the JSON to fufillment classes
         let richResponse = richResponseMapping[richMessageType](consoleMessageJson, messagePlatform);
-        richResponse ? richConsoleMessages = richConsoleMessages.concat(richResponse) : null;
+        richResponse ? (richConsoleMessages = richConsoleMessages.concat(richResponse)) : null;
       } else {
         debug(`Unsupported console message type "${richMessageType}"`);
       }
     });
     return richConsoleMessages;
-  };
+  }
 
   /**
    * Convert incoming text message object JSON into a Text rich response
@@ -459,10 +454,12 @@ class V2Agent {
     if (!messageJson.suggestions) return null;
     let suggestions = [];
     messageJson.suggestions.forEach((consoleMessageJson, iterator) => {
-      suggestions.push(new Suggestion({
-        title: messageJson.quickReplies.quickReplies[iterator],
-        platform: platform,
-      }));
+      suggestions.push(
+        new Suggestion({
+          title: messageJson.quickReplies.quickReplies[iterator],
+          platform: platform,
+        })
+      );
     });
     return suggestions;
   }
@@ -515,10 +512,12 @@ class V2Agent {
     if (!messageJson.suggestions) return null;
     let suggestions = [];
     messageJson.suggestions.suggestions.forEach((consoleMessageJson, iterator) => {
-      suggestions.push(new Suggestion({
-        title: messageJson.suggestions.suggestions[iterator].title,
-        platform: platform,
-      }));
+      suggestions.push(
+        new Suggestion({
+          title: messageJson.suggestions.suggestions[iterator].title,
+          platform: platform,
+        })
+      );
     });
     return suggestions;
   }
