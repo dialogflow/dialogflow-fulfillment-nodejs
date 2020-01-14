@@ -493,8 +493,13 @@ test('Test v2 original request', async (t) => {
   );
 });
 
-test('Test v2 no handler defined', async (t) => {
-  let response = new ResponseMock();
+test('Test v2 no handler defined', async t => {
+  let response = new ResponseMock((response) => {
+    t.is(
+      response,
+      'No handler for requested intent',
+    );
+  });
   let agent = new WebhookClient({
     request: {body: mockGoogleV2Request},
     response: response,
@@ -530,7 +535,7 @@ test('Test v2 end conversation', async (t) => {
       agent.end('thanks for talking to me!');
     },
     (responseJson) => {
-      t.deepEqual(responseJson.triggerEndOfConversation, true);
+      t.deepEqual(responseJson.end_interaction, true);
     },
   );
 });
