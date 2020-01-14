@@ -252,6 +252,7 @@ class V2Agent {
       responseJson.outputContexts = this.agent.context.getV2OutputContextsArray();
       if (this.agent.endConversation_) {
         responseJson.triggerEndOfConversation = this.agent.endConversation_;
+        responseJson.end_interaction = this.agent.endConversation_;
       }
       debug('Response to Dialogflow: ' + JSON.stringify(responseJson));
       this.agent.response_.json(responseJson);
