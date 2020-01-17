@@ -27,7 +27,7 @@ const {
   SUPPORTED_RICH_MESSAGE_PLATFORMS,
 } = require('./rich-responses/rich-response');
 const V1Agent = require('./v1-agent');
-const V2Agent = require('./v2-agent');
+const BEAgent = require('./be-agent');
 
 const RESPONSE_CODE_BAD_REQUEST = 400;
 
@@ -53,9 +53,6 @@ class WebhookClient {
     if (!options.request) {
       throw new Error('Request can NOT be empty.');
     }
-    if (!options.response) {
-      throw new Error('Response can NOT be empty.');
-    }
 
     /**
      * The Express HTTP request that the endpoint receives from the Assistant.
@@ -63,13 +60,6 @@ class WebhookClient {
      * @type {Object}
      */
     this.request_ = options.request;
-
-    /**
-     * The Express HTTP response the endpoint will return to Assistant.
-     * @private
-     * @type {Object}
-     */
-    this.response_ = options.response;
 
     /**
      * The agent version (v1 or v2) based on Dialogflow webhook request
@@ -220,7 +210,7 @@ class WebhookClient {
     }
 
     if (this.agentVersion === 2) {
-      this.client = new V2Agent(this);
+      this.client = new BEAgent(this);
     } else if (this.agentVersion === 1) {
       this.client = new V1Agent(this);
     } else {
@@ -502,7 +492,7 @@ class WebhookClient {
     if (payload && !payload.sendAsMessage) {
       this.client.addPayloadResponse_(payload, requestSource);
     }
-    this.client.sendResponses_(requestSource);
+    return this.client.sendResponses_(requestSource);
   }
 
   /**
