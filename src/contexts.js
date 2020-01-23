@@ -199,7 +199,8 @@ class Context {
     let contexts = {};
     for (let index = 0; index<v2InputContexts.length; index++) {
       let context = v2InputContexts[index];
-      const name = context['name'].split('/')[6];
+      let name = context['name'].split('/');
+      name = name[name.length-1];
       contexts[name] = {
         name: name,
         lifespan: context['lifespanCount'],
