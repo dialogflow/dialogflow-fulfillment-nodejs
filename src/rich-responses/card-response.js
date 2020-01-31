@@ -52,7 +52,7 @@ class Card extends RichResponse {
   constructor(card) {
     super();
     if (card === undefined || (typeof card === 'object' && !card.title)) {
-      throw new Error('title string required by Card constructor');
+      card = '';
     }
     if (typeof card === 'string') {
       this.title = card;
