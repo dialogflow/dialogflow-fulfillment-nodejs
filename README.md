@@ -1,4 +1,6 @@
-Warning: This library is no longer maintained. It should only be used when using the [inline editor](https://cloud.google.com/dialogflow/docs/quick/fulfillment#the_inline_editor).
+> __Warning:__ This library is no longer maintained. It should only be used when using the [inline editor](https://cloud.google.com/dialogflow/docs/quick/fulfillment#the_inline_editor). 
+>
+> The [Actions on Google Node.js client library](https://github.com/actions-on-google/actions-on-google-nodejs) is the [recommended](https://developers.google.com/assistant/actions/reference/nodejsv2/overview) way for accessing and interacting with the Actions on Google platform if you are creating a fulfillment webhook in JavaScript.
 
 # Dialogflow Fulfillment Library
 The [Dialogflow Fulfillment Library](https://dialogflow.com/docs/fulfillment) allows you to connect natural language understanding and processing to your own systems, APIs, and databases. Using Fulfillment, you can surface commands and information from your services to your users through a natural conversational interface.
