@@ -274,9 +274,7 @@ class WebhookClient {
       this.client.addActionsOnGoogle_(response.serialize());
     } else if (response instanceof Suggestion && this.existingSuggestion_(response.platform)) {
       this.existingSuggestion_(response.platform).addReply_(response.replies[0]);
-    } else if (response instanceof Payload && this.existingPayload_(response.platform)) {
-      throw new Error(`Payload response for ${response.platform} already defined.`);
-    } else if (response instanceof RichResponse) {
+    } else if (response instanceof Payload || response instanceof RichResponse) {
       this.responseMessages_.push(response);
     } else {
       throw new Error(`Unknown response type: "${JSON.stringify(response)}"`);
@@ -492,6 +490,10 @@ class WebhookClient {
     // if platform may support messages, send messages
     // if there is a payload, send the payload for the repsonse
     const payload = this.existingPayload_(requestSource);
+    if (payload && !payload.sendAsMessage) {
+      this.client.addPayloadResponse_(payload, requestSource);
+    }
+
     if (messages.length === 1 &&
       messages[0] instanceof Text) {
       this.client.addTextResponse_();
@@ -499,9 +501,7 @@ class WebhookClient {
       || SUPPORTED_PLATFORMS.indexOf(this.requestSource) < 0) {
       this.client.addMessagesResponse_(requestSource);
     }
-    if (payload && !payload.sendAsMessage) {
-      this.client.addPayloadResponse_(payload, requestSource);
-    }
+
     this.client.sendResponses_(requestSource);
   }
 

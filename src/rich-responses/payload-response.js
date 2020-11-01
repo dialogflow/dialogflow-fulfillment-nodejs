@@ -152,6 +152,7 @@ class Payload extends RichResponse {
     return {
       payload: this.getPayload_(this.platform),
       platform: this.platform,
+      sendAsMessage: true,
     };
   }
 }
