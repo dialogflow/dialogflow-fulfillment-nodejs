@@ -200,10 +200,11 @@ class Context {
     for (let index = 0; index < v2InputContexts.length; index++) {
       let context = v2InputContexts[index];
       let name;
-      if (context['name'].length === 7) {// Draft Environment
-        name = context['name'].split('/')[6];
-      } else if (context['name'].length === 11) { // Custom Environment (eg. production)
-        name = context['name'].split('/')[10];
+      const contextNamePath = context['name'].split('/');
+      if (contextNamePath.length === 7) {// Draft Environment
+        name = contextNamePath[6];
+      } else if (contextNamePath.length === 11) { // Custom Environment (eg. production)
+        name = contextNamePath[10];
       } else {
         throw "Unsupported context name";
       }
