@@ -84,7 +84,7 @@ class Context {
       name = name['name'];
     }
     if (!this.contexts[name]) {
-      this.contexts[name] = {name: name};
+      this.contexts[name] = { name: name };
     }
     if (lifespan !== undefined && lifespan !== null) {
       this.contexts[name].lifespan = lifespan;
@@ -177,7 +177,7 @@ class Context {
    */
   _processV1InputContexts(v1InputContexts) {
     let contexts = {};
-    for (let index = 0; index<v1InputContexts.length; index++) {
+    for (let index = 0; index < v1InputContexts.length; index++) {
       const context = v1InputContexts[index];
       contexts[context['name']] = {
         name: context['name'],
@@ -197,13 +197,22 @@ class Context {
    */
   _processV2InputContexts(v2InputContexts) {
     let contexts = {};
-    for (let index = 0; index<v2InputContexts.length; index++) {
+    for (let index = 0; index < v2InputContexts.length; index++) {
       let context = v2InputContexts[index];
-      const name = context['name'].split('/')[6];
+      let name;
+      const contextNamePath = context['name'].split('/');
+      if (contextNamePath.length === 7) {// Draft Environment
+        name = contextNamePath[6];
+      } else if (contextNamePath.length === 11) { // Custom Environment (eg. production)
+        name = contextNamePath[10];
+      } else {
+        throw "Unsupported context name";
+      }
       contexts[name] = {
         name: name,
         lifespan: context['lifespanCount'],
-        parameters: context['parameters']};
+        parameters: context['parameters']
+      };
     }
     return contexts;
   }
@@ -221,7 +230,7 @@ class Context {
         _.isEqual(ctx, this.inputContexts[ctx.name])) {
         continue;
       }
-      let v1Context = {name: ctx.name};
+      let v1Context = { name: ctx.name };
       if (ctx.lifespan !== undefined) {
         v1Context['lifespan'] = ctx.lifespan;
       }
@@ -246,7 +255,7 @@ class Context {
         _.isEqual(ctx, this.inputContexts[ctx.name])) {
         continue;
       }
-      let v2Context = {name: `${this.session}/contexts/${ctx.name}`};
+      let v2Context = { name: `${this.session}/contexts/${ctx.name}` };
       if (ctx.lifespan !== undefined) {
         v2Context['lifespanCount'] = ctx.lifespan;
       }
