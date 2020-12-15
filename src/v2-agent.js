@@ -90,14 +90,25 @@ class V2Agent {
     debug(`Parameters: ${JSON.stringify(this.agent.parameters)}`);
 
     /**
-     * Dialogflow user name included in the request or null if no value
+     * Dialogflow user first name included in the request or null if no value
      * https://dialogflow.com/docs/actions-and-parameters
      * @type {Object[]}
      */
 
-    this.agent.name =
+    this.agent.user.first_name =
       this.agent.request_.body.originalDetectIntentRequest.payload.data.from.first_name || null;
-    debug(`Username: ${JSON.stringify(this.agent.name)}`);
+    debug(`First_name: ${JSON.stringify(this.agent.name)}`);
+
+
+    /**
+     * Dialogflow user id included in the request or null if no value
+     * https://dialogflow.com/docs/actions-and-parameters
+     * @type {Object[]}
+     */
+
+    this.agent.user.id =
+      this.agent.request_.body.originalDetectIntentRequest.payload.data.from.user_id || null;
+    debug(`User_id: ${JSON.stringify(this.agent.name)}`);
 
     /**
      * Dialogflow input contexts included in the request or null if no value
