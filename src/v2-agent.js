@@ -99,6 +99,15 @@ class V2Agent {
       this.agent.request_.body.originalDetectIntentRequest.payload.data.from.first_name || null;
     debug(`First_name: ${JSON.stringify(this.agent.name)}`);
 
+    /**
+     * Dialogflow source included in the request or null if no value
+     * https://dialogflow.com/docs/actions-and-parameters
+     * @type {Object[]}
+     */
+
+    this.agent.source =
+      this.agent.request_.body.originalDetectIntentRequest.source || null;
+    debug(`Source: ${JSON.stringify(this.agent.name)}`);
 
     /**
      * Dialogflow user id included in the request or null if no value
