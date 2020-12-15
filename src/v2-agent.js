@@ -90,6 +90,16 @@ class V2Agent {
     debug(`Parameters: ${JSON.stringify(this.agent.parameters)}`);
 
     /**
+     * Dialogflow user name included in the request or null if no value
+     * https://dialogflow.com/docs/actions-and-parameters
+     * @type {Object[]}
+     */
+
+    this.agent.name =
+      this.agent.request_.body.originalDetectIntentRequest.payload.data.from.first_name || null;
+    debug(`Username: ${JSON.stringify(this.agent.name)}`);
+
+    /**
      * Dialogflow input contexts included in the request or null if no value
      * convert v2 contexts to v1 contexts
      * https://dialogflow.com/docs/contexts
