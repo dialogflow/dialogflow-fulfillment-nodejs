@@ -95,7 +95,7 @@ class V2Agent {
      * @type {Object[]}
      */
 
-    this.agent.user.first_name =
+    this.agent.first_name =
       this.agent.request_.body.originalDetectIntentRequest.payload.data.from.first_name || null;
     debug(`First_name: ${JSON.stringify(this.agent.name)}`);
 
@@ -106,7 +106,7 @@ class V2Agent {
      * @type {Object[]}
      */
 
-    this.agent.user.id =
+    this.agent.user_id =
       this.agent.request_.body.originalDetectIntentRequest.payload.data.from.user_id || null;
     debug(`User_id: ${JSON.stringify(this.agent.name)}`);
 
