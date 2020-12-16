@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-const {debug, error} = require('./common');
+const { debug, error } = require('./common');
 
 // Response Builder classes
 const {
@@ -95,13 +95,15 @@ class V2Agent {
      * @type {Object[]}
      */
 
-    const payload = this.agent.request_.body.originalDetectIntentRequest.payload.data;
-    
-    if (typeof payload !== 'undefined') {
-      if (typeof payload.from !== 'undefined') {
-        this.agent.first_name = payload.from.first_name || null;
-        this.agent.last_name = payload.from.last_name || null;
-        this.agent.user_id = payload.from.user_id || null;
+    const payload = this.agent.request_.body.originalDetectIntentRequest.payload;
+
+    if (typeof (payload) !== 'undefined') {
+      if (typeof (payload.data) !== 'undefined') {
+        if (typeof (payload.data.from) !== 'undefined') {
+          this.agent.first_name = payload.data.from.first_name || null;
+          this.agent.last_name = payload.data.from.last_name || null;
+          this.agent.user_id = payload.data.from.user_id || null;
+        }
       }
     } else {
       this.agent.first_name = null;
@@ -110,7 +112,7 @@ class V2Agent {
 
     debug(`First_name: ${JSON.stringify(this.agent.first_name)}`);
     debug(`last_name: ${JSON.stringify(this.agent.last_name)}`);
-    
+
     /**
      * Dialogflow source included in the request or null if no value
      * https://dialogflow.com/docs/actions-and-parameters
@@ -181,8 +183,8 @@ class V2Agent {
      * Original request language code (i.e. "en")
      * @type {string} locale language code indicating the spoken/written language of the original request
      */
-     this.agent.locale = this.agent.request_.body.queryResult.languageCode;
-     debug(`Request locale: ${JSON.stringify(this.agent.locale)}`);
+    this.agent.locale = this.agent.request_.body.queryResult.languageCode;
+    debug(`Request locale: ${JSON.stringify(this.agent.locale)}`);
 
     /**
      * List of messages defined in Dialogflow's console for the matched intent
@@ -221,7 +223,7 @@ class V2Agent {
   addTextResponse_() {
     const message = this.agent.responseMessages_[0];
     const fulfillmentText = message.ssml || message.text;
-    this.addJson_({fulfillmentText: fulfillmentText});
+    this.addJson_({ fulfillmentText: fulfillmentText });
   }
 
   /**
@@ -233,7 +235,7 @@ class V2Agent {
    * @private
    */
   addPayloadResponse_(payload, requestSource) {
-    this.addJson_({payload: payload.getPayload_(requestSource)});
+    this.addJson_({ payload: payload.getPayload_(requestSource) });
   }
 
   /**
@@ -246,7 +248,7 @@ class V2Agent {
   addMessagesResponse_(requestSource) {
     let messages = this.buildResponseMessages_(requestSource);
     if (messages.length > 0) {
-      this.addJson_({fulfillmentMessages: messages});
+      this.addJson_({ fulfillmentMessages: messages });
     }
   }
 
@@ -426,7 +428,7 @@ class V2Agent {
     if (!messageJson.text.text[0]) {
       return null;
     } else {
-      return new Text({text: messageJson.text.text[0], platform: platform});
+      return new Text({ text: messageJson.text.text[0], platform: platform });
     }
   }
 
