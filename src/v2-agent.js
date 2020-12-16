@@ -90,15 +90,23 @@ class V2Agent {
     debug(`Parameters: ${JSON.stringify(this.agent.parameters)}`);
 
     /**
-     * Dialogflow user first name included in the request or null if no value
+     * Dialogflow user first and last name included in the request or null if no value
      * https://dialogflow.com/docs/actions-and-parameters
      * @type {Object[]}
      */
 
-    this.agent.first_name =
-      this.agent.request_.body.originalDetectIntentRequest.payload.data.from.first_name || null;
-    debug(`First_name: ${JSON.stringify(this.agent.name)}`);
+    const payload = this.agent.request_.body.originalDetectIntentRequest.payload.data;
+    if (typeof payload !== 'undefined' && typeof payload.from !== 'undefined') {
+      this.agent.first_name = payload.from.first_name || null;
+      this.agent.last_name = payload.from.last_name || null;
+    } else {
+      this.agent.first_name = null;
+      this.agent.last_name = null;
+    }
 
+    debug(`First_name: ${JSON.stringify(this.agent.first_name)}`);
+    debug(`last_name: ${JSON.stringify(this.agent.last_name)}`);
+    
     /**
      * Dialogflow source included in the request or null if no value
      * https://dialogflow.com/docs/actions-and-parameters
