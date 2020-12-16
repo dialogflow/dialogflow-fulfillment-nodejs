@@ -96,9 +96,11 @@ class V2Agent {
      */
 
     const payload = this.agent.request_.body.originalDetectIntentRequest.payload.data;
-    if (typeof payload !== 'undefined' && typeof payload.from !== 'undefined') {
-      this.agent.first_name = payload.from.first_name || null;
-      this.agent.last_name = payload.from.last_name || null;
+    if (typeof payload !== 'undefined') {
+      if (typeof payload.from !== 'undefined') {
+        this.agent.first_name = payload.from.first_name || null;
+        this.agent.last_name = payload.from.last_name || null;
+      }
     } else {
       this.agent.first_name = null;
       this.agent.last_name = null;
