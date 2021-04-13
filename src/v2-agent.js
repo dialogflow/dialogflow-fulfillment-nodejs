@@ -213,9 +213,30 @@ class V2Agent {
    */
   addMessagesResponse_(requestSource) {
     let messages = this.buildResponseMessages_(requestSource);
-    if (messages.length > 0) {
+    if (messages.length > 0 && requestSource) {
       this.addJson_({fulfillmentMessages: messages});
+    } else if (messages.length > 0) {
+      const fulfillmentText = this.getFulfillmentText_(requestSource);
+      this.addJson_({
+        fulfillmentMessages: messages,
+        ...(fulfillmentText && {fulfillmentText}),
+      });
     }
+  }
+
+  /**
+   * Get v2 fulfillment text based on developer defined response messages
+   *
+   * @private
+   * @param {string} requestSource string indicating the source of the initial request
+   * @return {string} message objects
+   */
+  getFulfillmentText_() {
+    const textMessages = this.agent.responseMessages_.filter((message) => (message.ssml || message.text));
+    if (textMessages.length > 0) {
+      return (textMessages[0].ssml || textMessages[0].text);
+    }
+    return null;
   }
 
   /**

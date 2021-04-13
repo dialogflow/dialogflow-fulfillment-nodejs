@@ -248,6 +248,7 @@ const mockSimulatorV2ResponseOther = {
       quickReplies: {quickReplies: ['Quick Reply', 'Suggestion']},
     },
   ],
+  fulfillmentText: 'This message is from Dialogflow\'s Cloud Functions for Firebase editor!',
   outputContexts: [
     {
       name:
