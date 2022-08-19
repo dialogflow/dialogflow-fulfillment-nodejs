@@ -560,4 +560,4 @@ class WebhookClient {
   }
 }
 
-module.exports = {WebhookClient, Text, Card, Image, Suggestion, Payload};
+module.exports = {WebhookClient, Text, Card, Image, Suggestion, Payload, Platforms: PLATFORMS};
